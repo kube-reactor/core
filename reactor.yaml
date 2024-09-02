@@ -1,0 +1,79 @@
+apiVersion: krew.googlecontainertools.github.com/v1alpha2
+kind: Plugin
+metadata:
+  name: reactor
+
+spec:
+  version: "v0.1.0"
+  homepage: https://github.com/zimagi/reactor
+  shortDescription: "Kubectl plugin for managing development Kubernetes clusters"
+  description: |
+    Facilitates the creation and initialization, the runtime management, and the
+    destruction and cleaning of local Minikube Kubernetes clusters.  This cluster uses
+    Terraform provisioned and ArgoCD managed cluster service projects to create complete
+    ready to use develop clusters that try to mimic production environment as much
+    as possible.
+
+  platforms:
+  - selector:
+      matchExpressions:
+      - key: "os"
+        operator: "In"
+        values:
+        - darwin
+        - linux
+
+    uri: https://github.com/zimagi/reactor/archive/refs/tags/0.1.0.zip
+    sha256: d7079b79bf4e10e55ded435a2e862efe310e019b6c306a8ff04191238ef4b2b4
+
+    bin: "./reactor.sh"
+    files:
+    - from: "reactor-*/scripts/reactor.sh"
+      to: "./reactor.sh"
+    - from: "reactor-*/scripts/variables.sh"
+      to: "./variables.sh"
+
+    - from: "reactor-*/scripts/commands/certs.sh"
+      to: "./commands/certs.sh"
+    - from: "reactor-*/scripts/commands/init.sh"
+      to: "./commands/init.sh"
+    - from: "reactor-*/scripts/commands/update.sh"
+      to: "./commands/update.sh"
+    - from: "reactor-*/scripts/commands/up.sh"
+      to: "./commands/up.sh"
+    - from: "reactor-*/scripts/commands/shell.sh"
+      to: "./commands/shell.sh"
+    - from: "reactor-*/scripts/commands/logs.sh"
+      to: "./commands/logs.sh"
+    - from: "reactor-*/scripts/commands/dashboard.sh"
+      to: "./commands/dashboard.sh"
+    - from: "reactor-*/scripts/commands/down.sh"
+      to: "./commands/down.sh"
+    - from: "reactor-*/scripts/commands/destroy.sh"
+      to: "./commands/destroy.sh"
+    - from: "reactor-*/scripts/commands/clean.sh"
+      to: "./commands/clean.sh"
+
+    - from: "reactor-*/scripts/utilities/cli.sh"
+      to: "./utilities/cli.sh"
+    - from: "reactor-*/scripts/utilities/env.sh"
+      to: "./utilities/env.sh"
+    - from: "reactor-*/scripts/utilities/cert.sh"
+      to: "./utilities/cert.sh"
+    - from: "reactor-*/scripts/utilities/disk.sh"
+      to: "./utilities/disk.sh"
+    - from: "reactor-*/scripts/utilities/dns.sh"
+      to: "./utilities/dns.sh"
+    - from: "reactor-*/scripts/utilities/terraform.sh"
+      to: "./utilities/terraform.sh"
+    - from: "reactor-*/scripts/utilities/docker.sh"
+      to: "./utilities/docker.sh"
+    - from: "reactor-*/scripts/utilities/minikube.sh"
+      to: "./utilities/minikube.sh"
+    - from: "reactor-*/scripts/utilities/helm.sh"
+      to: "./utilities/helm.sh"
+    - from: "reactor-*/scripts/utilities/argocd.sh"
+      to: "./utilities/argocd.sh"
+
+    - from: "LICENSE"
+      to: "."
