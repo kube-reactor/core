@@ -5,7 +5,7 @@
 
 function provision_terraform () {
   if minikube_status; then
-    build_environment
+    cert_environment
 
     TERRAFORM_ARGS=(
       "--rm"

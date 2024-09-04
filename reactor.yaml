@@ -26,12 +26,12 @@ spec:
     uri: https://github.com/zimagi/reactor/archive/refs/tags/0.1.0.zip
     sha256: d7079b79bf4e10e55ded435a2e862efe310e019b6c306a8ff04191238ef4b2b4
 
-    bin: "./reactor.sh"
+    bin: "./kubectl-reactor"
     files:
-    - from: "reactor-*/scripts/reactor.sh"
-      to: "./reactor.sh"
-    - from: "reactor-*/scripts/variables.sh"
-      to: "./variables.sh"
+    - from: "reactor-*/scripts/kubectl-reactor"
+      to: "./kubectl-reactor"
+    - from: "reactor-*/scripts/state/initialize.sh"
+      to: "./state/initialize.sh"
 
     - from: "reactor-*/scripts/commands/certs.sh"
       to: "./commands/certs.sh"

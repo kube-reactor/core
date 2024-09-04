@@ -105,7 +105,7 @@ function start_zimagi_session () {
     emergency "Minikube is not running"
   fi
 
-  PODS=($("${__zimagi_binary_dir}/kubectl" get pods -n zimagi -l "app.kubernetes.io/name=zimagi" -o=jsonpath='{.items[*].metadata.name}' ))
+  PODS=($(kubectl get pods -n zimagi -l "app.kubernetes.io/name=zimagi" -o=jsonpath='{.items[*].metadata.name}' ))
 
   if ! [ ${#PODS[@]} -eq 0 ]; then
     if [ -z "$ZIMAGI_SERVICE" ]; then
@@ -115,7 +115,7 @@ function start_zimagi_session () {
       read -p "Enter number: " POD_INPUT
       ZIMAGI_SERVICE="${PODS[$POD_INPUT-1]}"
     fi
-    "${__zimagi_binary_dir}"/kubectl exec -n zimagi -ti "$ZIMAGI_SERVICE" -- bash
+    kubectl exec -n zimagi -ti "$ZIMAGI_SERVICE" -- bash
   else
     alert "Zimagi services are not running"
   fi

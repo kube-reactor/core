@@ -2,21 +2,25 @@
 #=========================================================================================
 # DNS Utilities
 #
+# Directories:
+#
+#  1. binary directory
+#
+# Environment Variables:
+#
+#  1. APP_NAME
+#  2. HOSTS_FILE
 
 function dns_ip () {
-  if [ -f "${__zimagi_binary_dir}/kubectl" ]; then
-    echo "$(${__zimagi_binary_dir}/kubectl get service nginx-nginx-ingress-controller -n nginx -o jsonpath='{.status.loadBalancer.ingress[*].ip}' 2>/dev/null)"
-  fi
+  echo "$(kubectl get service nginx-nginx-ingress-controller -n nginx -o jsonpath='{.status.loadBalancer.ingress[*].ip}' 2>/dev/null)"
 }
 
 function dns_hosts () {
-  if [ -f "${__zimagi_binary_dir}/kubectl" ]; then
-    echo "$(${__zimagi_binary_dir}/kubectl get ingress -A -o jsonpath='{.items[*].spec.rules[*].host}' 2>/dev/null)"
-  fi
+  echo "$(kubectl get ingress -A -o jsonpath='{.items[*].spec.rules[*].host}' 2>/dev/null)"
 }
 
 function dns_records () {
-  dns_map=("###! $ZIMAGI_APP_NAME DNS MAP !###")
+  dns_map=("###! $APP_NAME DNS MAP !###")
 
   for host in $(dns_hosts); do
     for ip in $(dns_ip); do
@@ -24,7 +28,7 @@ function dns_records () {
     done
   done
 
-  dns_map=("${dns_map[@]}" "###! END $ZIMAGI_APP_NAME DNS MAP !###")
+  dns_map=("${dns_map[@]}" "###! END $APP_NAME DNS MAP !###")
   dns_map="$(printf "%s\n" "${dns_map[@]}")"
   echo "$dns_map"
 }
@@ -32,7 +36,7 @@ function dns_records () {
 function remove_dns_records () {
   if [ -f "${HOSTS_FILE:-}" ]; then
     info "Removing existing DNS records"
-    sudo perl -i -p0e "s/\n\#\#\#\!\s${ZIMAGI_APP_NAME}\sDNS\sMAP\s\!\#\#\#.+\#\#\#\!\sEND\s${ZIMAGI_APP_NAME}\sDNS\sMAP\s\!\#\#\#//se" $HOSTS_FILE
+    sudo perl -i -p0e "s/\n\#\#\#\!\s${APP_NAME}\sDNS\sMAP\s\!\#\#\#.+\#\#\#\!\sEND\s${APP_NAME}\sDNS\sMAP\s\!\#\#\#//se" $HOSTS_FILE
   fi
 }
 

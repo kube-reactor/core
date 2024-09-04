@@ -2,6 +2,14 @@
 #=========================================================================================
 # File Handling Utilities
 #
+# Directories:
+#
+# Environment Variables:
+#
+
+function logfile () {
+    echo "${__log_dir}/${__log_file}.log"
+}
 
 function check_binary () {
   if ! command -v "$1" > /dev/null; then

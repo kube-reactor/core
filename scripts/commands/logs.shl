@@ -86,5 +86,5 @@ function logs_command () {
   debug "> TIMESTAMPS: ${TIMESTAMPS}"
   debug "> LOGS_ARGS: ${LOGS_ARGS[@]}"
 
-  "${__zimagi_binary_dir}/kubectl" logs "${LOGS_ARGS[@]}"
+  kubectl logs "${LOGS_ARGS[@]}"
 }

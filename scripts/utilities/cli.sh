@@ -2,11 +2,21 @@
 #=========================================================================================
 # CLI Utilities
 #
+# Directories:
+#
+# Environment Variables:
+#
+#  1. NO_COLOR
+#  2. LOG_LEVEL
+
+function function_exists () {
+  declare -F "$1" > /dev/null;
+}
 
 # requires `set -o errtrace`
 function __err_report() {
     local error_code=${?}
-    error "Error in ${__zimagi_file} in function ${1} on line ${2}"
+    error "Error in kubectl reactor in function ${1} on line ${2}"
     exit ${error_code}
 }
 
@@ -45,9 +55,11 @@ function __log () {
 
   # all remaining arguments are to be printed
   local log_line=""
+  local date_time="$(date -u +"%Y-%m-%d %H:%M:%S UTC")"
 
   while IFS=$'\n' read -r log_line; do
-    echo -e "$(date -u +"%Y-%m-%d %H:%M:%S UTC") ${color}$(printf "[%9s]" "${log_level}")${color_reset} ${log_line}" 1>&2
+    echo -e "${date_time} ${color}$(printf "[%s]" "${log_level}")${color_reset} ${log_line}" 1>&2
+    echo "${date_time} [${log_level}] ${log_line}" >>"$(logfile)"
   done <<< "${@:-}"
 }
 

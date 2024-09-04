@@ -1,0 +1,288 @@
+#!/usr/bin/env bash
+#
+# Usage:
+#
+#  kubectl reactor [flags] <command> [args] [flags/options]
+#
+#=========================================================================================
+# Initialization
+#
+# Environment
+
+SCRIPT_PATH="${BASH_SOURCE[0]}" # bash
+if [[ -z "$SCRIPT_PATH" ]]; then
+  SCRIPT_PATH="${(%):-%N}" # zsh
+fi
+
+((return 0 2>/dev/null) || [[ $ZSH_EVAL_CONTEXT =~ :file$ ]]) && SOURCED=1 || SOURCED=0
+
+
+export __script_dir="$(cd "$(dirname "${SCRIPT_PATH}")" && pwd)"
+export __reactor_dir="$(dirname "${__script_dir}")"
+export __log_file="reactor"
+
+
+function project_file () {
+    project_file="${1}/reactor.yml"
+
+    if [ -f "$project_file" ]; then
+        echo "$project_file"
+        return
+    fi
+
+    parent_dir="$(dirname $1)"
+
+    if [ "$parent_dir" = "/" ]; then
+        echo ""
+    else
+        project_file "$parent_dir"
+    fi
+}
+
+function config () {
+    "${__script_dir}/utilities/locator.py" "$1" "${2-}"
+}
+
+
+export __project_file="$(project_file "$(pwd)")"
+
+if [ -z "${__project_file}" ]; then
+    echo "Project directory with a 'reactor.yml' file does not exist in current or parent directories"
+    exit 1
+fi
+
+export __project_dir="$(dirname "${__project_file}")"
+export __environment="${REACTOR_ENV:-local}"
+export __env_dir="${__project_dir}/env/${__environment}"
+
+
+# Load environment configuration
+if [ -f "${__env_dir}/public.sh" ]; then
+  source "${__env_dir}/public.sh"
+fi
+if [ -f "${__env_dir}/secret.sh" ]; then
+  source "${__env_dir}/secret.sh"
+fi
+source "${__script_dir}/state/initialize.sh"
+
+if [[ $SOURCED -eq 1 ]]; then
+  # quit now if script is being sourced
+  return
+fi
+
+for file in "${__script_dir}/utilities"/*.sh; do
+  source "$file"
+done
+for project in $(config docker); do
+  project_dir="${__docker_dir}/${project}"
+  utilities_dir="${project_dir}/reactor/utilities"
+  if [ -d "$utilities_dir" ]; then
+    for file in "${utilities_dir}"/*.sh; do
+      source "$file"
+    done
+  fi
+done
+for chart in $(config charts); do
+  chart_dir="${__charts_dir}/${chart}"
+  utilities_dir="${chart_dir}/reactor/utilities"
+  if [ -d "$utilities_dir" ]; then
+    for file in "${utilities_dir}"/*.sh; do
+      source "$file"
+    done
+  fi
+done
+if [ -d "${__project_utilities_dir}" ]; then
+  for file in "${__project_utilities_dir}"/*.sh; do
+    source "$file"
+  done
+fi
+
+for file in "${__script_dir}/commands"/*.sh; do
+  source "$file"
+done
+for project in $(config docker); do
+  project_dir="${__docker_dir}/${project}"
+  commands_dir="${project_dir}/reactor/commands"
+  if [ -d "$commands_dir" ]; then
+    for file in "${commands_dir}"/*.sh; do
+      source "$file"
+    done
+  fi
+done
+for chart in $(config charts); do
+  chart_dir="${__charts_dir}/${chart}"
+  commands_dir="${chart_dir}/reactor/commands"
+  if [ -d "$commands_dir" ]; then
+    for file in "${commands_dir}"/*.sh; do
+      source "$file"
+    done
+  fi
+done
+if [ -d "${__project_commands_dir}" ]; then
+  for file in "${__project_commands_dir}"/*.sh; do
+    source "$file"
+  done
+fi
+
+echo "" >"$(logfile)"
+info "====================================================================="
+info "Executing reactor command: $@"
+
+debug "Environment variables"
+debug "======================================"
+debug "$(env)"
+
+# Parameter parsing
+function usage () {
+  cat <<EOF >&2
+
+  Reactor manages development Kubernetes environments
+
+  Usage:
+
+    kubectl reactor [flags] [command] [flags/options]
+
+  Flags:
+${__reactor_core_flags}
+
+  Commands:
+
+    help                              Display help information for a command
+    init                              Initialize development environment
+    up                                Start development environment
+    update                            Update the application stack in the development environment
+    logs                              Display log entries for Zimagi services
+    dashboard                         Launch the Kubernetes Dashboard for Minikube cluster
+    shell                             Open a terminal session into a running Zimagi service
+    down                              Stop development environment
+    destroy                           Purge development environment
+    clean                             Clean project resources
+    certs                             Display or generate SSL certificates and keys
+
+  Use "kubectl reactor <command> --help" for more information about a given command.
+
+EOF
+  exit 1
+}
+
+
+COMMAND_ARGS=()
+arg_processed=0
+[[ $# -eq 0 ]] && arg_h=1
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -v|--verbose)
+      arg_v=1
+      shift
+      ;;
+    -d|--debug)
+      arg_d=1
+      shift
+      ;;
+    -n|--no-color)
+      arg_n=1
+      shift
+      ;;
+    -h|--help)
+      if [ $arg_processed -ne 1 ]; then
+        arg_h=1
+      else
+        COMMAND_ARGS+=("$1")
+      fi
+      shift
+      ;;
+    *)
+      COMMAND_ARGS+=("$1")
+      arg_processed=1
+      shift
+      ;;
+  esac
+done
+
+#
+#=========================================================================================
+# Execution
+#
+
+# Error handling
+set -o errexit
+set -o errtrace
+set -o nounset
+set -o pipefail
+
+# Log check
+[[ "${LOG_LEVEL:-6}" ]] || emergency "Cannot continue without LOG_LEVEL"
+
+# Debug mode
+if [[ "${arg_d:-0}" = "1" ]]; then
+  #set -o xtrace
+  PS4='+(${BASH_SOURCE}:${LINENO}): ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
+  LOG_LEVEL="7"
+  # Enable error backtracing
+  trap '__err_report "${FUNCNAME:-.}" ${LINENO}' ERR
+fi
+
+# Verbose mode
+if [[ "${arg_v:-0}" = "1" ]]; then
+  set -o verbose
+fi
+
+# No color mode
+if [[ "${arg_n:-0}" = "1" ]]; then
+  NO_COLOR="true"
+fi
+
+
+debug "Top level flags"
+debug "> Debug: ${arg_d:-0}"
+debug "> Verbosity: ${arg_v:-0}"
+debug "> Help: ${arg_h:-0}"
+
+debug "Script properties"
+debug "> OS type: ${OSTYPE}"
+debug "> OS name: ${__os}"
+debug "> CPU arch: ${__architecture}"
+debug "> Invocation: ${__reactor_invocation}"
+debug "> Reactor directory: ${__reactor_dir}"
+debug "> Script directory: ${__script_dir}"
+
+debug "Project and development properties"
+debug "> Project directory: ${__project_dir}"
+debug "> Project manifest: ${__project_file}"
+debug "> Certificate directory: ${__certs_dir}"
+debug "> Executable directory: ${__binary_dir}"
+debug "> Docker image project root directory: ${__docker_dir}"
+debug "> Helm chart project root directory: ${__charts_dir}"
+debug "> Terraform project root directory: ${__terraform_dir}"
+
+
+if [[ "${arg_h:-0}" = "1" ]] || [[ ${#COMMAND_ARGS[@]} -eq 0 ]]; then
+  usage
+else
+  COMMAND="${COMMAND_ARGS[0]}"
+  COMMAND_ARGS=("${COMMAND_ARGS[@]:1}")
+  COMMAND_FUNCTION="${COMMAND}_command"
+
+  if [ "$COMMAND" == "help" ]; then
+    if ! [[ ${#COMMAND_ARGS[@]} -gt 0 ]]; then
+      usage
+    else
+      HELP_COMMAND="${COMMAND_ARGS[0]}_command"
+
+      if function_exists $HELP_COMMAND; then
+        $HELP_COMMAND --help
+      else
+        error "Unknown command: ${HELP_COMMAND}"
+        usage
+      fi
+    fi
+  elif function_exists $COMMAND_FUNCTION; then
+    $COMMAND_FUNCTION "${COMMAND_ARGS[@]:-}"
+  else
+    error "Unknown command: ${COMMAND}"
+    usage
+  fi
+fi
+
+"${__script_dir}/state/finalize.sh"

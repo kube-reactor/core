@@ -10,10 +10,10 @@ Display or generate self signed SSL certificates
 
 Usage:
 
-  reactor certs [flags] [options]
+  kubectl reactor certs [flags] [options]
 
 Flags:
-${__zimagi_reactor_core_flags}
+${__reactor_core_flags}
 
     --generate            Generate certificates before displaying them
 
@@ -58,7 +58,7 @@ function certs_command () {
     shift
   done
   GENERATE=${GENERATE:-0}
-  SUBJECT="${SUBJECT:-$DEFAULT_CERT_SUBJECT}/CN=*.$(echo "$ZIMAGI_APP_NAME" | tr '_' '-').local"
+  SUBJECT="${SUBJECT:-$DEFAULT_CERT_SUBJECT}/CN=*.$(echo "$APP_NAME" | tr '_' '-').local"
   DAYS=${DAYS:-$DEFAULT_CERT_DAYS}
 
   debug "Command: certs"
