@@ -68,11 +68,12 @@ function download_git_repo () {
   DIRECTORY="$2"
   REFERENCE="${3:-main}"
 
-  info "Fetching repository \"$URL\" into folder \"$DIRECTORY\" ..."
-
   if [ ! -d "$DIRECTORY" ]; then
+    info "Fetching repository \"$URL\" into folder \"$DIRECTORY\" ..."
     git clone --quiet "$URL" "$DIRECTORY"
+    exec_git "$DIRECTORY" fetch origin --tags
+    exec_git "$DIRECTORY" checkout "$REFERENCE"
+  else
+    exec_git "$DIRECTORY" fetch origin --tags
   fi
-  exec_git "$DIRECTORY" fetch origin --tags
-  exec_git "$DIRECTORY" checkout "$REFERENCE"
 }

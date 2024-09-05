@@ -21,28 +21,7 @@ export __script_dir="$(cd "$(dirname "${SCRIPT_PATH}")" && pwd)"
 export __reactor_dir="$(dirname "${__script_dir}")"
 export __log_file="reactor"
 
-
-function project_file () {
-    project_file="${1}/reactor.yml"
-
-    if [ -f "$project_file" ]; then
-        echo "$project_file"
-        return
-    fi
-
-    parent_dir="$(dirname $1)"
-
-    if [ "$parent_dir" = "/" ]; then
-        echo ""
-    else
-        project_file "$parent_dir"
-    fi
-}
-
-function config () {
-    "${__script_dir}/utilities/locator.py" "$1" "${2-}"
-}
-
+source "${__script_dir}/state/bootstrap.sh"
 
 export __project_file="$(project_file "$(pwd)")"
 
@@ -285,4 +264,4 @@ else
   fi
 fi
 
-"${__script_dir}/state/finalize.sh"
+source "${__script_dir}/state/finalize.sh"

@@ -55,14 +55,6 @@ fi
 
 export DEFAULT_APP_NAME="$(config short_name)"
 
-# export DEFAULT_MINIKUBE_DRIVER="docker"
-# export DEFAULT_MINIKUBE_NODES=1
-# export DEFAULT_MINIKUBE_CPUS=2
-# export DEFAULT_MINIKUBE_MEMORY=8192
-# export DEFAULT_KUBERNETES_VERSION="1.30.0"
-# export DEFAULT_MINIKUBE_CONTAINER_RUNTIME="docker"
-# export DEFAULT_MINIKUBE_PROFILE="$(config short_name)"
-
 export DEFAULT_HELM_VERSION="3.15.0"
 
 # Set top level directory as working directory

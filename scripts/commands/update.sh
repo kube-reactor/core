@@ -10,15 +10,14 @@ Update the application stack in the Minikube environment.
 
 Usage:
 
-  reactor update [flags] [options]
+  kubectl reactor update [flags] [options]
 
 Flags:
 ${__zimagi_reactor_core_flags}
 
-    --image               Push local Zimagi image to Minikube registry
     --apps                Provision any ArgoCD application updates
     --dns                 Update local DNS with service endpoints
-    --chart               Sync local Zimagi chart to ArgoCD application
+    --chart               Sync local charts to ArgoCD application
 
 EOF
   exit 1
@@ -26,9 +25,6 @@ EOF
 function update_command () {
   while [[ $# -gt 0 ]]; do
     case "$1" in
-      --image)
-      UPDATE_IMAGE=1
-      ;;
       --apps)
       UPDATE_APPS=1
       ;;
@@ -50,26 +46,21 @@ function update_command () {
     esac
     shift
   done
-  UPDATE_IMAGE=${UPDATE_IMAGE:-0}
   UPDATE_APPS=${UPDATE_APPS:-0}
   UPDATE_DNS=${UPDATE_DNS:-0}
   UPDATE_CHART=${UPDATE_CHART:-0}
   UPDATE_ALL=1
 
-  if [ $UPDATE_IMAGE -eq 1 -o $UPDATE_APPS -eq 1 -o $UPDATE_DNS -eq 1 -o $UPDATE_CHART -eq 1 ]; then
+  if [ $UPDATE_APPS -eq 1 -o $UPDATE_DNS -eq 1 -o $UPDATE_CHART -eq 1 ]; then
     UPDATE_ALL=0
   fi
 
   debug "Command: update"
-  debug "> UPDATE_IMAGE: ${UPDATE_IMAGE}"
   debug "> UPDATE_APPS: ${UPDATE_APPS}"
   debug "> UPDATE_DNS: ${UPDATE_DNS}"
   debug "> UPDATE_CHART: ${UPDATE_CHART}"
   debug "> UPDATE_ALL: ${UPDATE_ALL}"
 
-  if [ $UPDATE_ALL -eq 1 -o $UPDATE_IMAGE -eq 1 ]; then
-    push_minikube_image
-  fi
   if [ $UPDATE_ALL -eq 1 -o $UPDATE_IMAGE -eq 1 -o $UPDATE_APPS -eq 1 ]; then
     provision_terraform
   fi
