@@ -14,8 +14,6 @@ if [[ -z "$SCRIPT_PATH" ]]; then
   SCRIPT_PATH="${(%):-%N}" # zsh
 fi
 
-((return 0 2>/dev/null) || [[ $ZSH_EVAL_CONTEXT =~ :file$ ]]) && SOURCED=1 || SOURCED=0
-
 
 export __script_dir="$(cd "$(dirname "${SCRIPT_PATH}")" && pwd)"
 export __reactor_dir="$(dirname "${__script_dir}")"
@@ -43,11 +41,6 @@ if [ -f "${__env_dir}/secret.sh" ]; then
   source "${__env_dir}/secret.sh"
 fi
 source "${__script_dir}/state/initialize.sh"
-
-if [[ $SOURCED -eq 1 ]]; then
-  # quit now if script is being sourced
-  return
-fi
 
 for file in "${__script_dir}/utilities"/*.sh; do
   source "$file"
@@ -104,8 +97,8 @@ if [ -d "${__project_commands_dir}" ]; then
 fi
 
 echo "" >"$(logfile)"
-info "====================================================================="
-info "Executing reactor command: $@"
+debug "====================================================================="
+debug "Executing reactor command: $@"
 
 debug "Environment variables"
 debug "======================================"
@@ -234,6 +227,16 @@ debug "> Executable directory: ${__binary_dir}"
 debug "> Docker image project root directory: ${__docker_dir}"
 debug "> Helm chart project root directory: ${__charts_dir}"
 debug "> Terraform project root directory: ${__terraform_dir}"
+
+if [ -f "${__binary_dir}/minikube" ]; then
+  if "${__binary_dir}/minikube" status --profile="$(config short_name reactor)" 1>/dev/null 2>&1; then
+    debug "Docker properties"
+    debug "> DOCKER_TLS_VERIFY: ${DOCKER_TLS_VERIFY}"
+    debug "> DOCKER_HOST: ${DOCKER_HOST}"
+    debug "> DOCKER_CERT_PATH: ${DOCKER_CERT_PATH}"
+    debug "> MINIKUBE_ACTIVE_DOCKERD: ${MINIKUBE_ACTIVE_DOCKERD}"
+  fi
+fi
 
 
 if [[ "${arg_h:-0}" = "1" ]] || [[ ${#COMMAND_ARGS[@]} -eq 0 ]]; then

@@ -2,14 +2,9 @@
 #=========================================================================================
 # DNS Utilities
 #
-# Directories:
-#
-#  1. binary directory
-#
-# Environment Variables:
-#
-#  1. APP_NAME
-#  2. HOSTS_FILE
+
+export HOSTS_FILE="${HOSTS_FILE:-"$DEFAULT_HOSTS_FILE"}"
+
 
 function dns_ip () {
   echo "$(kubectl get service nginx-nginx-ingress-controller -n nginx -o jsonpath='{.status.loadBalancer.ingress[*].ip}' 2>/dev/null)"

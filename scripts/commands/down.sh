@@ -6,14 +6,14 @@
 function down_usage () {
     cat <<EOF >&2
 
-Shut down but do not destroy Zimagi development environment services.
+Shut down but do not destroy development environment services.
 
 Usage:
 
-  reactor down [flags] [options]
+  kubectl reactor down [flags] [options]
 
 Flags:
-${__zimagi_reactor_core_flags}
+${__reactor_core_flags}
 
 EOF
   exit 1
@@ -39,5 +39,5 @@ function down_command () {
   stop_minikube
   remove_dns_records
 
-  info "Zimagi development environment has been shut down"
+  info "Minikube development environment has been shut down"
 }

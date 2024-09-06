@@ -6,14 +6,14 @@
 function destroy_usage () {
     cat <<EOF >&2
 
-Shut down and destroy Zimagi development environment (DESTRUCTIVE)
+Shut down and destroy Minikube development environment (DESTRUCTIVE)
 
 Usage:
 
-  reactor destroy [flags] [options]
+  kubectl reactor destroy [flags] [options]
 
 Flags:
-${__zimagi_reactor_core_flags}
+${__reactor_core_flags}
 
     --force               Force execution without confirming
 
@@ -49,13 +49,7 @@ function destroy_command () {
 
   destroy_minikube
   remove_dns_records
-  clean_terraform
+  #clean_terraform
 
-  info "Removing Zimagi local host ..."
-  "${__zimagi_dir}/zimagi" host remove local --force
-
-  info "Removing Zimagi kube host ..."
-  "${__zimagi_dir}/zimagi" host remove kube --force
-
-  info "Zimagi development environment has been destroyed"
+  info "Minikube development environment has been destroyed"
 }

@@ -76,3 +76,7 @@ function confirm () {
   read -p "This is a destructive operation! Type YES to continue?: " CONFIRM_INPUT
   [[ $CONFIRM_INPUT =~ ^[Yy][Ee][Ss]$ ]] || exit 1
 }
+
+function check_admin () {
+  sudo -v
+}

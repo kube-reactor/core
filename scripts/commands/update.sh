@@ -13,7 +13,7 @@ Usage:
   kubectl reactor update [flags] [options]
 
 Flags:
-${__zimagi_reactor_core_flags}
+${__reactor_core_flags}
 
     --apps                Provision any ArgoCD application updates
     --dns                 Update local DNS with service endpoints
@@ -61,14 +61,14 @@ function update_command () {
   debug "> UPDATE_CHART: ${UPDATE_CHART}"
   debug "> UPDATE_ALL: ${UPDATE_ALL}"
 
-  if [ $UPDATE_ALL -eq 1 -o $UPDATE_IMAGE -eq 1 -o $UPDATE_APPS -eq 1 ]; then
-    provision_terraform
-  fi
+  # if [ $UPDATE_ALL -eq 1 -o $UPDATE_IMAGE -eq 1 -o $UPDATE_APPS -eq 1 ]; then
+  #   provision_terraform
+  # fi
   if [ $UPDATE_ALL -eq 1 -o $UPDATE_DNS -eq 1 ]; then
     save_dns_records
   fi
-  if [ $UPDATE_ALL -eq 1 -o $UPDATE_IMAGE -eq 1 -o $UPDATE_CHART -eq 1 ]; then
-    sync_zimagi_argocd_chart
-  fi
-  info "Zimagi development environment has been updated"
+  # if [ $UPDATE_ALL -eq 1 -o $UPDATE_IMAGE -eq 1 -o $UPDATE_CHART -eq 1 ]; then
+  #   sync_argocd_charts
+  # fi
+  info "Minikube development environment has been updated"
 }

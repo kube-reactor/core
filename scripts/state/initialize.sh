@@ -53,9 +53,19 @@ else
   export DEFAULT_HOSTS_FILE="/etc/hosts"
 fi
 
-export DEFAULT_APP_NAME="$(config short_name)"
+export APP_NAME="$(config short_name)"
+export APP_LABEL="$(config name)"
 
-export DEFAULT_HELM_VERSION="3.15.0"
+# Kubernetes cluster access configuration
+export KUBECONFIG="${__env_dir}/.kubeconfig"
+export MINIKUBE_HOME="${__project_dir}/.minikube"
+
+# Initialize Docker registry
+if [ -f "${__binary_dir}/minikube" ]; then
+  if "${__binary_dir}/minikube" status --profile="$(config short_name reactor)" 1>/dev/null 2>&1; then
+    eval $("${__binary_dir}/minikube" docker-env --profile="$(config short_name reactor)")
+  fi
+fi
 
 # Set top level directory as working directory
 cd "${__project_dir}"

@@ -10,10 +10,10 @@ Launch the Kubernetes Dashboard for the Minikube cluster
 
 Usage:
 
-  reactor dashboard [flags] [options]
+  kubectl reactor dashboard [flags] [options]
 
 Flags:
-${__zimagi_reactor_core_flags}
+${__reactor_core_flags}
 
 EOF
   exit 1

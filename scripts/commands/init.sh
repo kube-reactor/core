@@ -27,8 +27,6 @@ EOF
   exit 1
 }
 function init_command () {
-  APP_NAME=""
-
   while [[ $# -gt 0 ]]; do
     case "$1" in
       --cert-days=*)
@@ -70,7 +68,6 @@ function init_command () {
   HELM_VERSION="${HELM_VERSION:-$DEFAULT_HELM_VERSION}"
 
   debug "Command: init"
-  debug "> APP_NAME: ${APP_NAME}"
   debug "> SKIP_BUILD: ${SKIP_BUILD}"
   debug "> NO_CACHE: ${NO_CACHE}"
   debug "> CERT_SUBJECT: ${CERT_SUBJECT}"
@@ -109,17 +106,19 @@ function init_command () {
 
   info "Generating ingress certificates ..."
   generate_certs \
-    "${CERT_SUBJECT}/CN=*.$(echo "$APP_NAME" | tr '_' '-').local" \
+    "${CERT_SUBJECT}/CN=*.$(echo "$APP_LABEL" | tr '_' '-').local" \
     "$CERT_DAYS"
 
   info "Initializing docker image repositories ..."
   for project in $(config docker); do
+    info "Initializing ${project} docker image repository"
     download_git_repo \
         "$(config docker.$project.remote)" \
         "${__docker_dir}/${project}" \
         "$(config docker.$project.reference)"
 
     if [ $SKIP_BUILD -ne 1 ]; then
+      info "Building ${project} docker image"
       build_docker_image "$project" $NO_CACHE
     fi
   done
@@ -128,6 +127,7 @@ function init_command () {
   for chart in $(config charts); do
     chart_dir="${__charts_dir}/${chart}"
 
+    info "Initializing ${chart} Helm chart repository"
     download_git_repo \
         "$(config charts.$chart.remote)" \
         "${chart_dir}" \

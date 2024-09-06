@@ -31,26 +31,22 @@ function minikube_status () {
   minikube_environment
 
   if [ -f "${__binary_dir}/minikube" ]; then
-    "${__binary_dir}/minikube" status 1>/dev/null 2>&1
+    "${__binary_dir}/minikube" status \
+      --profile="$(config short_name reactor)" 1>/dev/null 2>&1
     return $?
   fi
   return 1
 }
 
-# function push_minikube_image () {
-#   if minikube_status; then
-#     info "Pushing local image to Minikube registry ..."
-#     "${__binary_dir}/minikube" image load "$IMAGE"
-#   fi
-# }
-
 function start_minikube () {
   if ! minikube_status; then
     info "Starting Minikube ..."
     "${__binary_dir}/minikube" start \
+      --profile="$(config short_name reactor)" \
       --driver=${MINIKUBE_DRIVER} \
       --nodes=${MINIKUBE_NODES} \
       --cpus=${MINIKUBE_CPUS} \
+      --gpus=all \
       --memory=${MINIKUBE_MEMORY} \
       --kubernetes-version=${MINIKUBE_KUBERNETES_VERSION} \
       --container-runtime=${MINIKUBE_CONTAINER_RUNTIME} \
@@ -58,6 +54,14 @@ function start_minikube () {
       --mount \
       --mount-string="${__project_dir}:/project"
   fi
+  "${__binary_dir}/minikube" update-context --profile="$(config short_name reactor)"
+
+  eval $("${__binary_dir}/minikube" docker-env --profile="$(config short_name reactor)")
+
+  debug "DOCKER_TLS_VERIFY=${DOCKER_TLS_VERIFY}"
+  debug "DOCKER_HOST=${DOCKER_HOST}"
+  debug "DOCKER_CERT_PATH=${DOCKER_CERT_PATH}"
+  debug "MINIKUBE_ACTIVE_DOCKERD=${MINIKUBE_ACTIVE_DOCKERD}"
 }
 
 function launch_minikube_tunnel () {
@@ -67,8 +71,10 @@ function launch_minikube_tunnel () {
 
     terminate_minikube_tunnel
 
-    info "Launching Minikube tunnel ..."
-    "${__binary_dir}/minikube" tunnel >"$LOG_FILE" 2>&1 &
+    info "Launching Minikube tunnel (requires sudo) ..."
+    check_admin
+    "${__binary_dir}/minikube" tunnel \
+      --profile="$(config short_name reactor)" >"$LOG_FILE" 2>&1 &
     echo "$!" >"$PID_FILE"
   fi
 }
@@ -100,7 +106,8 @@ function launch_minikube_dashboard () {
     terminate_minikube_dashboard
 
     info "Launching Kubernetes Dashboard ..."
-    "${__binary_dir}/minikube" dashboard >"$LOG_FILE" 2>&1 &
+    "${__binary_dir}/minikube" dashboard \
+      --profile="$(config short_name reactor)" >"$LOG_FILE" 2>&1 &
     echo "$!" >"$PID_FILE"
   fi
 }
@@ -124,7 +131,7 @@ function terminate_minikube_dashboard () {
   fi
 }
 
-# function start_zimagi_session () {
+# function start_minikube_session () {
 #   ZIMAGI_SERVICE="${1:-}"
 
 #   if ! minikube_status; then
@@ -153,7 +160,8 @@ function stop_minikube () {
     terminate_minikube_tunnel
     terminate_minikube_dashboard
 
-    "${__binary_dir}/minikube" stop
+    "${__binary_dir}/minikube" stop \
+      --profile="$(config short_name reactor)"
   fi
   delete_minikube_kubeconfig
 }
@@ -164,7 +172,9 @@ function destroy_minikube () {
     terminate_minikube_tunnel
     terminate_minikube_dashboard
 
-    "${__binary_dir}/minikube" delete --purge
+    "${__binary_dir}/minikube" delete \
+      --purge \
+      --profile="$(config short_name reactor)"
   fi
   delete_minikube_kubeconfig
   delete_minikube_storage

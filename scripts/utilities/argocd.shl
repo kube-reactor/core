@@ -9,10 +9,6 @@
 #  3. charts directory
 #  4. data directory
 #
-# Environment Variables:
-#
-#  1. APP_NAME
-#  2. ARGOCD_ADMIN_PASSWORD
 
 function login_argocd () {
   if minikube_status; then

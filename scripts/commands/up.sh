@@ -65,14 +65,13 @@ function up_command () {
   debug "> INITIALIZE: ${INITIALIZE}"
   debug "> INIT ARGS: ${INIT_ARGS[@]}"
 
+  start_minikube
+  launch_minikube_tunnel
+
   if [[ $INITIALIZE -eq 1 ]]; then
     init_command "${INIT_ARGS[@]}"
   fi
 
-  start_minikube
-  #launch_minikube_tunnel
-
-  #update_command
-
-  #launch_minikube_dashboard
+  update_command
+  launch_minikube_dashboard
 }

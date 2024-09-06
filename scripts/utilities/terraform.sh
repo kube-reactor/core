@@ -25,7 +25,7 @@ function provision_terraform () {
 #
 # System variables
 #
-domain      = "$(echo "$ZIMAGI_APP_NAME" | tr '_' '-').local"
+domain      = "$(echo "$APP_NAME" | tr '_' '-').local"
 environment = "Development"
 
 #
