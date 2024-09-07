@@ -8,7 +8,7 @@ export DEFAULT_HELM_VERSION="3.15.0"
 
 function update_helm_dependencies () {
   if [ -f "${__binary_dir}/helm" ]; then
-    info "Updating Zimagi chart Helm dependencies ..."
+    info "Updating chart Helm dependencies ..."
     "${__binary_dir}/helm" dependency update \
       "${__charts_dir}/charts/zimagi"
   fi

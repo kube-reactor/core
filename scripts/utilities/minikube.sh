@@ -184,18 +184,18 @@ function destroy_minikube () {
 
 function delete_minikube_kubeconfig () {
   if [ -f "${__binary_dir}/minikube" ]; then
-    if [ -f "${__log_dir}/.kubeconfig" ]; then
+    if [ -f "$KUBECONFIG" ]; then
       info "Deleting Minikube kubeconfig file ..."
-      rm -f "${__log_dir}/.kubeconfig"
+      rm -f "$KUBECONFIG"
     fi
   fi
 }
 
 function delete_minikube_storage () {
   if [ -f "${__binary_dir}/minikube" ]; then
-    if [ -d "${__log_dir}/minikube" ]; then
+    if [ -d "$MINIKUBE_HOME" ]; then
       info "Deleting Minikube project storage ..."
-      sudo rm -Rf "${__log_dir}/minikube"
+      sudo rm -Rf "$MINIKUBE_HOME"
     fi
   fi
 }

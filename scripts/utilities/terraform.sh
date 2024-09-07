@@ -3,83 +3,57 @@
 # Terraform Utilities
 #
 
+export DEFAULT_TERRAFORM_VERSION="1.9.5"
+
+
 function provision_terraform () {
   if minikube_status; then
     cert_environment
 
+    export TF_VAR_ssl_certificate="${APP_CERT}"
+    export TF_VAR_ssl_private_key="${APP_KEY}"
+
     TERRAFORM_ARGS=(
       "--rm"
       "--network" "host"
-      "--volume" "${KUBECONFIG}:/root/.kube/config"
-      "--volume" "${__zimagi_cluster_dir}:/project"
-      "--volume" "${HOME}/.minikube:${HOME}/.minikube"
-      "--workdir" "/project"
-      "hashicorp/terraform:1.8.4"
+      "--volume" "/project:/project"  # Minikube host path -> Terraform container path
+      "--workdir" "/project/terraform/applications"
+      "--env" "TF_LOG=DEBUG"
+      "--env" "TF_DATA_DIR=/project/.terraform"
+      "--env" "TF_VAR_project_path=/project"
+      "--env" "TF_VAR_kube_config=/project/env/${__environment}/.kubeconfig"
+      "--env" "TF_VAR_domain=$(echo "$APP_NAME" | tr '_' '-').local"
+      "--env" "TF_VAR_environment=${__environment}"
+      "--env" "TF_VAR_gateway_node_port=${CLUSTER_GATEWAY_PORT:-32210}"
+      "--env" "TF_VAR_argocd_admin_password=$("${__binary_dir}/argocd" account bcrypt --password "${ARGOCD_ADMIN_PASSWORD:-admin}")"
     )
+    while IFS= read -r variable; do
+      TERRAFORM_ARGS=("${TERRAFORM_ARGS[@]}" "--env" "$variable")
+    done <<< "$(env | grep -o "TF_VAR_[_A-Za-z0-9]*")"
 
-    TERRAFORM_VARS="${__zimagi_cluster_dir}/terraform.tfvars"
-    TERRAFORM_CUSTOM_VARS="${__zimagi_cluster_dir}/terraform.custom.tfvars"
-
-    info "Generating Terraform configuration ..."
-    cat > "$TERRAFORM_VARS" <<EOF
-#
-# System variables
-#
-domain      = "$(echo "$APP_NAME" | tr '_' '-').local"
-environment = "Development"
-
-#
-# Repository Management variables
-#
-github_org            = "${ZIMAGI_GITHUB_ORG:-}"
-github_deployer_token = "${ZIMAGI_GITHUB_TOKEN:-}"
-
-#
-# Networking variables
-#
-gateway_node_port = 32210
-ssl_certificate = <<-EOT
-$ZIMAGI_CERT
-EOT
-ssl_private_key = <<-EOT
-$ZIMAGI_KEY
-EOT
-
-#
-# ArgoCD variables
-#
-argocd_admin_password = "$("${__zimagi_binary_dir}/argocd" account bcrypt --password "${ARGOCD_ADMIN_PASSWORD:-admin}")"
-
-#
-# Zimagi variables
-#
-zimagi_tag                 = "$ZIMAGI_DOCKER_TAG"
-zimagi_os_password         = "$ZIMAGI_USER_PASSWORD"
-zimagi_admin_api_key       = "$ZIMAGI_ADMIN_API_KEY"
-zimagi_email_host_user     = "${ZIMAGI_EMAIL_HOST_USER:-}"
-zimagi_email_host_password = "${ZIMAGI_EMAIL_HOST_PASSWORD:-}"
-EOF
-    if [ -f "$TERRAFORM_CUSTOM_VARS" ]; then
-      echo "$(cat "$TERRAFORM_CUSTOM_VARS")" >> "$TERRAFORM_VARS"
-    fi
+    TERRAFORM_ARGS=(
+      "${TERRAFORM_ARGS[@]}"
+      "hashicorp/terraform:${TERRAFORM_VERSION:-$DEFAULT_TERRAFORM_VERSION}"
+    )
+    debug "Terraform Arguments: ${TERRAFORM_ARGS[@]}"
 
     info "Initializing Terraform project ..."
     docker run "${TERRAFORM_ARGS[@]}" init
 
-    info "Validating Terraform project ..."
-    docker run "${TERRAFORM_ARGS[@]}" validate
+    # info "Validating Terraform project ..."
+    # docker run "${TERRAFORM_ARGS[@]}" validate
 
-    info "Deploying Zimagi cluster ..."
-    docker run "${TERRAFORM_ARGS[@]}" apply -auto-approve -input=false
+    # info "Deploying Zimagi cluster ..."
+    # docker run "${TERRAFORM_ARGS[@]}" apply -auto-approve -input=false
   fi
 }
 
 function clean_terraform () {
-  if [ -d "${__zimagi_cluster_dir}/.terraform" ]; then
+  if [ -d "${__project_dir}/.terraform" ]; then
     info "Removing Terraform configuration ..."
-    sudo rm -Rf "${__zimagi_cluster_dir}/.terraform"
-    rm -f "${__zimagi_cluster_dir}/.terraform.lock.hcl"
-    rm -f "${__zimagi_cluster_dir}/terraform.tfvars"
-    rm -f "${__zimagi_cluster_dir}/terraform.tfstate"*
+    sudo rm -Rf "${__project_dir}/.terraform"
+    rm -f "${__terraform_dir}/applications/.terraform.lock.hcl"
+    rm -f "${__terraform_dir}/applications/terraform.tfvars"
+    rm -f "${__terraform_dir}/applications/terraform.tfstate"*
   fi
 }
