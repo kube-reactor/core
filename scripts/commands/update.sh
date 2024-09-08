@@ -3,10 +3,13 @@
 # <Update> Command
 #
 
+function update_description () {
+  echo "Update the application stack in the Minikube environment"
+}
 function update_usage () {
     cat <<EOF >&2
 
-Update the application stack in the Minikube environment.
+$(update_description)
 
 Usage:
 

@@ -3,10 +3,13 @@
 # <Up> Command
 #
 
+function up_description () {
+  echo "Initialize and ensure Minikube development environment is running"
+}
 function up_usage () {
     cat <<EOF >&2
 
-Initialize and ensure Minikube development environment is running.
+$(up_description)
 
 Usage:
 

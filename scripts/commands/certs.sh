@@ -3,10 +3,13 @@
 # <Certs> Command
 #
 
+function certs_description () {
+  echo "Display or generate self signed SSL certificates"
+}
 function certs_usage () {
     cat <<EOF >&2
 
-Display or generate self signed SSL certificates
+$(certs_description)
 
 Usage:
 

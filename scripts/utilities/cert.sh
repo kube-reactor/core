@@ -2,10 +2,6 @@
 #=========================================================================================
 # Certificate Utilities
 #
-# Directories:
-#
-#  1. certificates directory
-#
 
 export DEFAULT_CERT_SUBJECT="/C=US/ST=NY/L=New York/O=$(config name)"
 export DEFAULT_CERT_DAYS=3650
@@ -17,11 +13,12 @@ function cert_environment () {
   export APP_KEY="$(cat "${__certs_dir}/app.key")"
   export APP_CERT="$(cat "${__certs_dir}/app.crt")"
 
-  debug "export APP_CA_KEY: ${APP_CA_KEY}"
-  debug "export APP_CA_CERT: ${APP_CA_CERT}"
-  debug "export APP_KEY: ${APP_KEY}"
-  debug "export APP_CERT: ${APP_CERT}"
+  debug "APP_CA_KEY: ${APP_CA_KEY}"
+  debug "APP_CA_CERT: ${APP_CA_CERT}"
+  debug "APP_KEY: ${APP_KEY}"
+  debug "APP_CERT: ${APP_CERT}"
 }
+
 
 function display_certs () {
   cert_environment

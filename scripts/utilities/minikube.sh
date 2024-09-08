@@ -3,6 +3,9 @@
 # MiniKube Utilities
 #
 
+export MINIKUBE_HOME="${__project_dir}/.minikube"
+export KUBECONFIG="${__env_dir}/.kubeconfig"
+
 export DEFAULT_MINIKUBE_DRIVER="docker"
 export DEFAULT_MINIKUBE_NODES=1
 export DEFAULT_MINIKUBE_CPUS=2
@@ -19,13 +22,33 @@ function minikube_environment () {
   export MINIKUBE_KUBERNETES_VERSION="${MINIKUBE_KUBERNETES_VERSION:-$DEFAULT_KUBERNETES_VERSION}"
   export MINIKUBE_CONTAINER_RUNTIME="${MINIKUBE_CONTAINER_RUNTIME:-$DEFAULT_MINIKUBE_CONTAINER_RUNTIME}"
 
-  debug "export MINIKUBE_DRIVER: ${MINIKUBE_DRIVER}"
-  debug "export MINIKUBE_NODES: ${MINIKUBE_NODES}"
-  debug "export MINIKUBE_CPUS: ${MINIKUBE_CPUS}"
-  debug "export MINIKUBE_MEMORY: ${MINIKUBE_MEMORY}"
-  debug "export MINIKUBE_KUBERNETES_VERSION: ${MINIKUBE_KUBERNETES_VERSION}"
-  debug "export MINIKUBE_CONTAINER_RUNTIME: ${MINIKUBE_CONTAINER_RUNTIME}"
+  debug "KUBECONFIG: ${KUBECONFIG}"
+  debug "MINIKUBE_HOME: ${MINIKUBE_HOME}"
+  debug "MINIKUBE_DRIVER: ${MINIKUBE_DRIVER}"
+  debug "MINIKUBE_NODES: ${MINIKUBE_NODES}"
+  debug "MINIKUBE_CPUS: ${MINIKUBE_CPUS}"
+  debug "MINIKUBE_MEMORY: ${MINIKUBE_MEMORY}"
+  debug "MINIKUBE_KUBERNETES_VERSION: ${MINIKUBE_KUBERNETES_VERSION}"
+  debug "MINIKUBE_CONTAINER_RUNTIME: ${MINIKUBE_CONTAINER_RUNTIME}"
+
+  if [ -f "${__binary_dir}/minikube" ]; then
+    if "${__binary_dir}/minikube" status --profile="$(config short_name reactor)" 1>/dev/null 2>&1; then
+      debug "DOCKER_TLS_VERIFY: ${DOCKER_TLS_VERIFY}"
+      debug "DOCKER_HOST: ${DOCKER_HOST}"
+      debug "DOCKER_CERT_PATH: ${DOCKER_CERT_PATH}"
+      debug "MINIKUBE_ACTIVE_DOCKERD: ${MINIKUBE_ACTIVE_DOCKERD}"
+    fi
+  fi
 }
+
+
+# Initialize Docker registry
+if [ -f "${__binary_dir}/minikube" ]; then
+  if "${__binary_dir}/minikube" status --profile="$(config short_name reactor)" 1>/dev/null 2>&1; then
+    eval $("${__binary_dir}/minikube" docker-env --profile="$(config short_name reactor)")
+  fi
+fi
+
 
 function minikube_status () {
   minikube_environment

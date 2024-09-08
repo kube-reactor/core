@@ -3,10 +3,13 @@
 # <Dashboard> Command
 #
 
+function dashboard_description () {
+  echo "Launch the Kubernetes Dashboard for the Minikube cluster"
+}
 function dashboard_usage () {
     cat <<EOF >&2
 
-Launch the Kubernetes Dashboard for the Minikube cluster
+$(dashboard_description)
 
 Usage:
 

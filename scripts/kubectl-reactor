@@ -7,13 +7,12 @@
 #=========================================================================================
 # Initialization
 #
-# Environment
 
+# Initialize top level directories and load bootstrap functions
 SCRIPT_PATH="${BASH_SOURCE[0]}" # bash
 if [[ -z "$SCRIPT_PATH" ]]; then
   SCRIPT_PATH="${(%):-%N}" # zsh
 fi
-
 
 export __script_dir="$(cd "$(dirname "${SCRIPT_PATH}")" && pwd)"
 export __reactor_dir="$(dirname "${__script_dir}")"
@@ -104,6 +103,7 @@ debug "Environment variables"
 debug "======================================"
 debug "$(env)"
 
+
 # Parameter parsing
 function usage () {
   cat <<EOF >&2
@@ -119,21 +119,20 @@ ${__reactor_core_flags}
 
   Commands:
 
-    help                              Display help information for a command
-    init                              Initialize development environment
-    up                                Start development environment
-    update                            Update the application stack in the development environment
-    logs                              Display log entries for Zimagi services
-    dashboard                         Launch the Kubernetes Dashboard for Minikube cluster
-    shell                             Open a terminal session into a running Zimagi service
-    down                              Stop development environment
-    destroy                           Purge development environment
-    clean                             Clean project resources
-    certs                             Display or generate SSL certificates and keys
-
-  Use "kubectl reactor <command> --help" for more information about a given command.
-
 EOF
+  for function_name in $(compgen -A function); do
+    if [[ "$function_name" == *"_command" ]]; then
+      command_name=${function_name%"_command"}
+      command_description="${command_name}_description"
+
+      if function_exists $command_description; then
+        printf "    %-20s  %s\n" "$command_name" "$($command_description)" >&2
+      fi
+    fi
+  done
+  echo "" >&2
+  echo "  Use 'kubectl reactor <command> --help' for more information about a given command" >&2
+  echo "" >&2
   exit 1
 }
 
@@ -228,16 +227,6 @@ debug "> Docker image project root directory: ${__docker_dir}"
 debug "> Helm chart project root directory: ${__charts_dir}"
 debug "> Terraform project root directory: ${__terraform_dir}"
 
-if [ -f "${__binary_dir}/minikube" ]; then
-  if "${__binary_dir}/minikube" status --profile="$(config short_name reactor)" 1>/dev/null 2>&1; then
-    debug "Docker properties"
-    debug "> DOCKER_TLS_VERIFY: ${DOCKER_TLS_VERIFY}"
-    debug "> DOCKER_HOST: ${DOCKER_HOST}"
-    debug "> DOCKER_CERT_PATH: ${DOCKER_CERT_PATH}"
-    debug "> MINIKUBE_ACTIVE_DOCKERD: ${MINIKUBE_ACTIVE_DOCKERD}"
-  fi
-fi
-
 
 if [[ "${arg_h:-0}" = "1" ]] || [[ ${#COMMAND_ARGS[@]} -eq 0 ]]; then
   usage
@@ -260,7 +249,18 @@ else
       fi
     fi
   elif function_exists $COMMAND_FUNCTION; then
+    COMMAND_INIT_FUNCTION="${COMMAND_FUNCTION}_init"
+    COMMAND_EXIT_FUNCTION="${COMMAND_FUNCTION}_exit"
+
+    if function_exists $COMMAND_INIT_FUNCTION; then
+      $COMMAND_INIT_FUNCTION "${COMMAND_ARGS[@]:-}"
+    fi
+
     $COMMAND_FUNCTION "${COMMAND_ARGS[@]:-}"
+
+    if function_exists $COMMAND_EXIT_FUNCTION; then
+      $COMMAND_EXIT_FUNCTION "${COMMAND_ARGS[@]:-}"
+    fi
   else
     error "Unknown command: ${COMMAND}"
     usage

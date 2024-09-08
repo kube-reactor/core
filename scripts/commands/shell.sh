@@ -3,17 +3,20 @@
 # <Shell> Command
 #
 
+function shell_description () {
+  echo "Open a terminal session to a running Zimagi service"
+}
 function shell_usage () {
     cat <<EOF >&2
 
-Open a terminal session to a running Zimagi service
+$(shell_description)
 
 Usage:
 
-  reactor shell [flags] [options] [<service_pod_name:str>]
+  kubectl reactor shell [flags] [options] [<service_pod_name:str>]
 
 Flags:
-${__zimagi_reactor_core_flags}
+${__reactor_core_flags}
 
 EOF
   exit 1
@@ -40,5 +43,5 @@ function shell_command () {
   debug "Command: shell"
   debug "> SERVICE_POD_NAME: ${SERVICE_POD_NAME}"
 
-  start_zimagi_session "$SERVICE_POD_NAME"
+  start_minikube_session "$SERVICE_POD_NAME"
 }

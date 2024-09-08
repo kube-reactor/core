@@ -47,25 +47,8 @@ export __reactor_core_flags="
 export LOG_LEVEL="${LOG_LEVEL:-6}" # 7 = debug -> 0 = emergency
 export NO_COLOR="${NO_COLOR:-}"    # true = disable color. otherwise autodetected
 
-if [[ "$__os" == "darwin" ]]; then
-  export DEFAULT_HOSTS_FILE="/private/etc/hosts"
-else
-  export DEFAULT_HOSTS_FILE="/etc/hosts"
-fi
-
 export APP_NAME="$(config short_name)"
 export APP_LABEL="$(config name)"
-
-# Kubernetes cluster access configuration
-export KUBECONFIG="${__env_dir}/.kubeconfig"
-export MINIKUBE_HOME="${__project_dir}/.minikube"
-
-# Initialize Docker registry
-if [ -f "${__binary_dir}/minikube" ]; then
-  if "${__binary_dir}/minikube" status --profile="$(config short_name reactor)" 1>/dev/null 2>&1; then
-    eval $("${__binary_dir}/minikube" docker-env --profile="$(config short_name reactor)")
-  fi
-fi
 
 # Set top level directory as working directory
 cd "${__project_dir}"

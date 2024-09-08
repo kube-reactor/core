@@ -5,10 +5,18 @@
 
 export DEFAULT_TERRAFORM_VERSION="1.9.5"
 
+function terraform_environment () {
+  debug "Setting Terraform environment ..."
+  export TERRAFORM_VERSION="${TERRAFORM_VERSION:-$DEFAULT_TERRAFORM_VERSION}"
+
+  debug "export TERRAFORM_VERSION: ${TERRAFORM_VERSION}"
+}
+
 
 function provision_terraform () {
   if minikube_status; then
     cert_environment
+    terraform_environment
 
     export TF_VAR_ssl_certificate="${APP_CERT}"
     export TF_VAR_ssl_private_key="${APP_KEY}"
@@ -33,18 +41,18 @@ function provision_terraform () {
 
     TERRAFORM_ARGS=(
       "${TERRAFORM_ARGS[@]}"
-      "hashicorp/terraform:${TERRAFORM_VERSION:-$DEFAULT_TERRAFORM_VERSION}"
+      "hashicorp/terraform:${TERRAFORM_VERSION}"
     )
     debug "Terraform Arguments: ${TERRAFORM_ARGS[@]}"
 
     info "Initializing Terraform project ..."
     docker run "${TERRAFORM_ARGS[@]}" init
 
-    # info "Validating Terraform project ..."
-    # docker run "${TERRAFORM_ARGS[@]}" validate
+    info "Validating Terraform project ..."
+    docker run "${TERRAFORM_ARGS[@]}" validate
 
-    # info "Deploying Zimagi cluster ..."
-    # docker run "${TERRAFORM_ARGS[@]}" apply -auto-approve -input=false
+    info "Deploying Zimagi cluster ..."
+    docker run "${TERRAFORM_ARGS[@]}" apply -auto-approve -input=false
   fi
 }
 

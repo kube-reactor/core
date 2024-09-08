@@ -3,10 +3,13 @@
 # <Destroy> Command
 #
 
+function destroy_description () {
+  echo "Shut down and destroy Minikube development environment (DESTRUCTIVE)"
+}
 function destroy_usage () {
     cat <<EOF >&2
 
-Shut down and destroy Minikube development environment (DESTRUCTIVE)
+$(destroy_description)
 
 Usage:
 

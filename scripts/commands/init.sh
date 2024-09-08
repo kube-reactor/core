@@ -3,10 +3,13 @@
 # <Init> Command
 #
 
+function init_description () {
+  echo "Initialize Kubernetes development environment"
+}
 function init_usage () {
     cat <<EOF >&2
 
-Initialize Kubernetes development environment.
+$(init_description)
 
 Usage:
 

@@ -2,12 +2,6 @@
 #=========================================================================================
 # CLI Utilities
 #
-# Directories:
-#
-# Environment Variables:
-#
-#  1. NO_COLOR
-#  2. LOG_LEVEL
 
 function function_exists () {
   declare -F "$1" > /dev/null;

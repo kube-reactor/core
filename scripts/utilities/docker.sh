@@ -2,12 +2,10 @@
 #=========================================================================================
 # Docker Utilities
 #
-# Directories:
-#
-#  1. docker directory
-#
 
 function build_docker_image () {
+  cert_environment
+
   PROJECT_NAME="${1}"
   NO_CACHE=${2:-0}
 
@@ -23,8 +21,6 @@ function build_docker_image () {
   debug "> DOCKER_DIR: ${DOCKER_DIR}"
   debug "> BUILD_SCRIPT: ${BUILD_SCRIPT}"
   debug "> NO_CACHE: ${NO_CACHE}"
-
-  cert_environment
 
   if [ -f "$BUILD_SCRIPT" ]; then
     source "$BUILD_SCRIPT" $NO_CACHE
@@ -50,64 +46,39 @@ function build_docker_image () {
   docker build "${DOCKER_ARGS[@]}" 1>>"$(logfile)" 2>&1
 }
 
-# function docker_runtime_image () {
-#   if [ -f "${__zimagi_cli_env_file}" ]
-#   then
-#     source "${__zimagi_cli_env_file}"
+function wipe_docker () {
+  info "Stopping and removing all Docker containers ..."
+  CONTAINERS=$(docker ps -aq)
 
-#     if [ -z "$ZIMAGI_RUNTIME_IMAGE" ]
-#     then
-#       ZIMAGI_RUNTIME_IMAGE="$ZIMAGI_BASE_IMAGE"
-#     fi
-#   else
-#     ZIMAGI_RUNTIME_IMAGE="$ZIMAGI_DEFAULT_RUNTIME_IMAGE"
-#   fi
+  if [ ! -z "$CONTAINERS" ]; then
+    docker stop $CONTAINERS >/dev/null 2>&1
+    docker rm $CONTAINERS >/dev/null 2>&1
+  fi
 
-#   if ! docker inspect "$ZIMAGI_RUNTIME_IMAGE" >/dev/null 2>&1
-#   then
-#     rm -f "${__zimagi_cli_env_file}"
-#     ZIMAGI_RUNTIME_IMAGE="$ZIMAGI_DEFAULT_RUNTIME_IMAGE"
-#   fi
-#   export ZIMAGI_RUNTIME_IMAGE
-# }
+  info "Removing all Docker networks ..."
+  docker network prune -f >/dev/null 2>&1
 
-# function wipe_docker () {
-#   info "Stopping and removing all Docker containers ..."
-#   CONTAINERS=$(docker ps -aq)
+  info "Removing unused Docker images ..."
+  IMAGES=$(docker images --filter dangling=true -qa)
 
-#   if [ ! -z "$CONTAINERS" ]; then
-#     docker stop $CONTAINERS >/dev/null 2>&1
-#     docker rm $CONTAINERS >/dev/null 2>&1
-#   fi
+  if [ ! -z "$IMAGES" ]; then
+    docker rmi -f $IMAGES >/dev/null 2>&1
+  fi
 
-#   info "Removing all Docker networks ..."
-#   docker network prune -f >/dev/null 2>&1
+  info "Removing all Docker volumes ..."
+  VOLUMES=$(docker volume ls --filter dangling=true -q)
 
-#   info "Removing unused Docker images ..."
-#   IMAGES=$(docker images --filter dangling=true -qa)
+  if [ ! -z "$VOLUMES" ]; then
+    docker volume rm $VOLUMES >/dev/null 2>&1
+  fi
 
-#   if [ ! -z "$IMAGES" ]; then
-#     docker rmi -f $IMAGES >/dev/null 2>&1
-#   fi
+  info "Cleaning up any remaining Docker images ..."
+  IMAGES=$(docker images -qa)
 
-#   info "Removing all Docker volumes ..."
-#   VOLUMES=$(docker volume ls --filter dangling=true -q)
+  if [ ! -z "$IMAGES" ]; then
+    docker rmi -f $IMAGES >/dev/null 2>&1
+  fi
 
-#   if [ ! -z "$VOLUMES" ]; then
-#     docker volume rm $VOLUMES >/dev/null 2>&1
-#   fi
-
-#   info "Cleaning up any remaining Docker images ..."
-#   IMAGES=$(docker images -qa)
-
-#   if [ ! -z "$IMAGES" ]; then
-#     docker rmi -f $IMAGES >/dev/null 2>&1
-#   fi
-
-#   info "Cleaning Docker build cache ..."
-#   docker system prune -a -f >/dev/null 2>&1
-
-#   info "Removing Docker run definitions and process id files ..."
-#   rm -Rf "${__zimagi_data_dir}/run"
-#   rm -f "${__zimagi_data_dir}"/*.pid
-# }
+  info "Cleaning Docker build cache ..."
+  docker system prune -a -f >/dev/null 2>&1
+}

@@ -3,17 +3,20 @@
 # <Clean> Command
 #
 
+function clean_description () {
+  echo "Cleanup and wipe project resources (VERY DESTRUCTIVE)"
+}
 function clean_usage () {
     cat <<EOF >&2
 
-Cleanup and wipe project resources (VERY DESTRUCTIVE)
+$(clean_description)
 
 Usage:
 
-  reactor clean [flags] [options]
+  kubectl reactor clean [flags] [options]
 
 Flags:
-${__zimagi_reactor_core_flags}
+${__reactor_core_flags}
 
     --force               Force execution without confirming
     --all                 Clean everything

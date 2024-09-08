@@ -2,10 +2,6 @@
 #=========================================================================================
 # File Handling Utilities
 #
-# Directories:
-#
-# Environment Variables:
-#
 
 function logfile () {
     echo "${__log_dir}/${__log_file}.log"

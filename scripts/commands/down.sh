@@ -3,10 +3,13 @@
 # <Down> Command
 #
 
+function down_description () {
+  echo "Shut down but do not destroy development environment services"
+}
 function down_usage () {
     cat <<EOF >&2
 
-Shut down but do not destroy development environment services.
+$(down_description)
 
 Usage:
 

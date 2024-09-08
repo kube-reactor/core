@@ -3,17 +3,20 @@
 # <Logs> Command
 #
 
+function logs_description () {
+  echo "Display log entries for Zimagi services"
+}
 function logs_usage () {
     cat <<EOF >&2
 
-Display log entries for Zimagi services.
+$(logs_description)
 
 Usage:
 
-  reactor logs [flags] [options] <service_name:str> ...
+  kubectl reactor logs [flags] [options] <service_name:str> ...
 
 Flags:
-${__zimagi_reactor_core_flags}
+${__reactor_core_flags}
 
     --follow              Follow service logs entries over time
     --timestamps          Display timestamps for each log entry
