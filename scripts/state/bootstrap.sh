@@ -24,6 +24,10 @@ function config () {
   "${__script_dir}/utilities/locator.py" "$1" "${2-}"
 }
 
+function env_json () {
+  "${__script_dir}/utilities/env_json.py"
+}
+
 function function_exists () {
   declare -F "$1" > /dev/null;
 }

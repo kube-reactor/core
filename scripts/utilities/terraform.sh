@@ -8,8 +8,10 @@ export DEFAULT_TERRAFORM_VERSION="1.9.5"
 function terraform_environment () {
   debug "Setting Terraform environment ..."
   export TERRAFORM_VERSION="${TERRAFORM_VERSION:-$DEFAULT_TERRAFORM_VERSION}"
+  export TERRAFORM_GATEWAY="${__argocd_apps_dir}/gateway"
 
-  debug "export TERRAFORM_VERSION: ${TERRAFORM_VERSION}"
+  debug "TERRAFORM_VERSION: ${TERRAFORM_VERSION}"
+  debug "TERRAFORM_GATEWAY: ${TERRAFORM_GATEWAY}"
 }
 
 
@@ -17,27 +19,28 @@ function provision_terraform () {
   if minikube_status; then
     cert_environment
     terraform_environment
+    helm_environment
 
-    export TF_VAR_ssl_certificate="${APP_CERT}"
-    export TF_VAR_ssl_private_key="${APP_KEY}"
+    export TF_VAR_variables="$(env_json)"
 
     TERRAFORM_ARGS=(
       "--rm"
       "--network" "host"
-      "--volume" "/project:/project"  # Minikube host path -> Terraform container path
-      "--workdir" "/project/terraform/applications"
-      "--env" "TF_LOG=DEBUG"
-      "--env" "TF_DATA_DIR=/project/.terraform"
-      "--env" "TF_VAR_project_path=/project"
-      "--env" "TF_VAR_kube_config=/project/env/${__environment}/.kubeconfig"
+      "--volume" "${__project_dir}:${__project_dir}"  # Minikube host path -> Terraform container path
+      "--workdir" "${TERRAFORM_GATEWAY}"
+      "--env" "TF_DATA_DIR=${__project_dir}/.terraform"
+      "--env" "TF_VAR_project_path=${__project_dir}"
+      "--env" "TF_VAR_kube_config=${__env_dir}/.kubeconfig"
       "--env" "TF_VAR_domain=$(echo "$APP_NAME" | tr '_' '-').local"
       "--env" "TF_VAR_environment=${__environment}"
-      "--env" "TF_VAR_gateway_node_port=${CLUSTER_GATEWAY_PORT:-32210}"
       "--env" "TF_VAR_argocd_admin_password=$("${__binary_dir}/argocd" account bcrypt --password "${ARGOCD_ADMIN_PASSWORD:-admin}")"
     )
+    if [[ "${LOG_LEVEL:-0}" -ge 7 ]]; then
+      TERRAFORM_ARGS=("${TERRAFORM_ARGS[@]}" "--env" "TF_LOG=DEBUG")
+    fi
     while IFS= read -r variable; do
       TERRAFORM_ARGS=("${TERRAFORM_ARGS[@]}" "--env" "$variable")
-    done <<< "$(env | grep -o "TF_VAR_[_A-Za-z0-9]*")"
+    done <<< "$(env | grep -o "[_A-Za-z0-9]*")"
 
     TERRAFORM_ARGS=(
       "${TERRAFORM_ARGS[@]}"
@@ -51,17 +54,19 @@ function provision_terraform () {
     info "Validating Terraform project ..."
     docker run "${TERRAFORM_ARGS[@]}" validate
 
-    info "Deploying Zimagi cluster ..."
+    info "Deploying Minikube cluster ..."
     docker run "${TERRAFORM_ARGS[@]}" apply -auto-approve -input=false
   fi
 }
 
 function clean_terraform () {
   if [ -d "${__project_dir}/.terraform" ]; then
+    terraform_environment
+
     info "Removing Terraform configuration ..."
     sudo rm -Rf "${__project_dir}/.terraform"
-    rm -f "${__terraform_dir}/applications/.terraform.lock.hcl"
-    rm -f "${__terraform_dir}/applications/terraform.tfvars"
-    rm -f "${__terraform_dir}/applications/terraform.tfstate"*
+    rm -f "${TERRAFORM_GATEWAY}/.terraform.lock.hcl"
+    rm -f "${TERRAFORM_GATEWAY}/terraform.tfvars"
+    rm -f "${TERRAFORM_GATEWAY}/terraform.tfstate"*
   fi
 }

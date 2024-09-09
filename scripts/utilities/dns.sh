@@ -28,6 +28,11 @@ function dns_hosts () {
 function dns_records () {
   dns_map=("###! $APP_NAME DNS MAP !###")
 
+  echo "-----------------"
+  echo "$(dns_ip)"
+  echo "$(dns_hosts)"
+  echo "-----------------"
+
   for host in $(dns_hosts); do
     for ip in $(dns_ip); do
       dns_map=("${dns_map[@]}" "$ip $host")

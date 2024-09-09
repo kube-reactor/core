@@ -32,15 +32,16 @@ export __certs_dir="${__project_dir}/certs"
 export __docker_dir="${__project_dir}/docker"
 export __charts_dir="${__project_dir}/charts"
 export __terraform_dir="${__project_dir}/terraform"
+export __cache_dir="${__project_dir}/cache"
 
 export __argocd_apps_dir="${__terraform_dir}/argocd-apps"
 
 # shellcheck disable=SC2034,SC2015
 export __reactor_invocation="$(printf %q "${__project_file}")$( (($#)) && printf ' %q' "$@" || true)"
 export __reactor_core_flags="
-    -v --verbose          Enable verbose mode, print script as it is executed
-    -d --debug            Enables debug mode
-    -n --no-color         Disable color output
+    --verbose             Enable verbose mode, print script as it is executed
+    --debug               Enables debug mode
+    --no-color            Disable color output
     -h --help             Display help message"
 
 # Default environment configuration
@@ -54,6 +55,8 @@ export APP_LABEL="$(config name)"
 cd "${__project_dir}"
 
 # Directory creation
+mkdir -p "${__terraform_dir}"
+mkdir -p "${__cache_dir}"
 mkdir -p "${__log_dir}"
 mkdir -p "${__certs_dir}"
 mkdir -p "${__docker_dir}"

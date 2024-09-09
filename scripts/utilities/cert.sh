@@ -8,11 +8,16 @@ export DEFAULT_CERT_DAYS=3650
 
 function cert_environment () {
   debug "Setting certificate environment ..."
+  export CERT_SUBJECT="${CERT_SUBJECT:-$DEFAULT_CERT_SUBJECT}"
+  export CERT_DAYS="${CERT_DAYS:-$DEFAULT_CERT_DAYS}"
+
   export APP_CA_KEY="$(cat "${__certs_dir}/app-ca.key")"
   export APP_CA_CERT="$(cat "${__certs_dir}/app-ca.crt")"
   export APP_KEY="$(cat "${__certs_dir}/app.key")"
   export APP_CERT="$(cat "${__certs_dir}/app.crt")"
 
+  debug "CERT_SUBJECT: ${CERT_SUBJECT}"
+  debug "CERT_DAYS: ${CERT_DAYS}"
   debug "APP_CA_KEY: ${APP_CA_KEY}"
   debug "APP_CA_CERT: ${APP_CA_CERT}"
   debug "APP_KEY: ${APP_KEY}"

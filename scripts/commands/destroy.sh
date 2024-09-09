@@ -52,7 +52,7 @@ function destroy_command () {
 
   destroy_minikube
   remove_dns_records
-  #clean_terraform
+  clean_terraform
 
   info "Minikube development environment has been destroyed"
 }

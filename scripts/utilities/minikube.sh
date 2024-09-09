@@ -31,23 +31,23 @@ function minikube_environment () {
   debug "MINIKUBE_KUBERNETES_VERSION: ${MINIKUBE_KUBERNETES_VERSION}"
   debug "MINIKUBE_CONTAINER_RUNTIME: ${MINIKUBE_CONTAINER_RUNTIME}"
 
-  if [ -f "${__binary_dir}/minikube" ]; then
-    if "${__binary_dir}/minikube" status --profile="$(config short_name reactor)" 1>/dev/null 2>&1; then
-      debug "DOCKER_TLS_VERIFY: ${DOCKER_TLS_VERIFY}"
-      debug "DOCKER_HOST: ${DOCKER_HOST}"
-      debug "DOCKER_CERT_PATH: ${DOCKER_CERT_PATH}"
-      debug "MINIKUBE_ACTIVE_DOCKERD: ${MINIKUBE_ACTIVE_DOCKERD}"
-    fi
-  fi
+  # if [ -f "${__binary_dir}/minikube" ]; then
+  #   if "${__binary_dir}/minikube" status --profile="$(config short_name reactor)" 1>/dev/null 2>&1; then
+  #     debug "DOCKER_TLS_VERIFY: ${DOCKER_TLS_VERIFY}"
+  #     debug "DOCKER_HOST: ${DOCKER_HOST}"
+  #     debug "DOCKER_CERT_PATH: ${DOCKER_CERT_PATH}"
+  #     debug "MINIKUBE_ACTIVE_DOCKERD: ${MINIKUBE_ACTIVE_DOCKERD}"
+  #   fi
+  # fi
 }
 
 
 # Initialize Docker registry
-if [ -f "${__binary_dir}/minikube" ]; then
-  if "${__binary_dir}/minikube" status --profile="$(config short_name reactor)" 1>/dev/null 2>&1; then
-    eval $("${__binary_dir}/minikube" docker-env --profile="$(config short_name reactor)")
-  fi
-fi
+# if [ -f "${__binary_dir}/minikube" ]; then
+#   if "${__binary_dir}/minikube" status --profile="$(config short_name reactor)" 1>/dev/null 2>&1; then
+#     eval $("${__binary_dir}/minikube" docker-env --profile="$(config short_name reactor)")
+#   fi
+# fi
 
 
 function minikube_status () {
@@ -75,16 +75,17 @@ function start_minikube () {
       --container-runtime=${MINIKUBE_CONTAINER_RUNTIME} \
       --addons="default-storageclass,storage-provisioner,metrics-server,dashboard" \
       --mount \
-      --mount-string="${__project_dir}:/project"
+      --mount-string="${__project_dir}:${__project_dir}" \
+      --embed-certs=true
   fi
   "${__binary_dir}/minikube" update-context --profile="$(config short_name reactor)"
 
-  eval $("${__binary_dir}/minikube" docker-env --profile="$(config short_name reactor)")
+  # eval $("${__binary_dir}/minikube" docker-env --profile="$(config short_name reactor)")
 
-  debug "DOCKER_TLS_VERIFY=${DOCKER_TLS_VERIFY}"
-  debug "DOCKER_HOST=${DOCKER_HOST}"
-  debug "DOCKER_CERT_PATH=${DOCKER_CERT_PATH}"
-  debug "MINIKUBE_ACTIVE_DOCKERD=${MINIKUBE_ACTIVE_DOCKERD}"
+  # debug "DOCKER_TLS_VERIFY=${DOCKER_TLS_VERIFY}"
+  # debug "DOCKER_HOST=${DOCKER_HOST}"
+  # debug "DOCKER_CERT_PATH=${DOCKER_CERT_PATH}"
+  # debug "MINIKUBE_ACTIVE_DOCKERD=${MINIKUBE_ACTIVE_DOCKERD}"
 }
 
 function launch_minikube_tunnel () {

@@ -33,17 +33,17 @@ function init_command () {
   while [[ $# -gt 0 ]]; do
     case "$1" in
       --cert-days=*)
-      CERT_DAYS="${1#*=}"
+      export CERT_DAYS="${1#*=}"
       ;;
       --cert-days)
-      CERT_DAYS="$2"
+      export CERT_DAYS="$2"
       shift
       ;;
       --cert-subject=*)
-      CERT_SUBJECT="${1#*=}"
+      export CERT_SUBJECT="${1#*=}"
       ;;
       --cert-subject)
-      CERT_SUBJECT="$2"
+      export CERT_SUBJECT="$2"
       shift
       ;;
       --skip-build)
@@ -66,15 +66,13 @@ function init_command () {
   done
   SKIP_BUILD=${SKIP_BUILD:-0}
   NO_CACHE=${NO_CACHE:-0}
-  CERT_SUBJECT="${CERT_SUBJECT:-$DEFAULT_CERT_SUBJECT}"
-  CERT_DAYS="${CERT_DAYS:-$DEFAULT_CERT_DAYS}"
-  HELM_VERSION="${HELM_VERSION:-$DEFAULT_HELM_VERSION}"
 
   debug "Command: init"
   debug "> SKIP_BUILD: ${SKIP_BUILD}"
   debug "> NO_CACHE: ${NO_CACHE}"
-  debug "> CERT_SUBJECT: ${CERT_SUBJECT}"
-  debug "> CERT_DAYS: ${CERT_DAYS}"
+
+  cert_environment
+  helm_environment
 
   info "Checking development software requirements ..."
   check_binary python 1>>"$(logfile)" 2>&1

@@ -139,19 +139,20 @@ EOF
 
 COMMAND_ARGS=()
 arg_processed=0
+
 [[ $# -eq 0 ]] && arg_h=1
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    -v|--verbose)
+    --verbose)
       arg_v=1
       shift
       ;;
-    -d|--debug)
+    --debug)
       arg_d=1
       shift
       ;;
-    -n|--no-color)
+    --no-color)
       arg_n=1
       shift
       ;;
