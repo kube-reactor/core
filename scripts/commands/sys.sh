@@ -1,12 +1,12 @@
 #
 #=========================================================================================
-# <System> Command
+# <Sys> Command
 #
 
-function system_description () {
+function sys_description () {
   echo "Execute a kubectl operation within the reactor environment context"
 }
-function system_command () {
+function sys_command () {
   kubectl "$@"
   echo ""
 }

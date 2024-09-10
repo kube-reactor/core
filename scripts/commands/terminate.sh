@@ -1,19 +1,19 @@
 #
 #=========================================================================================
-# <Shell> Command
+# <Terminate> Command
 #
 
-function shell_description () {
-  echo "Open a terminal session to a running Minikube service"
+function terminate_description () {
+  echo "Terminate a service within the Minikube cluster"
 }
-function shell_usage () {
+function terminate_usage () {
     cat <<EOF >&2
 
-$(shell_description)
+$(terminate_description)
 
 Usage:
 
-  kubectl reactor shell [flags] [options] [<service_pod_name:str>]
+  kubectl reactor terminate [flags] [options] <service_pod_name:str>
 
 Flags:
 ${__reactor_core_flags}
@@ -22,10 +22,9 @@ ${__reactor_core_flags}
 EOF
   exit 1
 }
-function shell_command () {
+function terminate_command () {
   SERVICE_POD_NAME=""
   SERVICE_NAMESPACE="default"
-  SERVICE_COMMAND=()
 
   while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -37,37 +36,42 @@ function shell_command () {
       shift
       ;;
       -h|--help)
-      shell_usage
+      terminate_usage
       ;;
       *)
+      if [[ "$1" == "-"* ]] || [ ! -z "$SERVICE_POD_NAME" ]; then
+        error "Unknown argument: ${1}"
+        terminate_usage
+      fi
       if [ -z "$SERVICE_POD_NAME" ]; then
         SERVICE_POD_NAME="${1}"
-      else
-        SERVICE_COMMAND=("${SERVICE_COMMAND[@]}" "${1}")
       fi
       ;;
     esac
     shift
   done
 
+  MISSING_ARGS=0
+
   if [ -z "$SERVICE_POD_NAME" ]; then
     alert "Service pod name argument required"
-    launch_usage
-    exit 1
+    MISSING_ARGS=1
   fi
-  if [ ${#SERVICE_COMMAND[@]} -eq 0 ]; then
-    SERVICE_COMMAND=("bash")
+  if [ $MISSING_ARGS -eq 1 ]; then
+    terminate_usage
+    exit 1
   fi
 
   minikube_environment
 
-  debug "Command: shell"
+  debug "Command: terminate"
   debug "> SERVICE_POD_NAME: ${SERVICE_POD_NAME}"
   debug "> SERVICE_NAMESPACE: ${SERVICE_NAMESPACE}"
-  debug "> SERVICE_COMMAND: ${SERVICE_COMMAND[@]}"
 
   if ! minikube_status; then
     emergency "Minikube is not running"
   fi
-  kubectl exec -n "$SERVICE_NAMESPACE" -ti "$SERVICE_POD_NAME" -- "${SERVICE_COMMAND[@]}"
+
+  kubectl delete pod -n "$SERVICE_NAMESPACE" "$SERVICE_POD_NAME"
+  echo ""
 }

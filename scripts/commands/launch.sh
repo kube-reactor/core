@@ -1,19 +1,19 @@
 #
 #=========================================================================================
-# <Shell> Command
+# <Launch> Command
 #
 
-function shell_description () {
-  echo "Open a terminal session to a running Minikube service"
+function launch_description () {
+  echo "Launch a service within the Minikube cluster"
 }
-function shell_usage () {
+function launch_usage () {
     cat <<EOF >&2
 
-$(shell_description)
+$(launch_description)
 
 Usage:
 
-  kubectl reactor shell [flags] [options] [<service_pod_name:str>]
+  kubectl reactor launch [flags] [options] <service_pod_name:str> <service_image:str>
 
 Flags:
 ${__reactor_core_flags}
@@ -22,10 +22,10 @@ ${__reactor_core_flags}
 EOF
   exit 1
 }
-function shell_command () {
+function launch_command () {
   SERVICE_POD_NAME=""
+  SERVICE_IMAGE=""
   SERVICE_NAMESPACE="default"
-  SERVICE_COMMAND=()
 
   while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -37,37 +37,49 @@ function shell_command () {
       shift
       ;;
       -h|--help)
-      shell_usage
+      launch_usage
       ;;
       *)
+      if [[ "$1" == "-"* ]] || [ ! -z "$SERVICE_POD_NAME" -a ! -z "$SERVICE_IMAGE" ]; then
+        error "Unknown argument: ${1}"
+        launch_usage
+      fi
       if [ -z "$SERVICE_POD_NAME" ]; then
         SERVICE_POD_NAME="${1}"
-      else
-        SERVICE_COMMAND=("${SERVICE_COMMAND[@]}" "${1}")
+      elif [ -z "$SERVICE_IMAGE" ]; then
+        SERVICE_IMAGE="${1}"
       fi
       ;;
     esac
     shift
   done
 
+  MISSING_ARGS=0
+
   if [ -z "$SERVICE_POD_NAME" ]; then
     alert "Service pod name argument required"
+    MISSING_ARGS=1
+  fi
+  if [ -z "$SERVICE_IMAGE" ]; then
+    alert "Service image argument required"
+    MISSING_ARGS=1
+  fi
+  if [ $MISSING_ARGS -eq 1 ]; then
     launch_usage
     exit 1
-  fi
-  if [ ${#SERVICE_COMMAND[@]} -eq 0 ]; then
-    SERVICE_COMMAND=("bash")
   fi
 
   minikube_environment
 
-  debug "Command: shell"
+  debug "Command: launch"
   debug "> SERVICE_POD_NAME: ${SERVICE_POD_NAME}"
+  debug "> SERVICE_IMAGE: ${SERVICE_IMAGE}"
   debug "> SERVICE_NAMESPACE: ${SERVICE_NAMESPACE}"
-  debug "> SERVICE_COMMAND: ${SERVICE_COMMAND[@]}"
 
   if ! minikube_status; then
     emergency "Minikube is not running"
   fi
-  kubectl exec -n "$SERVICE_NAMESPACE" -ti "$SERVICE_POD_NAME" -- "${SERVICE_COMMAND[@]}"
+
+  kubectl run -n "$SERVICE_NAMESPACE" "$SERVICE_POD_NAME" --image="$SERVICE_IMAGE"
+  echo ""
 }
