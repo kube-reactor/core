@@ -31,7 +31,7 @@ function provision_terraform () {
       "--env" "TF_DATA_DIR=${__project_dir}/.terraform"
       "--env" "TF_VAR_project_path=${__project_dir}"
       "--env" "TF_VAR_kube_config=${__env_dir}/.kubeconfig"
-      "--env" "TF_VAR_domain=$(echo "$APP_NAME" | tr '_' '-').local"
+      "--env" "TF_VAR_domain=${PRIMARY_DOMAIN}"
       "--env" "TF_VAR_environment=${__environment}"
       "--env" "TF_VAR_argocd_admin_password=$("${__binary_dir}/argocd" account bcrypt --password "${ARGOCD_ADMIN_PASSWORD:-admin}")"
     )

@@ -62,7 +62,7 @@ function clean_command () {
     confirm
   fi
 
-  destroy_minikube
+  #destroy_minikube
   remove_dns_records
 
   if [[ $CLEAN_ALL -eq 1 ]] || [[ $WIPE_DOCKER -eq 1 ]]; then

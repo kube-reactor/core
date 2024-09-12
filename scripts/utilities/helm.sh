@@ -3,7 +3,7 @@
 # Helm Utilities
 #
 
-export DEFAULT_HELM_VERSION="3.15.0"
+export DEFAULT_HELM_VERSION="3.15.4"
 
 function helm_environment () {
   debug "Setting Helm environment ..."

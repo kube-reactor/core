@@ -51,6 +51,8 @@ export NO_COLOR="${NO_COLOR:-}"    # true = disable color. otherwise autodetecte
 export APP_NAME="$(config short_name)"
 export APP_LABEL="$(config name)"
 
+export PRIMARY_DOMAIN="$(echo "$APP_NAME" | tr '_' '-').local"
+
 # Set top level directory as working directory
 cd "${__project_dir}"
 

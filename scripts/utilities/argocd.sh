@@ -8,7 +8,7 @@ function login_argocd () {
   if minikube_status; then
     info "Logging into ArgoCD via CLI ..."
     "${__binary_dir}/argocd" login \
-      "argocd.$(echo "$APP_NAME" | tr '_' '-').local" \
+      "argocd.${PRIMARY_DOMAIN}" \
       --username admin --password \
       "${ARGOCD_ADMIN_PASSWORD:-admin}" \
       --insecure --grpc-web

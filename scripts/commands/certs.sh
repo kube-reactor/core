@@ -61,7 +61,7 @@ function certs_command () {
     shift
   done
   GENERATE=${GENERATE:-0}
-  SUBJECT="${SUBJECT:-$DEFAULT_CERT_SUBJECT}/CN=*.$(echo "$APP_LABEL" | tr '_' '-').local"
+  SUBJECT="${SUBJECT:-$DEFAULT_CERT_SUBJECT}/CN=*.${PRIMARY_DOMAIN}"
   DAYS=${DAYS:-$DEFAULT_CERT_DAYS}
 
   debug "Command: certs"

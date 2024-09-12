@@ -107,7 +107,7 @@ function init_command () {
 
   info "Generating ingress certificates ..."
   generate_certs \
-    "${CERT_SUBJECT}/CN=*.$(echo "$APP_LABEL" | tr '_' '-').local" \
+    "${CERT_SUBJECT}/CN=*.${PRIMARY_DOMAIN}" \
     "$CERT_DAYS"
 
   info "Initializing docker image repositories ..."
