@@ -67,7 +67,7 @@ function start_minikube () {
       --driver=${MINIKUBE_DRIVER} \
       --nodes=${MINIKUBE_NODES} \
       --cpus=${MINIKUBE_CPUS} \
-      --gpus=all \
+      # --gpus=all \
       --memory=${MINIKUBE_MEMORY} \
       --kubernetes-version=${MINIKUBE_KUBERNETES_VERSION} \
       --container-runtime=${MINIKUBE_CONTAINER_RUNTIME} \
