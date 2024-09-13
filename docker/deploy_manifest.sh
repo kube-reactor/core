@@ -21,7 +21,7 @@ if [ -z "$PKG_DOCKER_PASSWORD" ]; then
     exit 1
 fi
 
-PKG_DOCKER_IMAGE="${PKG_DOCKER_IMAGE:-reactor}"
+PKG_DOCKER_IMAGE="${PKG_DOCKER_IMAGE:-zimagi/reactor}"
 
 #-------------------------------------------------------------------------------
 
