@@ -11,7 +11,7 @@ jobs:
                 name: Deploy latest AMD Docker image
                 command: ./docker/deploy_image.sh standard latest
                 environment:
-                    DOCKER_PARENT_IMAGE: ubuntu:22.04
+                    REACTOR_PARENT_IMAGE: ubuntu:22.04
 
     deploy-docker-arm64-latest:
         resource_class: arm.medium
@@ -23,7 +23,7 @@ jobs:
                 name: Deploy latest ARM Docker image
                 command: ./docker/deploy_image.sh standard latest
                 environment:
-                    DOCKER_PARENT_IMAGE: ubuntu:22.04
+                    REACTOR_PARENT_IMAGE: ubuntu:22.04
 
     deploy-docker-latest:
         resource_class: medium
@@ -45,7 +45,7 @@ jobs:
                 name: Deploy latest AMD Nvidia Docker image
                 command: ./docker/deploy_image.sh nvidia latest
                 environment:
-                    DOCKER_PARENT_IMAGE: nvidia/cuda:12.3.2-cudnn9-devel-ubuntu22.04
+                    REACTOR_PARENT_IMAGE: nvidia/cuda:12.3.2-cudnn9-devel-ubuntu22.04
 
     deploy-docker-nvidia-latest:
         resource_class: medium
@@ -67,7 +67,7 @@ jobs:
                 name: Deploy versioned AMD Docker image
                 command: ./docker/deploy_image.sh
                 environment:
-                    DOCKER_PARENT_IMAGE: ubuntu:22.04
+                    REACTOR_PARENT_IMAGE: ubuntu:22.04
 
     deploy-docker-arm64-version:
         resource_class: arm.medium
@@ -79,7 +79,7 @@ jobs:
                 name: Deploy versioned ARM Docker image
                 command: ./docker/deploy_image.sh
                 environment:
-                    DOCKER_PARENT_IMAGE: ubuntu:22.04
+                    REACTOR_PARENT_IMAGE: ubuntu:22.04
 
     deploy-docker-version:
         resource_class: medium
@@ -101,7 +101,7 @@ jobs:
                 name: Deploy versioned AMD Nvidia Docker image
                 command: ./docker/deploy_image.sh nvidia
                 environment:
-                    DOCKER_PARENT_IMAGE: nvidia/cuda:12.3.2-cudnn9-devel-ubuntu22.04
+                    REACTOR_PARENT_IMAGE: nvidia/cuda:12.3.2-cudnn9-devel-ubuntu22.04
 
     deploy-docker-nvidia-version:
         resource_class: medium
