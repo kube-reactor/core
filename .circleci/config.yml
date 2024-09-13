@@ -1,0 +1,198 @@
+version: 2
+
+jobs:
+    deploy-docker-amd64-latest:
+        resource_class: medium
+        machine:
+            image: ubuntu-2404:current
+        steps:
+            - checkout
+            - run:
+                name: Deploy latest AMD Docker image
+                command: ./docker/deploy_image.sh standard latest
+                environment:
+                    DOCKER_PARENT_IMAGE: ubuntu:22.04
+
+    deploy-docker-arm64-latest:
+        resource_class: arm.medium
+        machine:
+            image: ubuntu-2404:current
+        steps:
+            - checkout
+            - run:
+                name: Deploy latest ARM Docker image
+                command: ./docker/deploy_image.sh standard latest
+                environment:
+                    DOCKER_PARENT_IMAGE: ubuntu:22.04
+
+    deploy-docker-latest:
+        resource_class: medium
+        machine:
+            image: ubuntu-2404:current
+        steps:
+            - checkout
+            - run:
+                name: Deploy latest Docker platform manifest
+                command: ./docker/deploy_manifest.sh standard latest
+
+    deploy-docker-nvidia-amd64-latest:
+        resource_class: medium
+        machine:
+            image: ubuntu-2404:current
+        steps:
+            - checkout
+            - run:
+                name: Deploy latest AMD Nvidia Docker image
+                command: ./docker/deploy_image.sh nvidia latest
+                environment:
+                    DOCKER_PARENT_IMAGE: nvidia/cuda:12.3.2-cudnn9-devel-ubuntu22.04
+
+    deploy-docker-nvidia-latest:
+        resource_class: medium
+        machine:
+            image: ubuntu-2404:current
+        steps:
+            - checkout
+            - run:
+                name: Deploy latest Nvidia Docker platform manifest
+                command: ./docker/deploy_manifest.sh nvidia latest
+
+    deploy-docker-amd64-version:
+        resource_class: medium
+        machine:
+            image: ubuntu-2404:current
+        steps:
+            - checkout
+            - run:
+                name: Deploy versioned AMD Docker image
+                command: ./docker/deploy_image.sh
+                environment:
+                    DOCKER_PARENT_IMAGE: ubuntu:22.04
+
+    deploy-docker-arm64-version:
+        resource_class: arm.medium
+        machine:
+            image: ubuntu-2404:current
+        steps:
+            - checkout
+            - run:
+                name: Deploy versioned ARM Docker image
+                command: ./docker/deploy_image.sh
+                environment:
+                    DOCKER_PARENT_IMAGE: ubuntu:22.04
+
+    deploy-docker-version:
+        resource_class: medium
+        machine:
+            image: ubuntu-2404:current
+        steps:
+            - checkout
+            - run:
+                name: Deploy versioned Docker platform manifest
+                command: ./docker/deploy_manifest.sh
+
+    deploy-docker-nvidia-amd64-version:
+        resource_class: medium
+        machine:
+            image: ubuntu-2404:current
+        steps:
+            - checkout
+            - run:
+                name: Deploy versioned AMD Nvidia Docker image
+                command: ./docker/deploy_image.sh nvidia
+                environment:
+                    DOCKER_PARENT_IMAGE: nvidia/cuda:12.3.2-cudnn9-devel-ubuntu22.04
+
+    deploy-docker-nvidia-version:
+        resource_class: medium
+        machine:
+            image: ubuntu-2404:current
+        steps:
+            - checkout
+            - run:
+                name: Deploy versioned Nvidia Docker platform manifest
+                command: ./docker/deploy_manifest.sh nvidia
+
+workflows:
+    version: 2
+    deploy:
+        jobs:
+            - deploy-docker-amd64-latest:
+                filters:
+                    tags:
+                        ignore: /.*/
+                    branches:
+                        only: main
+
+            - deploy-docker-arm64-latest:
+                filters:
+                    tags:
+                        ignore: /.*/
+                    branches:
+                        only: main
+
+            - deploy-docker-latest:
+                filters:
+                    tags:
+                        ignore: /.*/
+                    branches:
+                        only: main
+                requires:
+                    - deploy-docker-amd64-latest
+                    - deploy-docker-arm64-latest
+
+            - deploy-docker-nvidia-amd64-latest:
+                filters:
+                    tags:
+                        ignore: /.*/
+                    branches:
+                        only: main
+
+            - deploy-docker-nvidia-latest:
+                filters:
+                    tags:
+                        ignore: /.*/
+                    branches:
+                        only: main
+                requires:
+                    - deploy-docker-nvidia-amd64-latest
+
+            - deploy-docker-amd64-version:
+                filters:
+                    tags:
+                        only: /.*/
+                    branches:
+                        ignore: /.*/
+
+            - deploy-docker-arm64-version:
+                filters:
+                    tags:
+                        only: /.*/
+                    branches:
+                        ignore: /.*/
+
+            - deploy-docker-version:
+                filters:
+                    tags:
+                        only: /.*/
+                    branches:
+                        ignore: /.*/
+                requires:
+                    - deploy-docker-amd64-version
+                    - deploy-docker-arm64-version
+
+            - deploy-docker-nvidia-amd64-version:
+                filters:
+                    tags:
+                        only: /.*/
+                    branches:
+                        ignore: /.*/
+
+            - deploy-docker-nvidia-version:
+                filters:
+                    tags:
+                        only: /.*/
+                    branches:
+                        ignore: /.*/
+                requires:
+                    - deploy-docker-nvidia-amd64-version

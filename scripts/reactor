@@ -1,0 +1,124 @@
+#!/usr/bin/env bash
+#
+# Usage:
+#
+#  reactor [flags] <command> [args] [flags/options]
+#
+#=========================================================================================
+# Initialization
+#
+
+# Initialize top level directories and load bootstrap functions
+SCRIPT_PATH="${BASH_SOURCE[0]}" # bash
+if [[ -z "$SCRIPT_PATH" ]]; then
+  SCRIPT_PATH="${(%):-%N}" # zsh
+fi
+
+((return 0 2>/dev/null) || [[ $ZSH_EVAL_CONTEXT =~ :file$ ]]) && SOURCED=1 || SOURCED=0
+
+export __script_dir="$(cd "$(dirname "${SCRIPT_PATH}")" && pwd)"
+echo "${__script_dir}"
+source "${__script_dir}/reactor-env"
+
+echo "${__project_dir}"
+
+if [[ $SOURCED -eq 1 ]]; then
+  # script is being sourced
+  return
+fi
+
+echo "Running reactor command"
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --verbose)
+      arg_v=1
+      shift
+      ;;
+    --debug)
+      arg_d=1
+      shift
+      ;;
+    --no-color)
+      arg_n=1
+      shift
+      ;;
+    *)
+      shift
+      ;;
+  esac
+done
+
+#
+#=========================================================================================
+# Execution
+#
+
+# Error handling
+set -o errexit
+set -o errtrace
+set -o nounset
+set -o pipefail
+
+# Log check
+[[ "${LOG_LEVEL:-6}" ]] || emergency "Cannot continue without LOG_LEVEL"
+
+# Debug mode
+if [[ "${arg_d:-0}" = "1" ]]; then
+  #set -o xtrace
+  PS4='+(${BASH_SOURCE}:${LINENO}): ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
+  LOG_LEVEL="7"
+  # Enable error backtracing
+  trap '__err_report "${FUNCNAME:-.}" ${LINENO}' ERR
+fi
+
+# Verbose mode
+if [[ "${arg_v:-0}" = "1" ]]; then
+  set -o verbose
+fi
+
+# No color mode
+if [[ "${arg_n:-0}" = "1" ]]; then
+  NO_COLOR="true"
+fi
+
+
+echo "" >"$(logfile)"
+debug "====================================================================="
+debug "Executing reactor command: $@"
+
+debug "Environment variables"
+debug "======================================"
+debug "$(env)"
+
+
+if [[ "$__os" == "darwin" ]]; then
+  REACTOR_DOCKER_SOCKET_FILE="${REACTOR_DOCKER_SOCKET_FILE:-/var/run/docker.sock.raw}"
+else
+  REACTOR_DOCKER_SOCKET_FILE="${REACTOR_DOCKER_SOCKET_FILE:-/var/run/docker.sock}"
+fi
+export REACTOR_DOCKER_SOCKET_FILE
+export REACTOR_RUNTIME_IMAGE="${REACTOR_RUNTIME_IMAGE:-"ubuntu:24.04"}"
+
+REACTOR_ARGS=(
+  "--rm"
+  "--interactive"
+  "--tty"
+  "--network" "host"
+  "--user" "$(id -u):$(id -g)"
+  "--workdir" "${__project_dir}"
+  "--entrypoint" "reactor"
+  "--volume" "${REACTOR_DOCKER_SOCKET_FILE}:/var/run/docker.sock"
+  "--volume" "${__script_dir}:/usr/local/bin"
+  "--volume" "${__project_dir}:${__project_dir}"
+)
+
+if [[ ! "${@}" ]]; then
+  REACTOR_ARGS=("${REACTOR_ARGS[@]}" "$REACTOR_RUNTIME_IMAGE" "help")
+else
+  REACTOR_ARGS=("${REACTOR_ARGS[@]}" "$REACTOR_RUNTIME_IMAGE" "${@}")
+fi
+
+debug "Reactor Arguments: ${REACTOR_ARGS[@]}"
+debug "Running reactor command ..."
+docker run "${REACTOR_ARGS[@]}"
