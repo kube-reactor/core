@@ -11,5 +11,6 @@ lsb-release
 # Security packages
 apt-transport-https
 ca-certificates
+openssl
 gnupg2
 sudo

@@ -5,7 +5,7 @@
 #
 # Base image
 #
-ARG REACTOR_PARENT_IMAGE="ubuntu:24.04"
+ARG REACTOR_PARENT_IMAGE="ubuntu:22.04"
 FROM ${REACTOR_PARENT_IMAGE}
 #
 # Dockerfile arguments
@@ -46,6 +46,12 @@ COPY ./docker/packages.app.txt /root/packages.app.txt
 RUN apt-get update -y \
   && sed '/^\s*\#.*$/d' /root/packages.app.txt | xargs -r apt-get install -y --no-install-recommends \
   && rm -rf /var/lib/apt/lists/*
+
+#
+# Python packages
+#
+COPY ./docker/requirements.txt /root/requirements.txt
+RUN pip3 install --no-cache-dir -r /root/requirements.txt
 #
 # User initialization
 #
@@ -67,23 +73,18 @@ RUN groupadd -f --system --gid ${REACTOR_USER_UID} reactor \
 #
 # Application environment variables
 #
-ENV SCRIPT_DIR="${HOME_DIR}/bin"
-ENV PROJECT_DIR="${HOME_DIR}/project"
+ENV REACTOR_DIR="/reactor"
+ENV SCRIPT_DIR="${REACTOR_DIR}/scripts"
 
 ENV PATH="${SCRIPT_DIR}:${PATH}"
 #
-# Reactor script directory
+# Reactor directory
 #
-COPY --chown=reactor:reactor ./scripts ${SCRIPT_DIR}
-VOLUME ${SCRIPT_DIR}
-#
-# Project directory
-#
-RUN mkdir ${PROJECT_DIR} && chown reactor:reactor ${PROJECT_DIR}
-VOLUME ${PROJECT_DIR}
-WORKDIR ${PROJECT_DIR}
+COPY --chown=reactor:reactor ./ ${REACTOR_DIR}
+VOLUME ${REACTOR_DIR}
 #
 # Execution gateway
 #
 USER reactor
-ENTRYPOINT ["reactor"]
+WORKDIR ${HOME_DIR}
+ENTRYPOINT ["reactor-exec"]

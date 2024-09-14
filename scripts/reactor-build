@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+#
+# Usage:
+#
+#  reactor-build
+#
+#=========================================================================================
+# Initialization
+#
+
+# Initialize top level directories and load bootstrap functions
+SCRIPT_PATH="${BASH_SOURCE[0]}" # bash
+if [[ -z "$SCRIPT_PATH" ]]; then
+  SCRIPT_PATH="${(%):-%N}" # zsh
+fi
+
+((return 0 2>/dev/null) || [[ $ZSH_EVAL_CONTEXT =~ :file$ ]]) && SOURCED=1 || SOURCED=0
+
+export __script_dir="$(cd "$(dirname "${SCRIPT_PATH}")" && pwd)"
+export __reactor_dir="$(dirname "${__script_dir}")"
+export __reactor_docker_dir="${__reactor_dir}/docker"
+
+source "${__script_dir}/reactor-env" full
+
+if [[ $SOURCED -eq 1 ]]; then
+  # script is being sourced
+  return
+fi
+
+export REACTOR_IMAGE="${REACTOR_IMAGE:-reactor}"
+export REACTOR_TAG="${REACTOR_TAG:-"${__reactor_version}"}"
+
+export REACTOR_PARENT_IMAGE="${REACTOR_PARENT_IMAGE:-"ubuntu:22.04"}"
+export REACTOR_USER_UID="${REACTOR_USER_UID:-1000}"
+export REACTOR_USER_PASSWORD="${REACTOR_USER_PASSWORD:-reactor}"
+
+info "Removing existing Docker image: ${REACTOR_IMAGE}:${REACTOR_TAG}"
+docker image rm "${REACTOR_IMAGE}:${REACTOR_TAG}" 2>/dev/null
+
+info "Building Docker image: ${REACTOR_IMAGE}:${REACTOR_TAG}"
+docker build --force-rm --no-cache \
+  --file "${__reactor_docker_dir}/Dockerfile" \
+  --tag "${REACTOR_IMAGE}:${REACTOR_TAG}" \
+  --platform "linux/${__architecture}" \
+  --build-arg REACTOR_PARENT_IMAGE \
+  --build-arg REACTOR_USER_UID \
+  --build-arg REACTOR_USER_PASSWORD \
+  "${__reactor_dir}"

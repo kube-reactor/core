@@ -10,7 +10,7 @@ function function_exists () {
 # requires `set -o errtrace`
 function __err_report() {
     local error_code=${?}
-    error "Error in kubectl reactor in function ${1} on line ${2}"
+    error "Error in kubectl reactor in function ${1} on line ${2}: ${error_code}"
     exit ${error_code}
 }
 

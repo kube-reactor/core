@@ -11,10 +11,33 @@ function cert_environment () {
   export CERT_SUBJECT="${CERT_SUBJECT:-$DEFAULT_CERT_SUBJECT}"
   export CERT_DAYS="${CERT_DAYS:-$DEFAULT_CERT_DAYS}"
 
-  export APP_CA_KEY="$(cat "${__certs_dir}/app-ca.key")"
-  export APP_CA_CERT="$(cat "${__certs_dir}/app-ca.crt")"
-  export APP_KEY="$(cat "${__certs_dir}/app.key")"
-  export APP_CERT="$(cat "${__certs_dir}/app.crt")"
+  if [ -f "${__certs_dir}/app-ca.key" ]; then
+    APP_CA_KEY="$(cat "${__certs_dir}/app-ca.key")"
+  else
+    APP_CA_KEY=""
+  fi
+  export APP_CA_KEY
+
+  if [ -f "${__certs_dir}/app-ca.crt" ]; then
+    APP_CA_CERT="$(cat "${__certs_dir}/app-ca.crt")"
+  else
+    APP_CA_CERT=""
+  fi
+  export APP_CA_CERT
+
+  if [ -f "${__certs_dir}/app.key" ]; then
+    APP_KEY="$(cat "${__certs_dir}/app.key")"
+  else
+    APP_KEY=""
+  fi
+  export APP_KEY
+
+  if [ -f "${__certs_dir}/app.crt" ]; then
+    APP_CERT="$(cat "${__certs_dir}/app.crt")"
+  else
+    APP_CERT=""
+  fi
+  export APP_CERT
 
   debug "CERT_SUBJECT: ${CERT_SUBJECT}"
   debug "CERT_DAYS: ${CERT_DAYS}"

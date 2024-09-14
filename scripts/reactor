@@ -17,19 +17,19 @@ fi
 ((return 0 2>/dev/null) || [[ $ZSH_EVAL_CONTEXT =~ :file$ ]]) && SOURCED=1 || SOURCED=0
 
 export __script_dir="$(cd "$(dirname "${SCRIPT_PATH}")" && pwd)"
-echo "${__script_dir}"
-source "${__script_dir}/reactor-env"
-
-echo "${__project_dir}"
+source "${__script_dir}/reactor-env" min
 
 if [[ $SOURCED -eq 1 ]]; then
   # script is being sourced
   return
 fi
 
-echo "Running reactor command"
+
+COMMAND_ARGS=()
 
 while [[ $# -gt 0 ]]; do
+  COMMAND_ARGS=("${COMMAND_ARGS[@]}" "$1")
+
   case "$1" in
     --verbose)
       arg_v=1
@@ -91,14 +91,16 @@ debug "Environment variables"
 debug "======================================"
 debug "$(env)"
 
-
 if [[ "$__os" == "darwin" ]]; then
   REACTOR_DOCKER_SOCKET_FILE="${REACTOR_DOCKER_SOCKET_FILE:-/var/run/docker.sock.raw}"
+  REACTOR_DOCKER_GROUP="0"
 else
   REACTOR_DOCKER_SOCKET_FILE="${REACTOR_DOCKER_SOCKET_FILE:-/var/run/docker.sock}"
+  REACTOR_DOCKER_GROUP="$(stat -L -c '%g' /var/run/docker.sock)"
 fi
 export REACTOR_DOCKER_SOCKET_FILE
-export REACTOR_RUNTIME_IMAGE="${REACTOR_RUNTIME_IMAGE:-"ubuntu:24.04"}"
+export REACTOR_RUNTIME_IMAGE="${REACTOR_RUNTIME_IMAGE:-"reactor:${__reactor_version}"}"
+export REACTOR_DOCKER_ARGS="${REACTOR_DOCKER_ARGS:-}"
 
 REACTOR_ARGS=(
   "--rm"
@@ -106,19 +108,36 @@ REACTOR_ARGS=(
   "--tty"
   "--network" "host"
   "--user" "$(id -u):$(id -g)"
+  "--group-add" "${REACTOR_DOCKER_GROUP}"
   "--workdir" "${__project_dir}"
-  "--entrypoint" "reactor"
   "--volume" "${REACTOR_DOCKER_SOCKET_FILE}:/var/run/docker.sock"
   "--volume" "${__script_dir}:/usr/local/bin"
   "--volume" "${__project_dir}:${__project_dir}"
 )
 
-if [[ ! "${@}" ]]; then
-  REACTOR_ARGS=("${REACTOR_ARGS[@]}" "$REACTOR_RUNTIME_IMAGE" "help")
-else
-  REACTOR_ARGS=("${REACTOR_ARGS[@]}" "$REACTOR_RUNTIME_IMAGE" "${@}")
+if [ -f "${__home_dir}/.bashrc" ]; then
+  REACTOR_ARGS=("${REACTOR_ARGS[@]}" "--volume" "${__home_dir}/.bashrc:/home/reactor/.bashrc")
+fi
+if [ -f "${__home_dir}/.bash_profile" ]; then
+  REACTOR_ARGS=("${REACTOR_ARGS[@]}" "--volume" "${__home_dir}/.bash_profile:/home/reactor/.bash_profile")
+fi
+if [ -f "${__home_dir}/.profile" ]; then
+  REACTOR_ARGS=("${REACTOR_ARGS[@]}" "--volume" "${__home_dir}/.profile:/home/reactor/.profile")
 fi
 
+if ! docker inspect "$REACTOR_RUNTIME_IMAGE" >/dev/null 2>&1; then
+    "${__script_dir}/reactor-build"
+    REACTOR_RUNTIME_IMAGE="reactor:${__reactor_version}"
+fi
+REACTOR_ARGS=("${REACTOR_ARGS[@]}" "$REACTOR_RUNTIME_IMAGE")
+
+debug "Command Arguments: ${COMMAND_ARGS[@]}"
 debug "Reactor Arguments: ${REACTOR_ARGS[@]}"
-debug "Running reactor command ..."
-docker run "${REACTOR_ARGS[@]}"
+
+if [[ ${#COMMAND_ARGS[@]} -gt 0 ]] && [[ "${COMMAND_ARGS[0]}" == "enter" ]]; then
+  info "Entering reactor environment ..."
+  docker run --entrypoint bash "${REACTOR_ARGS[@]}"
+else
+  debug "Running reactor command ..."
+  docker run "${REACTOR_ARGS[@]}" "${COMMAND_ARGS[@]}"
+fi
