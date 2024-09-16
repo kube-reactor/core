@@ -1,6 +1,36 @@
 version: 2
 
 jobs:
+    test-amd64:
+        resource_class: medium
+        machine:
+            image: ubuntu-2404:current
+        steps:
+            - checkout
+            - run:
+                name: Bootstrap test OS
+                command: ./tests/bootstrap.sh
+            - run:
+                name: Test AMD Docker image
+                command: ./tests/run_session.sh
+                environment:
+                    REACTOR_PARENT_IMAGE: ubuntu:22.04
+
+    test-arm64:
+        resource_class: arm.medium
+        machine:
+            image: ubuntu-2404:current
+        steps:
+            - checkout
+            - run:
+                name: Bootstrap test OS
+                command: ./tests/bootstrap.sh
+            - run:
+                name: Test ARM Docker image
+                command: ./tests/run_session.sh
+                environment:
+                    REACTOR_PARENT_IMAGE: ubuntu:22.04
+
     deploy-docker-amd64-latest:
         resource_class: medium
         machine:
@@ -117,12 +147,25 @@ workflows:
     version: 2
     deploy:
         jobs:
+            - test-amd64:
+                filters:
+                    tags:
+                        only: /.*/
+
+            - test-arm64:
+                filters:
+                    tags:
+                        only: /.*/
+
             - deploy-docker-amd64-latest:
                 filters:
                     tags:
                         ignore: /.*/
                     branches:
                         only: main
+                requires:
+                    - test-amd64
+                    - test-arm64
 
             - deploy-docker-arm64-latest:
                 filters:
@@ -130,6 +173,9 @@ workflows:
                         ignore: /.*/
                     branches:
                         only: main
+                requires:
+                    - test-amd64
+                    - test-arm64
 
             - deploy-docker-latest:
                 filters:
@@ -147,6 +193,9 @@ workflows:
                         ignore: /.*/
                     branches:
                         only: main
+                requires:
+                    - test-amd64
+                    - test-arm64
 
             - deploy-docker-nvidia-latest:
                 filters:
@@ -163,6 +212,9 @@ workflows:
                         only: /.*/
                     branches:
                         ignore: /.*/
+                requires:
+                    - test-amd64
+                    - test-arm64
 
             - deploy-docker-arm64-version:
                 filters:
@@ -170,6 +222,9 @@ workflows:
                         only: /.*/
                     branches:
                         ignore: /.*/
+                requires:
+                    - test-amd64
+                    - test-arm64
 
             - deploy-docker-version:
                 filters:
@@ -187,6 +242,9 @@ workflows:
                         only: /.*/
                     branches:
                         ignore: /.*/
+                requires:
+                    - test-amd64
+                    - test-arm64
 
             - deploy-docker-nvidia-version:
                 filters:
