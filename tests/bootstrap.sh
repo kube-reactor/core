@@ -28,6 +28,10 @@ which git
 which curl
 which openssl
 
+# Package installation
+
+
 # Install Python packages
 pip install --upgrade pip
+pip install --upgrade pip setuptools wheel
 pip install -r "${__reactor_dir}/requirements.txt"
