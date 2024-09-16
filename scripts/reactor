@@ -119,7 +119,10 @@ REACTOR_ARGS=(
   "--workdir" "${__project_dir}"
 )
 while IFS= read -r variable; do
-  REACTOR_ARGS=("${REACTOR_ARGS[@]}" "--env" "$variable")
+  if [[ "$variable" != "PATH" ]] \
+    && [[ "$variable" != "REACTOR_ARCHITECTURE" ]]; then
+    REACTOR_ARGS=("${REACTOR_ARGS[@]}" "--env" "$variable")
+  fi
 done <<< "$(env | grep -o "[_A-Za-z0-9]*")"
 
 if [ -f "${__home_dir}/.bashrc" ]; then
