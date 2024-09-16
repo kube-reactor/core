@@ -3,13 +3,19 @@
 # DNS Utilities
 #
 
-export DEFAULT_HOSTS_FILE="/etc/hosts"
+if [[ "$__os" == "darwin" ]]; then
+  export DEFAULT_HOSTS_FILE="/private/etc/hosts"
+else
+  export DEFAULT_HOSTS_FILE="/etc/hosts"
+fi
 
 function dns_environment () {
   debug "Setting DNS environment ..."
   export HOSTS_FILE="${HOSTS_FILE:-"$DEFAULT_HOSTS_FILE"}"
+  export HOSTS_MANIFEST_FILE="${__log_dir}/hosts.txt"
 
   debug "HOSTS_FILE: ${HOSTS_FILE}"
+  debug "HOSTS_MANIFEST_FILE: ${HOSTS_MANIFEST_FILE}"
 }
 
 
@@ -35,24 +41,38 @@ function dns_records () {
   echo "$dns_map"
 }
 
-function remove_dns_records () {
+
+function create_dns_records () {
   dns_environment
 
-  if [ -f "${HOSTS_FILE:-}" ]; then
-    info "Removing existing DNS records"
-    sudo perl -i -p0e "s/\n\#\#\#\!\s${APP_NAME}\sDNS\sMAP\s\!\#\#\#.+\#\#\#\!\sEND\s${APP_NAME}\sDNS\sMAP\s\!\#\#\#//se" $HOSTS_FILE
+  dns_records="$(dns_records)"
+
+  info "Saving DNS records (hosts.txt):"
+  info "$dns_records"
+  printf "$dns_records" | sudo tee "$HOSTS_MANIFEST_FILE" >/dev/null 2>&1
+}
+
+function save_host_dns_records () {
+  # Runs on host machine (requires sudo)
+  dns_environment
+
+  if [ -f "${HOSTS_MANIFEST_FILE:-}" ]; then
+    remove_host_dns_records
+
+    dns_records="$(cat "$HOSTS_MANIFEST_FILE")"
+
+    info "Saving DNS records (requires sudo):"
+    info "$dns_records"
+    printf "\n$dns_records" | sudo tee -a "$HOSTS_FILE" >/dev/null 2>&1
   fi
 }
 
-function save_dns_records () {
+function remove_host_dns_records () {
+  # Runs on host machine (requires sudo)
   dns_environment
 
   if [ -f "${HOSTS_FILE:-}" ]; then
-    remove_dns_records
-
-    dns_records="$(dns_records)"
-    info "Saving DNS records:"
-    info "$dns_records"
-    printf "\n$dns_records" | sudo tee -a $HOSTS_FILE >/dev/null 2>&1
+    info "Removing existing DNS records (requires sudo)"
+    sudo perl -i -p0e "s/\n\#\#\#\!\s${APP_NAME}\sDNS\sMAP\s\!\#\#\#.+\#\#\#\!\sEND\s${APP_NAME}\sDNS\sMAP\s\!\#\#\#//se" "$HOSTS_FILE"
   fi
 }

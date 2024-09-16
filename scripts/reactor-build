@@ -19,7 +19,7 @@ export __script_dir="$(cd "$(dirname "${SCRIPT_PATH}")" && pwd)"
 export __reactor_dir="$(dirname "${__script_dir}")"
 export __reactor_docker_dir="${__reactor_dir}/docker"
 
-source "${__script_dir}/reactor-env" full
+source "${__script_dir}/reactor-env"
 
 if [[ $SOURCED -eq 1 ]]; then
   # script is being sourced
@@ -46,8 +46,11 @@ info "Building Docker image: ${REACTOR_IMAGE}:${REACTOR_TAG}"
 rm -Rf "${__reactor_dir}/project"
 mkdir -p "${__reactor_dir}/project"
 
-if [ -f "${__project_dir}/requirements.txt" ]; then
-  cp -f "${__project_dir}/requirements.txt" "${__reactor_dir}/project/requirements.txt"
+if [ -f "${__project_dir}/reactor/requirements.txt" ]; then
+  cp -f "${__project_dir}/reactor/requirements.txt" "${__reactor_dir}/project/requirements.txt"
+fi
+if [ -f "${__project_dir}/reactor/install.sh" ]; then
+  cp -f "${__project_dir}/reactor/install.sh" "${__reactor_dir}/project/install.sh"
 fi
 
 if [ -z ${REACTOR_DOCKER_BUILD_ARGS+x} ]; then

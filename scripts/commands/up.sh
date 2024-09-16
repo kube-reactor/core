@@ -7,7 +7,7 @@ function up_description () {
   echo "Initialize and ensure Minikube development environment is running"
 }
 function up_usage () {
-    cat <<EOF >&2
+  cat <<EOF >&2
 
 $(up_description)
 
@@ -30,7 +30,10 @@ EOF
   exit 1
 }
 
-function up_command () {
+function up_environment () {
+  COMMAND_ARGUMENTS=("$@")
+  set -- "${COMMAND_ARGUMENTS[@]}"
+
   while [[ $# -gt 0 ]]; do
     case "$1" in
       --cert-days=*)
@@ -65,20 +68,25 @@ function up_command () {
     esac
     shift
   done
-  BUILD=${BUILD:-0}
-  NO_CACHE=${NO_CACHE:-0}
+  export BUILD=${BUILD:-0}
+  export NO_CACHE=${NO_CACHE:-0}
 
   BUILD_ARGS=()
   if [ $NO_CACHE -ne 0 ]; then
     BUILD_ARGS=("${BUILD_ARGS[@]}" "--no-cache")
   fi
+  export BUILD_ARGS
 
   debug "Command: up"
   debug "> BUILD: ${BUILD}"
   debug "> NO_CACHE: ${NO_CACHE}"
   debug "> BUILD ARGS: ${BUILD_ARGS[@]}"
+}
 
+function up_command () {
+  up_environment "$@"
   cert_environment
+  helm_environment
 
   info "Generating ingress certificates ..."
   generate_certs \
@@ -96,7 +104,28 @@ function up_command () {
     build_command "${BUILD_ARGS[@]}"
   fi
   update_command
+}
 
-  # launch_minikube_tunnel
-  # launch_minikube_dashboard
+function up_host_command () {
+  up_environment "$@"
+  helm_environment
+
+  info "Downloading local software dependencies ..."
+  download_binary minikube \
+    "https://storage.googleapis.com/minikube/releases/latest/minikube-${__os}-${__architecture}" \
+    "${__binary_dir}"
+
+  download_binary helm \
+    "https://get.helm.sh/helm-v${HELM_VERSION}-${__os}-${__architecture}.tar.gz" \
+    "${__binary_dir}" \
+    "${__os}-${__architecture}"
+
+  download_binary argocd \
+    "https://github.com/argoproj/argo-cd/releases/latest/download/argocd-${__os}-${__architecture}" \
+    "${__binary_dir}"
+
+  update_host_command
+
+  launch_host_minikube_tunnel
+  launch_host_minikube_dashboard
 }

@@ -25,7 +25,11 @@ ${__reactor_core_flags}
 EOF
   exit 1
 }
-function update_command () {
+
+function update_environment () {
+  COMMAND_ARGUMENTS=("$@")
+  set -- "${COMMAND_ARGUMENTS[@]}"
+
   while [[ $# -gt 0 ]]; do
     case "$1" in
       --apps)
@@ -49,29 +53,40 @@ function update_command () {
     esac
     shift
   done
-  UPDATE_APPS=${UPDATE_APPS:-0}
-  UPDATE_DNS=${UPDATE_DNS:-0}
-  UPDATE_CHART=${UPDATE_CHART:-0}
-  UPDATE_ALL=1
+  export UPDATE_APPS=${UPDATE_APPS:-0}
+  export UPDATE_DNS=${UPDATE_DNS:-0}
+  export UPDATE_CHART=${UPDATE_CHART:-0}
 
+  UPDATE_ALL=1
   if [ $UPDATE_APPS -eq 1 -o $UPDATE_DNS -eq 1 -o $UPDATE_CHART -eq 1 ]; then
     UPDATE_ALL=0
   fi
+  export UPDATE_ALL
 
   debug "Command: update"
   debug "> UPDATE_APPS: ${UPDATE_APPS}"
   debug "> UPDATE_DNS: ${UPDATE_DNS}"
   debug "> UPDATE_CHART: ${UPDATE_CHART}"
   debug "> UPDATE_ALL: ${UPDATE_ALL}"
+}
+
+function update_command () {
+  update_environment "$@"
 
   if [ $UPDATE_ALL -eq 1 -o $UPDATE_APPS -eq 1 ]; then
     provision_terraform
   fi
-  # if [ $UPDATE_ALL -eq 1 -o $UPDATE_DNS -eq 1 ]; then
-  #   save_dns_records
-  # fi
+  if [ $UPDATE_ALL -eq 1 -o $UPDATE_DNS -eq 1 ]; then
+    create_dns_records
+  fi
   # if [ $UPDATE_ALL -eq 1 -o $UPDATE_CHART -eq 1 ]; then
   #   sync_argocd_charts
   # fi
   info "Minikube development environment has been updated"
+}
+
+function update_host_command () {
+  update_environment "$@"
+
+  save_host_dns_records
 }

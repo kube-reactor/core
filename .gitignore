@@ -163,6 +163,10 @@ cython_debug/
 
 # Project files
 project/
+scripts/minikube
+scripts/helm
+scripts/argocd
+
 
 # Temporary folders
 tmp/

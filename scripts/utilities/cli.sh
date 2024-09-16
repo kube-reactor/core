@@ -51,8 +51,14 @@ function __log () {
   local log_line=""
   local date_time="$(date -u +"%Y-%m-%d %H:%M:%S UTC")"
 
+  if [ "$REACTOR_LOCAL" == "1" ]; then
+    local local_indicator="(L)"
+  else
+    local local_indicator=""
+  fi
+
   while IFS=$'\n' read -r log_line; do
-    echo -e "${date_time} ${color}$(printf "[%s]" "${log_level}")${color_reset} ${log_line}" 1>&2
+    echo -e "${date_time} ${color}$(printf "[%s]%s" "${log_level}" "${local_indicator}")${color_reset} ${log_line}" 1>&2
     echo "${date_time} [${log_level}] ${log_line}" >>"$(logfile)"
   done <<< "${@:-}"
 }

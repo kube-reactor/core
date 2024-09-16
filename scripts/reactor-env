@@ -16,8 +16,6 @@
 #   1. min - Minimal environment that should operate across Bash and Zsh
 #   2. full - Full environment that includes all utilities and commands
 #
-ENV_TYPE="${1:-full}"
-
 export __user_id="$(id -u)"
 export __user_name="$(id -nu)"
 export __group_id="$(id -g)"
@@ -42,6 +40,7 @@ export __project_dir="$(dirname "${__project_file}")"
 export __environment="${REACTOR_ENV:-local}"
 export __env_dir="${__project_dir}/env/${__environment}"
 
+export REACTOR_LOCAL="${REACTOR_LOCAL:-1}"
 
 # Load environment configuration
 if [ -f "${__env_dir}/public.sh" ]; then
@@ -58,60 +57,58 @@ source "$CLI_UTILITIES"
 DISK_UTILITIES="${__script_dir}/utilities/disk.sh"
 source "$DISK_UTILITIES"
 
-if [ "$ENV_TYPE" == "full" ]; then
-  for file in "${__script_dir}/utilities"/*.sh; do
-    if [[ "$file" != "$CLI_UTILITIES" ]] && [[ "$file" != "$DISK_UTILITIES" ]]; then
-      source "$file"
-    fi
-  done
-  for project in $(config docker); do
-    project_dir="${__docker_dir}/${project}"
-    utilities_dir="${project_dir}/reactor/utilities"
-    if [ -d "$utilities_dir" ]; then
-      for file in "${utilities_dir}"/*.sh; do
-        source "$file"
-      done
-    fi
-  done
-  for chart in $(config charts); do
-    chart_dir="${__charts_dir}/${chart}"
-    utilities_dir="${chart_dir}/reactor/utilities"
-    if [ -d "$utilities_dir" ]; then
-      for file in "${utilities_dir}"/*.sh; do
-        source "$file"
-      done
-    fi
-  done
-  if [ -d "${__project_utilities_dir}" ]; then
-    for file in "${__project_utilities_dir}"/*.sh; do
+for file in "${__script_dir}/utilities"/*.sh; do
+  if [[ "$file" != "$CLI_UTILITIES" ]] && [[ "$file" != "$DISK_UTILITIES" ]]; then
+    source "$file"
+  fi
+done
+for project in $(config docker); do
+  project_dir="${__docker_dir}/${project}"
+  utilities_dir="${project_dir}/reactor/utilities"
+  if [ -d "$utilities_dir" ]; then
+    for file in "${utilities_dir}"/*.sh; do
       source "$file"
     done
   fi
-
-  for file in "${__script_dir}/commands"/*.sh; do
+done
+for chart in $(config charts); do
+  chart_dir="${__charts_dir}/${chart}"
+  utilities_dir="${chart_dir}/reactor/utilities"
+  if [ -d "$utilities_dir" ]; then
+    for file in "${utilities_dir}"/*.sh; do
+      source "$file"
+    done
+  fi
+done
+if [ -d "${__project_utilities_dir}" ]; then
+  for file in "${__project_utilities_dir}"/*.sh; do
     source "$file"
   done
-  for project in $(config docker); do
-    project_dir="${__docker_dir}/${project}"
-    commands_dir="${project_dir}/reactor/commands"
-    if [ -d "$commands_dir" ]; then
-      for file in "${commands_dir}"/*.sh; do
-        source "$file"
-      done
-    fi
-  done
-  for chart in $(config charts); do
-    chart_dir="${__charts_dir}/${chart}"
-    commands_dir="${chart_dir}/reactor/commands"
-    if [ -d "$commands_dir" ]; then
-      for file in "${commands_dir}"/*.sh; do
-        source "$file"
-      done
-    fi
-  done
-  if [ -d "${__project_commands_dir}" ]; then
-    for file in "${__project_commands_dir}"/*.sh; do
+fi
+
+for file in "${__script_dir}/commands"/*.sh; do
+  source "$file"
+done
+for project in $(config docker); do
+  project_dir="${__docker_dir}/${project}"
+  commands_dir="${project_dir}/reactor/commands"
+  if [ -d "$commands_dir" ]; then
+    for file in "${commands_dir}"/*.sh; do
       source "$file"
     done
   fi
+done
+for chart in $(config charts); do
+  chart_dir="${__charts_dir}/${chart}"
+  commands_dir="${chart_dir}/reactor/commands"
+  if [ -d "$commands_dir" ]; then
+    for file in "${commands_dir}"/*.sh; do
+      source "$file"
+    done
+  fi
+done
+if [ -d "${__project_commands_dir}" ]; then
+  for file in "${__project_commands_dir}"/*.sh; do
+    source "$file"
+  done
 fi

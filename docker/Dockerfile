@@ -52,7 +52,7 @@ RUN apt-get update -y \
   && sed '/^\s*\#.*$/d' /root/packages.app.txt | xargs -r apt-get install -y --no-install-recommends \
   && rm -rf /var/lib/apt/lists/*
 #
-# Reactor Python packages
+# Reactor core Python packages
 #
 COPY ./requirements.txt /root/requirements.txt
 RUN pip3 install --no-cache-dir -r /root/requirements.txt
@@ -102,6 +102,8 @@ RUN groupmod --gid ${REACTOR_DOCKER_GID} docker \
 #
 # Application environment variables
 #
+ENV REACTOR_LOCAL="0"
+
 ENV REACTOR_DIR="/reactor"
 ENV SCRIPT_DIR="${REACTOR_DIR}/scripts"
 ENV BUILD_DIR="${REACTOR_DIR}/project"
@@ -113,10 +115,13 @@ ENV PATH="${SCRIPT_DIR}:${PATH}"
 COPY --chown=${REACTOR_USER_NAME}:${REACTOR_USER_NAME} ./ ${REACTOR_DIR}
 VOLUME ${REACTOR_DIR}
 #
-# Project initialization
+# Project customization
 #
 RUN test ! -f ${BUILD_DIR}/requirements.txt \
   || pip3 install --no-cache-dir -r ${BUILD_DIR}/requirements.txt
+
+RUN test ! -x ${BUILD_DIR}/install.sh \
+  || ${BUILD_DIR}/install.sh
 #
 # Execution gateway
 #

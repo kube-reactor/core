@@ -31,18 +31,18 @@ function minikube_environment () {
   debug "MINIKUBE_KUBERNETES_VERSION: ${MINIKUBE_KUBERNETES_VERSION}"
   debug "MINIKUBE_CONTAINER_RUNTIME: ${MINIKUBE_CONTAINER_RUNTIME}"
 
-  if minikube status 1>/dev/null 2>&1; then
-    debug "DOCKER_TLS_VERIFY: ${DOCKER_TLS_VERIFY}"
-    debug "DOCKER_HOST: ${DOCKER_HOST}"
-    debug "DOCKER_CERT_PATH: ${DOCKER_CERT_PATH}"
-    debug "MINIKUBE_ACTIVE_DOCKERD: ${MINIKUBE_ACTIVE_DOCKERD}"
-  fi
+  debug "DOCKER_TLS_VERIFY: ${DOCKER_TLS_VERIFY:-}"
+  debug "DOCKER_HOST: ${DOCKER_HOST:-}"
+  debug "DOCKER_CERT_PATH: ${DOCKER_CERT_PATH:-}"
+  debug "MINIKUBE_ACTIVE_DOCKERD: ${MINIKUBE_ACTIVE_DOCKERD:-}"
 }
 
 
 # Initialize Docker registry
-if minikube status 1>/dev/null 2>&1; then
-  eval $(minikube docker-env)
+if [ "$REACTOR_LOCAL" != "1" ]; then
+  if minikube status 1>/dev/null 2>&1; then
+    eval $(minikube docker-env)
+  fi
 fi
 
 
@@ -51,6 +51,14 @@ function minikube_status () {
   minikube status 1>/dev/null 2>&1
   return $?
 }
+
+function minikube_host_status () {
+  # Runs on host machine
+  minikube_environment
+  "${__binary_dir}/minikube" status 1>/dev/null 2>&1
+  return $?
+}
+
 
 function start_minikube () {
   if ! minikube_status; then
@@ -69,29 +77,61 @@ function start_minikube () {
       --dns-domain="${PRIMARY_DOMAIN}"
   fi
   minikube update-context
-  eval $(minikube docker-env)
 
-  debug "DOCKER_TLS_VERIFY=${DOCKER_TLS_VERIFY}"
-  debug "DOCKER_HOST=${DOCKER_HOST}"
-  debug "DOCKER_CERT_PATH=${DOCKER_CERT_PATH}"
-  debug "MINIKUBE_ACTIVE_DOCKERD=${MINIKUBE_ACTIVE_DOCKERD}"
+  if [ "$REACTOR_LOCAL" != "1" ]; then
+    eval $(minikube docker-env)
+
+    debug "DOCKER_TLS_VERIFY=${DOCKER_TLS_VERIFY}"
+    debug "DOCKER_HOST=${DOCKER_HOST}"
+    debug "DOCKER_CERT_PATH=${DOCKER_CERT_PATH}"
+    debug "MINIKUBE_ACTIVE_DOCKERD=${MINIKUBE_ACTIVE_DOCKERD}"
+  fi
 }
 
-function launch_minikube_tunnel () {
+function stop_minikube () {
+  info "Stopping Minikube environment ..."
   if minikube_status; then
+    #terminate_host_minikube_tunnel
+    #terminate_host_minikube_dashboard
+
+    minikube stop
+  fi
+  delete_host_minikube_kubeconfig
+}
+
+function destroy_host_minikube () {
+  # Runs on host machine
+  info "Destroying Minikube environment ..."
+
+  terminate_host_minikube_tunnel
+  terminate_host_minikube_dashboard
+
+  "${__binary_dir}/minikube" delete --purge
+
+  delete_host_minikube_kubeconfig
+  delete_host_minikube_storage
+  # clean_helm
+  # clean_argocd
+}
+
+
+function launch_host_minikube_tunnel () {
+  # Runs on host machine
+  if minikube_host_status; then
     PID_FILE="${__log_dir}/tunnel.kpid"
 
-    terminate_minikube_tunnel
+    terminate_host_minikube_tunnel
 
     info "Launching Minikube tunnel (requires sudo) ..."
-    #check_admin
-    minikube tunnel 1>>"$(logfile)" 2>&1 &
+    check_admin
+    "${__binary_dir}/minikube" tunnel 1>>"$(logfile)" 2>&1 &
     echo "$!" >"$PID_FILE"
   fi
 }
 
-function terminate_minikube_tunnel () {
-  if minikube_status; then
+function terminate_host_minikube_tunnel () {
+  # Runs on host machine
+  if minikube_host_status; then
     PID_FILE="${__log_dir}/tunnel.kpid"
 
     info "Terminating existing Minikube tunnel ..."
@@ -105,20 +145,22 @@ function terminate_minikube_tunnel () {
   fi
 }
 
-function launch_minikube_dashboard () {
-  if minikube_status; then
+function launch_host_minikube_dashboard () {
+  # Runs on host machine
+  if minikube_host_status; then
     PID_FILE="${__log_dir}/dashboard.kpid"
 
-    terminate_minikube_dashboard
+    terminate_host_minikube_dashboard
 
     info "Launching Kubernetes Dashboard ..."
-    minikube dashboard 1>>"$(logfile)" 2>&1 &
+    "${__binary_dir}/minikube" dashboard 1>>"$(logfile)" 2>&1 &
     echo "$!" >"$PID_FILE"
   fi
 }
 
-function terminate_minikube_dashboard () {
-  if minikube_status; then
+function terminate_host_minikube_dashboard () {
+  # Runs on host machine
+  if minikube_host_status; then
     PID_FILE="${__log_dir}/dashboard.kpid"
 
     info "Terminating Minikube dashboard ..."
@@ -132,41 +174,19 @@ function terminate_minikube_dashboard () {
   fi
 }
 
-function stop_minikube () {
-  info "Stopping Minikube environment ..."
-  if minikube_status; then
-    #terminate_minikube_tunnel
-    #terminate_minikube_dashboard
 
-    minikube stop
-  fi
-  delete_minikube_kubeconfig
-}
-
-function destroy_minikube () {
-  info "Destroying Minikube environment ..."
-
-  #terminate_minikube_tunnel
-  #terminate_minikube_dashboard
-
-  minikube delete --purge
-
-  delete_minikube_kubeconfig
-  delete_minikube_storage
-  # clean_helm
-  # clean_argocd
-}
-
-function delete_minikube_kubeconfig () {
+function delete_host_minikube_kubeconfig () {
+  # Runs on host machine
   if [ -f "$KUBECONFIG" ]; then
     info "Deleting Minikube kubeconfig file ..."
     rm -f "$KUBECONFIG"
   fi
 }
 
-function delete_minikube_storage () {
+function delete_host_minikube_storage () {
+  # Runs on host machine
   if [ -d "$MINIKUBE_HOME" ]; then
     info "Deleting Minikube project storage ..."
-    sudo rm -Rf "$MINIKUBE_HOME"
+    rm -Rf "$MINIKUBE_HOME"
   fi
 }

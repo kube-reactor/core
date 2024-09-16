@@ -17,7 +17,7 @@ fi
 ((return 0 2>/dev/null) || [[ $ZSH_EVAL_CONTEXT =~ :file$ ]]) && SOURCED=1 || SOURCED=0
 
 export __script_dir="$(cd "$(dirname "${SCRIPT_PATH}")" && pwd)"
-source "${__script_dir}/reactor-env" min
+source "${__script_dir}/reactor-env"
 
 if [[ $SOURCED -eq 1 ]]; then
   # script is being sourced
@@ -25,6 +25,8 @@ if [[ $SOURCED -eq 1 ]]; then
 fi
 
 
+COMMAND_NAME="$1"
+COMMAND_HOST_FUNCTION="${COMMAND_NAME}_host_command"
 COMMAND_ARGS=()
 
 while [[ $# -gt 0 ]]; do
@@ -143,10 +145,19 @@ REACTOR_ARGS=("${REACTOR_ARGS[@]}" "${REACTOR_DOCKER_RUN_ARGS[@]}" "$REACTOR_RUN
 debug "Command Arguments: ${COMMAND_ARGS[@]}"
 debug "Reactor Arguments: ${REACTOR_ARGS[@]}"
 
+# Containerized execution (primary command logic)
 if [[ ${#COMMAND_ARGS[@]} -gt 0 ]] && [[ "${COMMAND_ARGS[0]}" == "enter" ]]; then
   info "Entering reactor environment ..."
   docker run --entrypoint bash "${REACTOR_ARGS[@]}"
 else
   debug "Running reactor command ..."
   docker run "${REACTOR_ARGS[@]}" "${COMMAND_ARGS[@]}"
+fi
+
+# Local execution (use sparingly)
+if function_exists $COMMAND_HOST_FUNCTION; then
+  COMMAND_ARGS=( "${COMMAND_ARGS[@]:1}" )
+
+  reactor_args "${COMMAND_ARGS[@]}"
+  $COMMAND_HOST_FUNCTION "${COMMAND_ARGS[@]}"
 fi
