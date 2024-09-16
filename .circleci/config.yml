@@ -15,6 +15,8 @@ jobs:
                 command: ./tests/run_session.sh
                 environment:
                     REACTOR_PARENT_IMAGE: ubuntu:22.04
+                    MINIKUBE_CPUS: 1
+                    MINIKUBE_MEMORY: 2048
 
     test-arm64:
         resource_class: arm.medium
@@ -30,6 +32,8 @@ jobs:
                 command: ./tests/run_session.sh
                 environment:
                     REACTOR_PARENT_IMAGE: ubuntu:22.04
+                    MINIKUBE_CPUS: 1
+                    MINIKUBE_MEMORY: 2048
 
     deploy-docker-amd64-latest:
         resource_class: medium
