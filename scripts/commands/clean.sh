@@ -19,23 +19,19 @@ Flags:
 ${__reactor_core_flags}
 
     --force               Force execution without confirming
-    --all                 Clean everything
-    --docker              Wipe all Docker resources
 
 EOF
   exit 1
 }
-function clean_command () {
+
+function clean_environment () {
+  COMMAND_ARGUMENTS=("$@")
+  set -- "${COMMAND_ARGUMENTS[@]}"
+
   while [[ $# -gt 0 ]]; do
     case "$1" in
       --force)
       FORCE=1
-      ;;
-      --all)
-      CLEAN_ALL=1
-      ;;
-      --docker)
-      WIPE_DOCKER=1
       ;;
       -h|--help)
       clean_usage
@@ -49,28 +45,32 @@ function clean_command () {
     esac
     shift
   done
-  FORCE=${FORCE:-0}
-  CLEAN_ALL=${CLEAN_ALL:-0}
-  WIPE_DOCKER=${WIPE_DOCKER:-0}
+  export FORCE=${FORCE:-0}
 
   debug "Command: clean"
   debug "> FORCE: ${FORCE}"
-  debug "> CLEAN_ALL: ${CLEAN_ALL}"
-  debug "> WIPE_DOCKER: ${WIPE_DOCKER}"
+}
+
+function clean_command () {
+  clean_environment "$@"
 
   if [ $FORCE -eq 0 ]; then
     confirm
   fi
 
-  #destroy_minikube
+  destroy_minikube
   remove_dns_records
-
-  if [[ $CLEAN_ALL -eq 1 ]] || [[ $WIPE_DOCKER -eq 1 ]]; then
-    wipe_docker
-  fi
 
   clean_terraform
   clean_certs
+  clean_cache
+}
 
-  info "Zimagi development environment has been cleaned"
+function clean_host_command () {
+  clean_environment "$@"
+
+  destroy_host_minikube
+  remove_host_dns_records
+
+  info "Reactor development environment has been cleaned"
 }

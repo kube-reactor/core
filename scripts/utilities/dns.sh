@@ -67,6 +67,12 @@ function save_host_dns_records () {
   fi
 }
 
+
+function remove_dns_records () {
+  dns_environment
+  rm -f "$HOSTS_MANIFEST_FILE"
+}
+
 function remove_host_dns_records () {
   # Runs on host machine (requires sudo)
   dns_environment

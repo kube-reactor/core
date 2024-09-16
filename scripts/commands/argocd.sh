@@ -8,7 +8,6 @@ function argocd_description () {
 }
 function argocd_command () {
   helm_environment
-
   argocd "$@"
   echo ""
 }

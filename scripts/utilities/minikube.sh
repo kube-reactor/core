@@ -91,27 +91,32 @@ function start_minikube () {
 function stop_minikube () {
   info "Stopping Minikube environment ..."
   if minikube_status; then
-    #terminate_host_minikube_tunnel
-    #terminate_host_minikube_dashboard
-
     minikube stop
+    delete_minikube_kubeconfig
   fi
-  delete_host_minikube_kubeconfig
+}
+
+function stop_host_minikube () {
+  # Runs on host machine
+  terminate_host_minikube_tunnel
+  terminate_host_minikube_dashboard
+}
+
+function destroy_minikube () {
+  info "Destroying Minikube environment ..."
+
+  minikube delete --purge
+  delete_minikube_kubeconfig
+  delete_minikube_storage
+
+  # clean_helm
+  # clean_argocd
 }
 
 function destroy_host_minikube () {
   # Runs on host machine
-  info "Destroying Minikube environment ..."
-
   terminate_host_minikube_tunnel
   terminate_host_minikube_dashboard
-
-  "${__binary_dir}/minikube" delete --purge
-
-  delete_host_minikube_kubeconfig
-  delete_host_minikube_storage
-  # clean_helm
-  # clean_argocd
 }
 
 
@@ -131,17 +136,15 @@ function launch_host_minikube_tunnel () {
 
 function terminate_host_minikube_tunnel () {
   # Runs on host machine
-  if minikube_host_status; then
-    PID_FILE="${__log_dir}/tunnel.kpid"
+  PID_FILE="${__log_dir}/tunnel.kpid"
 
-    info "Terminating existing Minikube tunnel ..."
+  info "Terminating existing Minikube tunnel ..."
 
-    if [ -f "$PID_FILE" ]; then
-      if kill -s 0 "$(cat "$PID_FILE")" >/dev/null 2>&1; then
-        kill "$(cat "$PID_FILE")"
-      fi
-      rm -f "$PID_FILE"
+  if [ -f "$PID_FILE" ]; then
+    if kill -s 0 "$(cat "$PID_FILE")" >/dev/null 2>&1; then
+      kill "$(cat "$PID_FILE")"
     fi
+    rm -f "$PID_FILE"
   fi
 }
 
@@ -160,31 +163,27 @@ function launch_host_minikube_dashboard () {
 
 function terminate_host_minikube_dashboard () {
   # Runs on host machine
-  if minikube_host_status; then
-    PID_FILE="${__log_dir}/dashboard.kpid"
+  PID_FILE="${__log_dir}/dashboard.kpid"
 
-    info "Terminating Minikube dashboard ..."
+  info "Terminating Minikube dashboard ..."
 
-    if [ -f "$PID_FILE" ]; then
-      if kill -s 0 "$(cat "$PID_FILE")" >/dev/null 2>&1; then
-        kill "$(cat "$PID_FILE")"
-      fi
-      rm -f "$PID_FILE"
+  if [ -f "$PID_FILE" ]; then
+    if kill -s 0 "$(cat "$PID_FILE")" >/dev/null 2>&1; then
+      kill "$(cat "$PID_FILE")"
     fi
+    rm -f "$PID_FILE"
   fi
 }
 
 
-function delete_host_minikube_kubeconfig () {
-  # Runs on host machine
+function delete_minikube_kubeconfig () {
   if [ -f "$KUBECONFIG" ]; then
     info "Deleting Minikube kubeconfig file ..."
     rm -f "$KUBECONFIG"
   fi
 }
 
-function delete_host_minikube_storage () {
-  # Runs on host machine
+function delete_minikube_storage () {
   if [ -d "$MINIKUBE_HOME" ]; then
     info "Deleting Minikube project storage ..."
     rm -Rf "$MINIKUBE_HOME"

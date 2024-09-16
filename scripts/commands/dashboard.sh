@@ -21,7 +21,11 @@ ${__reactor_core_flags}
 EOF
   exit 1
 }
-function dashboard_command () {
+
+function dashboard_environment () {
+  COMMAND_ARGUMENTS=("$@")
+  set -- "${COMMAND_ARGUMENTS[@]}"
+
   while [[ $# -gt 0 ]]; do
     case "$1" in
       -h|--help)
@@ -36,6 +40,13 @@ function dashboard_command () {
     esac
     shift
   done
+}
 
-  launch_minikube_dashboard
+function dashboard_command () {
+  dashboard_environment "$@"
+}
+
+function dashboard_host_command () {
+  dashboard_environment "$@"
+  launch_host_minikube_dashboard
 }

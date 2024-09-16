@@ -77,3 +77,7 @@ function download_git_repo () {
     exec_git "$DIRECTORY" fetch origin --tags
   fi
 }
+
+function clean_cache () {
+  sudo rm -Rf "${__cache_dir}"
+}

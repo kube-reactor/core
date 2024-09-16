@@ -21,7 +21,11 @@ ${__reactor_core_flags}
 EOF
   exit 1
 }
-function down_command () {
+
+function down_environment () {
+  COMMAND_ARGUMENTS=("$@")
+  set -- "${COMMAND_ARGUMENTS[@]}"
+
   while [[ $# -gt 0 ]]; do
     case "$1" in
       -h|--help)
@@ -38,9 +42,20 @@ function down_command () {
   done
 
   debug "Command: down"
+}
+
+function down_command () {
+  down_environment "$@"
 
   stop_minikube
   remove_dns_records
+}
+
+function down_host_command () {
+  down_environment "$@"
+
+  stop_host_minikube
+  remove_host_dns_records
 
   info "Minikube development environment has been shut down"
 }

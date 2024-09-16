@@ -23,7 +23,10 @@ ${__reactor_core_flags}
 EOF
   exit 1
 }
-function destroy_command () {
+function destroy_environment () {
+  COMMAND_ARGUMENTS=("$@")
+  set -- "${COMMAND_ARGUMENTS[@]}"
+
   while [[ $# -gt 0 ]]; do
     case "$1" in
       --force)
@@ -41,10 +44,14 @@ function destroy_command () {
     esac
     shift
   done
-  FORCE=${FORCE:-0}
+  export FORCE=${FORCE:-0}
 
   debug "Command: destroy"
   debug "> FORCE: ${FORCE}"
+}
+
+function destroy_command () {
+  destroy_environment "$@"
 
   if [ $FORCE -eq 0 ]; then
     confirm
@@ -53,6 +60,13 @@ function destroy_command () {
   destroy_minikube
   remove_dns_records
   clean_terraform
+}
+
+function destroy_host_command () {
+  destroy_environment "$@"
+
+  destroy_host_minikube
+  remove_host_dns_records
 
   info "Minikube development environment has been destroyed"
 }

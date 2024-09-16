@@ -102,9 +102,5 @@ function generate_certs () {
 
 function clean_certs () {
   info "Cleaning server certificates ..."
-  rm -f "${__certs_dir}/app-ca.crt"
-  rm -f "${__certs_dir}/app-ca.key"
-  rm -f "${__certs_dir}/app.csr"
-  rm -f "${__certs_dir}/app.crt"
-  rm -f "${__certs_dir}/app.key"
+  rm -Rf "${__certs_dir}"
 }
