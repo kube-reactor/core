@@ -16,6 +16,11 @@ export __project_dir="${__test_dir}/project"
 export __reactor_dir="$(dirname "${__test_dir}")"
 export __script_dir="${__reactor_dir}/scripts"
 
+echo "Test directory: ${__test_dir}"
+echo "Project directory: ${__project_dir}"
+echo "Reactor directory: ${__reactor_dir}"
+echo "Script directory: ${__script_dir}"
+
 # Verify intallation of required executables
 which python3
 which docker
@@ -24,4 +29,4 @@ which curl
 which openssl
 
 # Install Python packages
-python3 -m pip install -r "${__reactor_dir}/requirements.txt"
+sudo python3 -m pip install -r "${__reactor_dir}/requirements.txt"
