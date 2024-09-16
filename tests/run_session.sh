@@ -18,11 +18,11 @@ export __script_dir="${__test_dir}/scripts"
 
 export PATH="${__script_dir}:$PATH"
 
-echo "${__test_dir}"
-echo "${__project_dir}"
-echo "${__reactor_dir}"
-echo "${__script_dir}"
+echo "Test directory: ${__test_dir}"
+echo "Project directory: ${__project_dir}"
+echo "Reactor directory: ${__reactor_dir}"
+echo "Script directory: ${__script_dir}"
 
-docker images
+reactor up --build
 
 exit 1
