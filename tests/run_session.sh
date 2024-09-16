@@ -3,6 +3,7 @@
 #=========================================================================================
 # Initialization
 #
+set -e
 
 # Initialize top level directories and load bootstrap functions
 SCRIPT_PATH="${BASH_SOURCE[0]}" # bash

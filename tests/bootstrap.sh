@@ -3,7 +3,9 @@
 #=========================================================================================
 # Initialization
 #
+set -e
 
+# Verify intallation of required executables
 which python3
 which docker
 which git
