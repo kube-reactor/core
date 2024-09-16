@@ -29,4 +29,4 @@ which curl
 which openssl
 
 # Install Python packages
-sudo python3 -m pip install -r "${__reactor_dir}/requirements.txt"
+pip3 install -r "${__reactor_dir}/requirements.txt"
