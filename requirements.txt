@@ -1,1 +1,5 @@
+# Text and data handling
+pyyaml==6.0
+
+# Templating
 cookiecutter==2.6.0

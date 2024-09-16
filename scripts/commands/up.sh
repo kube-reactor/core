@@ -18,9 +18,14 @@ Usage:
 Flags:
 ${__reactor_core_flags}
 
-    --init                Initialize the development environment before startup
-    --skip-build          Skip Docker image build step (requires --init)
-    --no-cache            Regenerate all intermediate images (requires --init)
+    --build               Build development environment artifacts after startup
+    --no-cache            Regenerate all intermediate images (requires --build)
+
+Options
+
+    --cert-subject <str>  Self signed ingress SSL certificate subject: ${DEFAULT_CERT_SUBJECT}
+    --cert-days <int>     Self signed ingress SSL certificate days to expiration: ${DEFAULT_CERT_DAYS}
+
 EOF
   exit 1
 }
@@ -28,11 +33,22 @@ EOF
 function up_command () {
   while [[ $# -gt 0 ]]; do
     case "$1" in
-      --init)
-      INITIALIZE=1
+      --cert-days=*)
+      export CERT_DAYS="${1#*=}"
       ;;
-      --skip-build)
-      SKIP_BUILD=1
+      --cert-days)
+      export CERT_DAYS="$2"
+      shift
+      ;;
+      --cert-subject=*)
+      export CERT_SUBJECT="${1#*=}"
+      ;;
+      --cert-subject)
+      export CERT_SUBJECT="$2"
+      shift
+      ;;
+      --build)
+      BUILD=1
       ;;
       --no-cache)
       NO_CACHE=1
@@ -49,32 +65,38 @@ function up_command () {
     esac
     shift
   done
-  INITIALIZE=${INITIALIZE:-0}
-  SKIP_BUILD=${SKIP_BUILD:-0}
+  BUILD=${BUILD:-0}
   NO_CACHE=${NO_CACHE:-0}
 
-  INIT_ARGS=()
-
-  if [ $SKIP_BUILD -ne 0 ]; then
-    INIT_ARGS=("${INIT_ARGS[@]}" "--skip-build")
-  fi
+  BUILD_ARGS=()
   if [ $NO_CACHE -ne 0 ]; then
-    INIT_ARGS=("${INIT_ARGS[@]}" "--no-cache")
+    BUILD_ARGS=("${BUILD_ARGS[@]}" "--no-cache")
   fi
 
   debug "Command: up"
-  debug "> SKIP_BUILD: ${SKIP_BUILD}"
+  debug "> BUILD: ${BUILD}"
   debug "> NO_CACHE: ${NO_CACHE}"
-  debug "> INITIALIZE: ${INITIALIZE}"
-  debug "> INIT ARGS: ${INIT_ARGS[@]}"
+  debug "> BUILD ARGS: ${BUILD_ARGS[@]}"
+
+  cert_environment
+
+  info "Generating ingress certificates ..."
+  generate_certs \
+    "${CERT_SUBJECT}/CN=*.${PRIMARY_DOMAIN}" \
+    "$CERT_DAYS"
+
+  info "Initializing ArgoCD application repository ..."
+  download_git_repo \
+    https://github.com/zimagi/argocd-apps.git \
+    "${__argocd_apps_dir}"
 
   start_minikube
-  launch_minikube_tunnel
 
-  if [[ $INITIALIZE -eq 1 ]]; then
-    init_command "${INIT_ARGS[@]}"
+  if [[ $BUILD -eq 1 ]]; then
+    build_command "${BUILD_ARGS[@]}"
   fi
-
   update_command
-  launch_minikube_dashboard
+
+  # launch_minikube_tunnel
+  # launch_minikube_dashboard
 }

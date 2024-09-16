@@ -9,6 +9,6 @@ function argocd_description () {
 function argocd_command () {
   helm_environment
 
-  "${__binary_dir}/argocd" "$@"
+  argocd "$@"
   echo ""
 }

@@ -1,2 +1,0 @@
-# Text and data handling
-pyyaml==6.0

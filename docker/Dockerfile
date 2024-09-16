@@ -1,6 +1,6 @@
 #
 #====================================================================
-# Zimagi Docker image
+# Reactor Docker image
 #
 #
 # Base image
@@ -8,10 +8,15 @@
 ARG REACTOR_PARENT_IMAGE="ubuntu:22.04"
 FROM ${REACTOR_PARENT_IMAGE}
 #
+# Computer Processing Chip architecture
+#
+ARG REACTOR_ARCHITECTURE="amd64"
+#
 # Dockerfile arguments
 #
+ARG REACTOR_USER_NAME=reactor
 ARG REACTOR_USER_UID=1000
-ARG REACTOR_USER_PASSWORD="reactor"
+ARG REACTOR_DOCKER_GID=135
 #
 #====================================================================
 # Core system configuration
@@ -46,26 +51,50 @@ COPY ./docker/packages.app.txt /root/packages.app.txt
 RUN apt-get update -y \
   && sed '/^\s*\#.*$/d' /root/packages.app.txt | xargs -r apt-get install -y --no-install-recommends \
   && rm -rf /var/lib/apt/lists/*
-
 #
-# Python packages
+# Reactor Python packages
 #
-COPY ./docker/requirements.txt /root/requirements.txt
+COPY ./requirements.txt /root/requirements.txt
 RUN pip3 install --no-cache-dir -r /root/requirements.txt
+#
+# Management utilities
+#
+RUN curl -sLo "/usr/local/bin/minikube" \
+  "https://storage.googleapis.com/minikube/releases/v1.34.0/minikube-linux-${REACTOR_ARCHITECTURE}" \
+  && chmod 755 "/usr/local/bin/minikube"
+
+RUN curl -sLo "/usr/local/bin/kubectl" \
+  "https://dl.k8s.io/release/v1.31.0/bin/linux/${REACTOR_ARCHITECTURE}/kubectl" \
+  && chmod 755 "/usr/local/bin/kubectl"
+
+RUN curl -sLo "/tmp/helm.tar.gz" \
+  "https://get.helm.sh/helm-v3.15.4-linux-${REACTOR_ARCHITECTURE}.tar.gz" \
+  && tar -xzf "/tmp/helm.tar.gz" -C "/tmp" \
+  && mv "/tmp/linux-${REACTOR_ARCHITECTURE}/helm" "/tmp/helm" \
+  && rm -f "/tmp/helm.tar.gz" \
+  && rm -Rf "/tmp/linux-${REACTOR_ARCHITECTURE}" \
+  && install "/tmp/helm" /usr/local/bin \
+  && rm -f "/tmp/helm"
+
+RUN curl -sLo "/usr/local/bin/argocd" \
+  "https://github.com/argoproj/argo-cd/releases/download/v2.11.8/argocd-linux-${REACTOR_ARCHITECTURE}" \
+  && chmod 755 "/usr/local/bin/argocd"
 #
 # User initialization
 #
-ENV HOME_DIR=/home/reactor
+ENV HOME_DIR=/home/${REACTOR_USER_NAME}
 
-RUN groupadd -f --system --gid ${REACTOR_USER_UID} reactor \
+RUN groupmod --gid ${REACTOR_DOCKER_GID} docker \
+  && groupadd -f --system --gid ${REACTOR_USER_UID} ${REACTOR_USER_NAME} \
   && useradd --system --create-home \
   --home-dir ${HOME_DIR} \
   --shell /bin/bash \
   --uid ${REACTOR_USER_UID} \
-  --gid reactor \
-  --groups sudo \
-  reactor \
-  && echo "reactor:${REACTOR_USER_PASSWORD}" | chpasswd
+  --gid ${REACTOR_USER_NAME} \
+  --groups sudo,docker \
+  ${REACTOR_USER_NAME} \
+  && echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers \
+  && echo 'alias reactor="reactor-exec"' >> /etc/bash.bashrc
 #
 #====================================================================
 # Application configuration
@@ -75,16 +104,22 @@ RUN groupadd -f --system --gid ${REACTOR_USER_UID} reactor \
 #
 ENV REACTOR_DIR="/reactor"
 ENV SCRIPT_DIR="${REACTOR_DIR}/scripts"
+ENV BUILD_DIR="${REACTOR_DIR}/project"
 
 ENV PATH="${SCRIPT_DIR}:${PATH}"
 #
 # Reactor directory
 #
-COPY --chown=reactor:reactor ./ ${REACTOR_DIR}
+COPY --chown=${REACTOR_USER_NAME}:${REACTOR_USER_NAME} ./ ${REACTOR_DIR}
 VOLUME ${REACTOR_DIR}
+#
+# Project initialization
+#
+RUN test ! -f ${BUILD_DIR}/requirements.txt \
+  || pip3 install --no-cache-dir -r ${BUILD_DIR}/requirements.txt
 #
 # Execution gateway
 #
-USER reactor
+USER ${REACTOR_USER_NAME}
 WORKDIR ${HOME_DIR}
 ENTRYPOINT ["reactor-exec"]

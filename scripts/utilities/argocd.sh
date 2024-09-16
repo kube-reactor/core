@@ -3,11 +3,10 @@
 # ArgoCD Utilities
 #
 
-
 function login_argocd () {
   if minikube_status; then
     info "Logging into ArgoCD via CLI ..."
-    "${__binary_dir}/argocd" login \
+    argocd login \
       "argocd.${PRIMARY_DOMAIN}" \
       --username admin --password \
       "${ARGOCD_ADMIN_PASSWORD:-admin}" \
@@ -25,9 +24,9 @@ function login_argocd () {
 
 #     login_argocd
 
-#     if "${__binary_dir}/argocd" app get zimagi 2>&1 >/dev/null; then
-#       "${__binary_dir}/argocd" app set zimagi --grpc-web --sync-policy none
-#       "${__binary_dir}/argocd" app sync zimagi --prune --grpc-web \
+#     if argocd app get zimagi 2>&1 >/dev/null; then
+#       argocd app set zimagi --grpc-web --sync-policy none
+#       argocd app sync zimagi --prune --grpc-web \
 #         --local "${__charts_dir}/charts/zimagi" >"${__data_dir}/zimagi.sync.log" 2>&1
 
 #       if [ $? -ne 0 ]; then
@@ -41,9 +40,9 @@ function login_argocd () {
 #         app_name="${spec[0]}"
 #         chart_path="${__argocd_charts_dir}/${spec[1]}"
 
-#         if "${__binary_dir}/argocd" app get "${app_name}" 2>&1 >/dev/null; then
-#           "${__binary_dir}/argocd" app set "${app_name}" --grpc-web --sync-policy none
-#           "${__binary_dir}/argocd" app sync "${app_name}" --prune --grpc-web \
+#         if argocd app get "${app_name}" 2>&1 >/dev/null; then
+#           argocd app set "${app_name}" --grpc-web --sync-policy none
+#           argocd app sync "${app_name}" --prune --grpc-web \
 #             --local "$chart_path" >"${__data_dir}/${app_name}.sync.log" 2>&1
 
 #           if [ $? -ne 0 ]; then

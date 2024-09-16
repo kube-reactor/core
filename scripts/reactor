@@ -90,6 +90,7 @@ debug "Executing reactor command: $@"
 debug "Environment variables"
 debug "======================================"
 debug "$(env)"
+debug "--------------------------------------"
 
 if [[ "$__os" == "darwin" ]]; then
   REACTOR_DOCKER_SOCKET_FILE="${REACTOR_DOCKER_SOCKET_FILE:-/var/run/docker.sock.raw}"
@@ -99,37 +100,45 @@ else
   REACTOR_DOCKER_GROUP="$(stat -L -c '%g' /var/run/docker.sock)"
 fi
 export REACTOR_DOCKER_SOCKET_FILE
-export REACTOR_RUNTIME_IMAGE="${REACTOR_RUNTIME_IMAGE:-"reactor:${__reactor_version}"}"
-export REACTOR_DOCKER_ARGS="${REACTOR_DOCKER_ARGS:-}"
+export REACTOR_RUNTIME_IMAGE="${REACTOR_RUNTIME_IMAGE:-"${APP_NAME}:${__reactor_version}"}"
+
+if [ -z ${REACTOR_DOCKER_RUN_ARGS+x} ]; then
+  export REACTOR_DOCKER_RUN_ARGS=()
+fi
 
 REACTOR_ARGS=(
   "--rm"
   "--interactive"
   "--tty"
   "--network" "host"
-  "--user" "$(id -u):$(id -g)"
-  "--group-add" "${REACTOR_DOCKER_GROUP}"
-  "--workdir" "${__project_dir}"
   "--volume" "${REACTOR_DOCKER_SOCKET_FILE}:/var/run/docker.sock"
-  "--volume" "${__script_dir}:/usr/local/bin"
+  "--volume" "${__reactor_dir}:/reactor"
   "--volume" "${__project_dir}:${__project_dir}"
+  "--workdir" "${__project_dir}"
 )
 
 if [ -f "${__home_dir}/.bashrc" ]; then
-  REACTOR_ARGS=("${REACTOR_ARGS[@]}" "--volume" "${__home_dir}/.bashrc:/home/reactor/.bashrc")
+  REACTOR_ARGS=("${REACTOR_ARGS[@]}" "--volume" "${__home_dir}/.bashrc:${__home_dir}/.bashrc")
 fi
 if [ -f "${__home_dir}/.bash_profile" ]; then
-  REACTOR_ARGS=("${REACTOR_ARGS[@]}" "--volume" "${__home_dir}/.bash_profile:/home/reactor/.bash_profile")
+  REACTOR_ARGS=("${REACTOR_ARGS[@]}" "--volume" "${__home_dir}/.bash_profile:${__home_dir}/.bash_profile")
 fi
 if [ -f "${__home_dir}/.profile" ]; then
-  REACTOR_ARGS=("${REACTOR_ARGS[@]}" "--volume" "${__home_dir}/.profile:/home/reactor/.profile")
+  REACTOR_ARGS=("${REACTOR_ARGS[@]}" "--volume" "${__home_dir}/.profile:${__home_dir}/.profile")
+fi
+
+if [ -d "${__home_dir}/.ssh" ]; then
+  REACTOR_ARGS=("${REACTOR_ARGS[@]}" "--volume" "${__home_dir}/.ssh:${__home_dir}/.ssh")
+fi
+if [ -d "${__home_dir}/.git" ]; then
+  REACTOR_ARGS=("${REACTOR_ARGS[@]}" "--volume" "${__home_dir}/.git:${__home_dir}/.git")
 fi
 
 if ! docker inspect "$REACTOR_RUNTIME_IMAGE" >/dev/null 2>&1; then
     "${__script_dir}/reactor-build"
-    REACTOR_RUNTIME_IMAGE="reactor:${__reactor_version}"
+    REACTOR_RUNTIME_IMAGE="${APP_NAME}:${__reactor_version}"
 fi
-REACTOR_ARGS=("${REACTOR_ARGS[@]}" "$REACTOR_RUNTIME_IMAGE")
+REACTOR_ARGS=("${REACTOR_ARGS[@]}" "${REACTOR_DOCKER_RUN_ARGS[@]}" "$REACTOR_RUNTIME_IMAGE")
 
 debug "Command Arguments: ${COMMAND_ARGS[@]}"
 debug "Reactor Arguments: ${REACTOR_ARGS[@]}"

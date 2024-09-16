@@ -18,8 +18,13 @@
 #
 ENV_TYPE="${1:-full}"
 
+export __user_id="$(id -u)"
+export __user_name="$(id -nu)"
+export __group_id="$(id -g)"
+export __group_name="$(id -ng)"
+export __docker_group_id="$(cut -d: -f3 < <(getent group docker))"
+export __home_dir="/home/${__user_name}"
 
-export __home_dir="$HOME"
 export __reactor_dir="$(dirname "${__script_dir}")"
 export __reactor_version="$(cat -s "${__reactor_dir}/VERSION")"
 export __log_file="reactor"

@@ -3,11 +3,7 @@
 # DNS Utilities
 #
 
-if [[ "$__os" == "darwin" ]]; then
-  export DEFAULT_HOSTS_FILE="/private/etc/hosts"
-else
-  export DEFAULT_HOSTS_FILE="/etc/hosts"
-fi
+export DEFAULT_HOSTS_FILE="/etc/hosts"
 
 function dns_environment () {
   debug "Setting DNS environment ..."
@@ -27,11 +23,6 @@ function dns_hosts () {
 
 function dns_records () {
   dns_map=("###! $APP_NAME DNS MAP !###")
-
-  echo "-----------------"
-  echo "$(dns_ip)"
-  echo "$(dns_hosts)"
-  echo "-----------------"
 
   for host in $(dns_hosts); do
     for ip in $(dns_ip); do

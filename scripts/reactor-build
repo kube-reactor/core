@@ -7,7 +7,6 @@
 #=========================================================================================
 # Initialization
 #
-
 # Initialize top level directories and load bootstrap functions
 SCRIPT_PATH="${BASH_SOURCE[0]}" # bash
 if [[ -z "$SCRIPT_PATH" ]]; then
@@ -27,22 +26,53 @@ if [[ $SOURCED -eq 1 ]]; then
   return
 fi
 
-export REACTOR_IMAGE="${REACTOR_IMAGE:-reactor}"
+export REACTOR_IMAGE="${REACTOR_IMAGE:-$APP_NAME}"
 export REACTOR_TAG="${REACTOR_TAG:-"${__reactor_version}"}"
 
 export REACTOR_PARENT_IMAGE="${REACTOR_PARENT_IMAGE:-"ubuntu:22.04"}"
-export REACTOR_USER_UID="${REACTOR_USER_UID:-1000}"
-export REACTOR_USER_PASSWORD="${REACTOR_USER_PASSWORD:-reactor}"
+
+
+info "Checking development software requirements ..."
+check_binary python3 1>>"$(logfile)" 2>&1
+check_binary docker 1>>"$(logfile)" 2>&1
+check_binary git 1>>"$(logfile)" 2>&1
+check_binary curl 1>>"$(logfile)" 2>&1
+check_binary openssl 1>>"$(logfile)" 2>&1
 
 info "Removing existing Docker image: ${REACTOR_IMAGE}:${REACTOR_TAG}"
 docker image rm "${REACTOR_IMAGE}:${REACTOR_TAG}" 2>/dev/null
 
 info "Building Docker image: ${REACTOR_IMAGE}:${REACTOR_TAG}"
-docker build --force-rm --no-cache \
-  --file "${__reactor_docker_dir}/Dockerfile" \
-  --tag "${REACTOR_IMAGE}:${REACTOR_TAG}" \
-  --platform "linux/${__architecture}" \
-  --build-arg REACTOR_PARENT_IMAGE \
-  --build-arg REACTOR_USER_UID \
-  --build-arg REACTOR_USER_PASSWORD \
+rm -Rf "${__reactor_dir}/project"
+mkdir -p "${__reactor_dir}/project"
+
+if [ -f "${__project_dir}/requirements.txt" ]; then
+  cp -f "${__project_dir}/requirements.txt" "${__reactor_dir}/project/requirements.txt"
+fi
+
+if [ -z ${REACTOR_DOCKER_BUILD_ARGS+x} ]; then
+  export REACTOR_DOCKER_BUILD_ARGS=()
+fi
+
+REACTOR_ARGS=(
+  "--force-rm"
+  "--no-cache"
+  "--file" "${__reactor_docker_dir}/Dockerfile"
+  "--tag" "${REACTOR_IMAGE}:${REACTOR_TAG}"
+  "--platform" "linux/${__architecture}"
+  "--build-arg" "REACTOR_PARENT_IMAGE"
+  "--build-arg" "REACTOR_ARCHITECTURE=${__architecture}"
+  "--build-arg" "REACTOR_USER_NAME=${__user_name}"
+  "--build-arg" "REACTOR_USER_UID=${__user_id}"
+  "--build-arg" "REACTOR_DOCKER_GID=${__docker_group_id}"
+)
+
+REACTOR_ARGS=(
+  "${REACTOR_ARGS[@]}"
+  "${REACTOR_DOCKER_BUILD_ARGS[@]}"
   "${__reactor_dir}"
+)
+
+debug "Reactor Arguments: ${REACTOR_ARGS[@]}"
+docker build "${REACTOR_ARGS[@]}"
+rm -Rf "${__reactor_dir}/project"

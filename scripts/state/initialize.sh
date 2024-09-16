@@ -23,7 +23,7 @@ export __project_reactor_dir="${__project_dir}/reactor"
 export __project_utilities_dir="${__project_reactor_dir}/utilities"
 export __project_commands_dir="${__project_reactor_dir}/commands"
 
-export __app_dir="${__project_dir}/projects/${__environment}"
+export __app_dir="${__project_dir}/projects"
 
 export __log_dir="${__project_dir}/logs"
 
