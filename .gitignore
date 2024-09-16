@@ -162,11 +162,11 @@ cython_debug/
 #.idea/
 
 # Project files
-project/
-scripts/minikube
-scripts/helm
-scripts/argocd
+/project/
+/scripts/minikube
+/scripts/helm
+/scripts/argocd
 
 
 # Temporary folders
-tmp/
+/tmp/

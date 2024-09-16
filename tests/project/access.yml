@@ -1,0 +1,8 @@
+ingress:
+  dashboard: [] # Auth Emails
+  longhorn: [] # Auth Emails
+  db: [] # Auth Emails
+  tasks: [] # Auth Emails
+
+argocd:
+  admin: [] # Auth Emails

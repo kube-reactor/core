@@ -1,0 +1,15 @@
+name: Core Test Platform
+short_name: test
+
+docker:
+    zimagi:
+        remote: https://github.com/zimagi/zimagi.git
+        reference: main
+        docker_dir: docker
+        docker_tag: dev
+
+charts:
+    zimagi:
+       name: zimagi
+       remote: https://github.com/zimagi/charts.git
+       reference: main
