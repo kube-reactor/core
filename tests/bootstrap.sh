@@ -34,4 +34,4 @@ which openssl
 # Install Python packages
 pip install --upgrade pip setuptools wheel
 pip install "cython<3.0.0"
-pip install -r "${__reactor_dir}/requirements.txt"
+pip install --no-build-isolation -r "${__reactor_dir}/requirements.txt"
