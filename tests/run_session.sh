@@ -23,6 +23,8 @@ echo "Project directory: ${__project_dir}"
 echo "Reactor directory: ${__reactor_dir}"
 echo "Script directory: ${__script_dir}"
 
+cd "${__project_dir}"
+
 reactor up --build
 
 exit 1
