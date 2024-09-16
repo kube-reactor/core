@@ -9,13 +9,6 @@
 #=========================================================================================
 # Initialization
 #
-# Set the environment type to load specific variables
-#
-# Options:
-#
-#   1. min - Minimal environment that should operate across Bash and Zsh
-#   2. full - Full environment that includes all utilities and commands
-#
 export __user_id="$(id -u)"
 export __user_name="$(id -nu)"
 export __group_id="$(id -g)"
