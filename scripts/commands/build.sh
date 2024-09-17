@@ -50,12 +50,17 @@ function build_command () {
 
   info "Initializing docker image repositories ..."
   for project in $(config docker); do
+    project_dir="${__docker_dir}/${project}"
+
     info "Initializing ${project} docker image repository"
     download_git_repo \
         "$(config docker.$project.remote)" \
-        "${__docker_dir}/${project}" \
+        "$project_dir" \
         "$(config docker.$project.reference)"
 
+    if [ -f "${project_dir}/reactor/initialize.sh" ]; then
+      source "${project_dir}/reactor/initialize.sh" "$project"
+    fi
     info "Building ${project} docker image"
     build_docker_image "$project" $NO_CACHE
   done
