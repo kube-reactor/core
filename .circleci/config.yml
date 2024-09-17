@@ -20,7 +20,7 @@ jobs:
             - run:
                 name: Dump reactor command log
                 when: always
-                command: cat ./logs/reactor.log
+                command: cat ./tests/project/logs/reactor.log
 
     test-arm64:
         resource_class: arm.medium
@@ -41,7 +41,7 @@ jobs:
             - run:
                 name: Dump reactor command log
                 when: always
-                command: cat ./logs/reactor.log
+                command: cat ./tests/project/logs/reactor.log
 
     deploy-docker-amd64-latest:
         resource_class: medium
