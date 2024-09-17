@@ -17,6 +17,10 @@ jobs:
                     REACTOR_PARENT_IMAGE: ubuntu:22.04
                     MINIKUBE_CPUS: 2
                     MINIKUBE_MEMORY: 4096
+            - run:
+                name: Dump reactor command log
+                when: always
+                command: cat ./logs/reactor.log
 
     test-arm64:
         resource_class: arm.medium
@@ -34,6 +38,10 @@ jobs:
                     REACTOR_PARENT_IMAGE: ubuntu:22.04
                     MINIKUBE_CPUS: 2
                     MINIKUBE_MEMORY: 4096
+            - run:
+                name: Dump reactor command log
+                when: always
+                command: cat ./logs/reactor.log
 
     deploy-docker-amd64-latest:
         resource_class: medium
