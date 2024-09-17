@@ -1,52 +1,101 @@
 version: 2
 
-jobs:
-    test-amd64:
-        resource_class: medium
-        machine:
-            image: ubuntu-2404:current
-        steps:
-            - checkout
-            - run:
-                name: Bootstrap test OS
-                command: ./tests/bootstrap.sh
-            - run:
-                name: Test AMD Docker image
-                command: ./tests/run_session.sh
-                environment:
-                    REACTOR_PARENT_IMAGE: ubuntu:22.04
-                    MINIKUBE_CPUS: 2
-                    MINIKUBE_MEMORY: 4096
-            - run:
-                name: Dump reactor command log
-                when: always
-                command: cat ./tests/project/logs/reactor.log
+ubuntu_amd64: &ubuntu_amd64
+    resource_class: medium
+    machine:
+        image: ubuntu-2404:current
 
-    test-arm64:
-        resource_class: arm.medium
-        machine:
-            image: ubuntu-2404:current
-        steps:
-            - checkout
-            - run:
-                name: Bootstrap test OS
-                command: ./tests/bootstrap.sh
-            - run:
-                name: Test ARM Docker image
-                command: ./tests/run_session.sh
-                environment:
-                    REACTOR_PARENT_IMAGE: ubuntu:22.04
-                    MINIKUBE_CPUS: 2
-                    MINIKUBE_MEMORY: 4096
-            - run:
-                name: Dump reactor command log
-                when: always
-                command: cat ./tests/project/logs/reactor.log
+ubuntu_arm64: &ubuntu_arm64
+    resource_class: arm.medium
+    machine:
+        image: ubuntu-2404:current
+
+check_shell_paths: &check_shell_paths
+    name: Test shell paths
+    command: which bash && which zsh && which sh
+
+install_zsh: &install_zsh
+    name: Install ZSh
+    command: sudo apt install zsh
+
+bootstrap: &bootstrap
+    name: Bootstrap test OS
+    command: ./tests/bootstrap.sh
+
+session: &session
+    name: Test Docker image
+    command: ./tests/run_session.sh
+
+session_env: &session_env
+    REACTOR_PARENT_IMAGE: ubuntu:22.04
+    MINIKUBE_CPUS: 2
+    MINIKUBE_MEMORY: 4096
+
+dump_log: &dump_log
+    name: Dump reactor command log
+    when: always
+    command: cat ./tests/project/logs/reactor.log
+
+test_bash: &test_bash
+    steps:
+        - checkout
+        - run:
+            <<: *bootstrap
+            environment: *session_env
+        - run:
+            <<: *session
+            environment: *session_env
+        - run: *dump_log
+
+test_zsh: &test_zsh
+    steps:
+        - checkout
+        - run: *install_zsh
+        - run: *check_shell_paths
+        - run:
+            <<: *bootstrap
+            shell: /usr/bin/zsh
+            environment: *session_env
+        - run:
+            <<: *session
+            shell: /usr/bin/zsh
+            environment: *session_env
+        - run: *dump_log
+
+test_sh: &test_sh
+    steps:
+        - checkout
+        - run:
+            <<: *bootstrap
+            shell: /usr/bin/sh
+            environment: *session_env
+        - run:
+            <<: *session
+            shell: /usr/bin/sh
+            environment: *session_env
+        - run: *dump_log
+
+jobs:
+    test-amd64-ubuntu-bash:
+        <<: [*ubuntu_amd64, *test_bash]
+
+    test-amd64-ubuntu-zsh:
+        <<: [*ubuntu_amd64, *test_zsh]
+
+    test-amd64-ubuntu-sh:
+        <<: [*ubuntu_amd64, *test_sh]
+
+    test-arm64-ubuntu-bash:
+        <<: [*ubuntu_arm64, *test_bash]
+
+    test-arm64-ubuntu-zsh:
+        <<: [*ubuntu_arm64, *test_zsh]
+
+    test-arm64-ubuntu-sh:
+        <<: [*ubuntu_arm64, *test_sh]
 
     deploy-docker-amd64-latest:
-        resource_class: medium
-        machine:
-            image: ubuntu-2404:current
+        <<: *ubuntu_amd64
         steps:
             - checkout
             - run:
@@ -56,9 +105,7 @@ jobs:
                     REACTOR_PARENT_IMAGE: ubuntu:22.04
 
     deploy-docker-arm64-latest:
-        resource_class: arm.medium
-        machine:
-            image: ubuntu-2404:current
+        <<: *ubuntu_arm64
         steps:
             - checkout
             - run:
@@ -68,9 +115,7 @@ jobs:
                     REACTOR_PARENT_IMAGE: ubuntu:22.04
 
     deploy-docker-latest:
-        resource_class: medium
-        machine:
-            image: ubuntu-2404:current
+        <<: *ubuntu_amd64
         steps:
             - checkout
             - run:
@@ -78,9 +123,7 @@ jobs:
                 command: ./docker/deploy_manifest.sh standard latest
 
     deploy-docker-nvidia-amd64-latest:
-        resource_class: medium
-        machine:
-            image: ubuntu-2404:current
+        <<: *ubuntu_amd64
         steps:
             - checkout
             - run:
@@ -90,9 +133,7 @@ jobs:
                     REACTOR_PARENT_IMAGE: nvidia/cuda:12.3.2-cudnn9-devel-ubuntu22.04
 
     deploy-docker-nvidia-latest:
-        resource_class: medium
-        machine:
-            image: ubuntu-2404:current
+        <<: *ubuntu_amd64
         steps:
             - checkout
             - run:
@@ -100,9 +141,7 @@ jobs:
                 command: ./docker/deploy_manifest.sh nvidia latest
 
     deploy-docker-amd64-version:
-        resource_class: medium
-        machine:
-            image: ubuntu-2404:current
+        <<: *ubuntu_amd64
         steps:
             - checkout
             - run:
@@ -112,9 +151,7 @@ jobs:
                     REACTOR_PARENT_IMAGE: ubuntu:22.04
 
     deploy-docker-arm64-version:
-        resource_class: arm.medium
-        machine:
-            image: ubuntu-2404:current
+        <<: *ubuntu_arm64
         steps:
             - checkout
             - run:
@@ -124,9 +161,7 @@ jobs:
                     REACTOR_PARENT_IMAGE: ubuntu:22.04
 
     deploy-docker-version:
-        resource_class: medium
-        machine:
-            image: ubuntu-2404:current
+        <<: *ubuntu_amd64
         steps:
             - checkout
             - run:
@@ -134,9 +169,7 @@ jobs:
                 command: ./docker/deploy_manifest.sh
 
     deploy-docker-nvidia-amd64-version:
-        resource_class: medium
-        machine:
-            image: ubuntu-2404:current
+        <<: *ubuntu_amd64
         steps:
             - checkout
             - run:
@@ -146,9 +179,7 @@ jobs:
                     REACTOR_PARENT_IMAGE: nvidia/cuda:12.3.2-cudnn9-devel-ubuntu22.04
 
     deploy-docker-nvidia-version:
-        resource_class: medium
-        machine:
-            image: ubuntu-2404:current
+        <<: *ubuntu_amd64
         steps:
             - checkout
             - run:
@@ -159,12 +190,32 @@ workflows:
     version: 2
     deploy:
         jobs:
-            - test-amd64:
+            - test-amd64-ubuntu-bash:
                 filters:
                     tags:
                         only: /.*/
 
-            - test-arm64:
+            - test-amd64-ubuntu-zsh:
+                filters:
+                    tags:
+                        only: /.*/
+
+            - test-amd64-ubuntu-sh:
+                filters:
+                    tags:
+                        only: /.*/
+
+            - test-arm64-ubuntu-bash:
+                filters:
+                    tags:
+                        only: /.*/
+
+            - test-arm64-ubuntu-zsh:
+                filters:
+                    tags:
+                        only: /.*/
+
+            - test-arm64-ubuntu-sh:
                 filters:
                     tags:
                         only: /.*/
@@ -176,8 +227,9 @@ workflows:
                     branches:
                         only: main
                 requires:
-                    - test-amd64
-                    - test-arm64
+                    - test-amd64-ubuntu-bash
+                    - test-amd64-ubuntu-zsh
+                    - test-amd64-ubuntu-sh
 
             - deploy-docker-arm64-latest:
                 filters:
@@ -186,8 +238,9 @@ workflows:
                     branches:
                         only: main
                 requires:
-                    - test-amd64
-                    - test-arm64
+                    - test-arm64-ubuntu-bash
+                    - test-arm64-ubuntu-zsh
+                    - test-arm64-ubuntu-sh
 
             - deploy-docker-latest:
                 filters:
@@ -206,8 +259,9 @@ workflows:
                     branches:
                         only: main
                 requires:
-                    - test-amd64
-                    - test-arm64
+                    - test-amd64-ubuntu-bash
+                    - test-amd64-ubuntu-zsh
+                    - test-amd64-ubuntu-sh
 
             - deploy-docker-nvidia-latest:
                 filters:
@@ -225,8 +279,9 @@ workflows:
                     branches:
                         ignore: /.*/
                 requires:
-                    - test-amd64
-                    - test-arm64
+                    - test-amd64-ubuntu-bash
+                    - test-amd64-ubuntu-zsh
+                    - test-amd64-ubuntu-sh
 
             - deploy-docker-arm64-version:
                 filters:
@@ -235,8 +290,9 @@ workflows:
                     branches:
                         ignore: /.*/
                 requires:
-                    - test-amd64
-                    - test-arm64
+                    - test-arm64-ubuntu-bash
+                    - test-arm64-ubuntu-zsh
+                    - test-arm64-ubuntu-sh
 
             - deploy-docker-version:
                 filters:
@@ -255,8 +311,9 @@ workflows:
                     branches:
                         ignore: /.*/
                 requires:
-                    - test-amd64
-                    - test-arm64
+                    - test-amd64-ubuntu-bash
+                    - test-amd64-ubuntu-zsh
+                    - test-amd64-ubuntu-sh
 
             - deploy-docker-nvidia-version:
                 filters:
