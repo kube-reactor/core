@@ -4,7 +4,7 @@ short_name: test
 docker:
     zimagi:
         remote: https://github.com/zimagi/zimagi.git
-        reference: main
+        reference: reactor
         docker_dir: docker
         docker_tag: dev
 
