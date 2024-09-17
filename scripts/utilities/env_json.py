@@ -14,8 +14,17 @@ import json
 
 environment = {}
 
+skip_vars = [
+  "HOSTNAME",
+  "PATH",
+  "PWD",
+  "USER",
+  "HOME",
+  "SHELL"
+]
+
 for name, value in os.environ.items():
-  if not name.startswith('TF_VAR_'):
-    environment[name] = value
+  if not name.startswith('TF_VAR_') and name not in skip_vars:
+    environment[name] = value.replace('${', '$${')
 
 print(json.dumps(environment, indent=2))
