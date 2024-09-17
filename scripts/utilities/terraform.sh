@@ -34,13 +34,16 @@ function provision_terraform () {
       "--env" "TF_VAR_domain=${PRIMARY_DOMAIN}"
       "--env" "TF_VAR_environment=${__environment}"
       "--env" "TF_VAR_argocd_admin_password=$(argocd account bcrypt --password "${ARGOCD_ADMIN_PASSWORD:-admin}")"
+      "--env" "TF_VAR_variables"
     )
     if [[ "${LOG_LEVEL:-0}" -ge 7 ]]; then
       TERRAFORM_ARGS=("${TERRAFORM_ARGS[@]}" "--env" "TF_LOG=DEBUG")
     fi
-    while IFS= read -r variable; do
+
+    ENVIRONMENT="$(current_environment)"
+    for variable in ${ENVIRONMENT[@]}; do
       TERRAFORM_ARGS=("${TERRAFORM_ARGS[@]}" "--env" "$variable")
-    done <<< "$(env | grep -o "[_A-Za-z0-9]*")"
+    done
 
     TERRAFORM_ARGS=(
       "${TERRAFORM_ARGS[@]}"

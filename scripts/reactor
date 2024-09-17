@@ -118,12 +118,11 @@ REACTOR_ARGS=(
   "--volume" "${__project_dir}:${__project_dir}"
   "--workdir" "${__project_dir}"
 )
-while IFS= read -r variable; do
-  if [[ "$variable" != "PATH" ]] \
-    && [[ "$variable" != "REACTOR_ARCHITECTURE" ]]; then
-    REACTOR_ARGS=("${REACTOR_ARGS[@]}" "--env" "$variable")
-  fi
-done <<< "$(env | grep -o "[_A-Za-z0-9]*")"
+
+ENVIRONMENT="$(current_environment)"
+for variable in ${ENVIRONMENT[@]}; do
+  REACTOR_ARGS=("${REACTOR_ARGS[@]}" "--env" "$variable")
+done
 
 if [ -f "${__home_dir}/.bashrc" ]; then
   REACTOR_ARGS=("${REACTOR_ARGS[@]}" "--volume" "${__home_dir}/.bashrc:${__home_dir}/.bashrc")
