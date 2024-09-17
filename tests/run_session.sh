@@ -25,6 +25,6 @@ echo "Script directory: ${__script_dir}"
 
 cd "${__project_dir}"
 
-reactor up --build
+reactor up --build --debug --no-cache
 
 exit 1
