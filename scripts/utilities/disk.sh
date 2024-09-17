@@ -71,11 +71,9 @@ function download_git_repo () {
   if [ ! -d "$DIRECTORY" ]; then
     info "Fetching repository \"$URL\" into folder \"$DIRECTORY\" ..."
     git clone --quiet "$URL" "$DIRECTORY" 1>>"$(logfile)" 2>&1
-    exec_git "$DIRECTORY" fetch origin --tags
-    exec_git "$DIRECTORY" checkout "$REFERENCE"
-  else
-    exec_git "$DIRECTORY" fetch origin --tags
   fi
+  exec_git "$DIRECTORY" fetch origin --tags
+  exec_git "$DIRECTORY" checkout "$REFERENCE" --
 }
 
 function clean_cache () {
