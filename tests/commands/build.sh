@@ -5,4 +5,4 @@
 #
 set -e
 
-reactor build --build --no-cache --debug
+reactor build --no-cache --debug
