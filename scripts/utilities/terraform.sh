@@ -23,6 +23,9 @@ function provision_terraform () {
 
     export TF_VAR_variables="$(env_json)"
 
+    debug "Terraform project environment variables"
+    debug "${TF_VAR_variables}"
+
     TERRAFORM_ARGS=(
       "--rm"
       "--network" "host"
@@ -39,11 +42,6 @@ function provision_terraform () {
     if [[ "${LOG_LEVEL:-0}" -ge 7 ]]; then
       TERRAFORM_ARGS=("${TERRAFORM_ARGS[@]}" "--env" "TF_LOG=DEBUG")
     fi
-
-    ENVIRONMENT="$(current_environment)"
-    for variable in ${ENVIRONMENT[@]}; do
-      TERRAFORM_ARGS=("${TERRAFORM_ARGS[@]}" "--env" "$variable")
-    done
 
     TERRAFORM_ARGS=(
       "${TERRAFORM_ARGS[@]}"
