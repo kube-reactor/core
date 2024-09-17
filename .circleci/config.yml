@@ -16,7 +16,7 @@ jobs:
                 environment:
                     REACTOR_PARENT_IMAGE: ubuntu:22.04
                     MINIKUBE_CPUS: 2
-                    MINIKUBE_MEMORY: 2048
+                    MINIKUBE_MEMORY: 4096
 
     test-arm64:
         resource_class: arm.medium
@@ -33,7 +33,7 @@ jobs:
                 environment:
                     REACTOR_PARENT_IMAGE: ubuntu:22.04
                     MINIKUBE_CPUS: 2
-                    MINIKUBE_MEMORY: 2048
+                    MINIKUBE_MEMORY: 4096
 
     deploy-docker-amd64-latest:
         resource_class: medium
