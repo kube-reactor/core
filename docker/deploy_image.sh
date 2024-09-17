@@ -53,7 +53,7 @@ docker build --force-rm --no-cache \
   --tag "${PKG_DOCKER_IMAGE}:${REACTOR_TAG}" \
   --platform "linux/${__architecture}" \
   --build-arg REACTOR_PARENT_IMAGE \
-  --build-arg "REACTOR_ARCHITECTURE=${__architecture}"
+  --build-arg "REACTOR_ARCHITECTURE=${__architecture}" \
   "${__reactor_dir}"
 
 echo "Pushing ${__architecture} Docker image: ${REACTOR_TAG}"
