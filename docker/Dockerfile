@@ -102,8 +102,6 @@ RUN groupmod --gid ${REACTOR_DOCKER_GID} docker \
 #
 # Application environment variables
 #
-ENV REACTOR_LOCAL="0"
-
 ENV REACTOR_DIR="/reactor"
 ENV SCRIPT_DIR="${REACTOR_DIR}/scripts"
 ENV BUILD_DIR="${REACTOR_DIR}/project"
@@ -114,6 +112,8 @@ ENV PATH="${SCRIPT_DIR}:${PATH}"
 #
 COPY --chown=${REACTOR_USER_NAME}:${REACTOR_USER_NAME} ./ ${REACTOR_DIR}
 VOLUME ${REACTOR_DIR}
+
+RUN ln -s ${REACTOR_DIR}/VERSION /REACTOR.txt
 #
 # Project customization
 #

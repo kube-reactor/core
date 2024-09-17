@@ -51,8 +51,8 @@ function __log () {
   local log_line=""
   local date_time="$(date -u +"%Y-%m-%d %H:%M:%S UTC")"
 
-  if [ "$REACTOR_LOCAL" == "1" ]; then
-    local local_indicator="(L)"
+  if [ $REACTOR_LOCAL -ne 0 ]; then
+    local local_indicator="*"
   else
     local local_indicator=""
   fi

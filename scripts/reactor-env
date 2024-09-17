@@ -33,7 +33,12 @@ export __project_dir="$(dirname "${__project_file}")"
 export __environment="${REACTOR_ENV:-local}"
 export __env_dir="${__project_dir}/env/${__environment}"
 
-export REACTOR_LOCAL="${REACTOR_LOCAL:-1}"
+if [ -f /REACTOR.txt ]; then
+  REACTOR_LOCAL=0
+else
+  REACTOR_LOCAL=1
+fi
+export REACTOR_LOCAL
 
 # Load environment configuration
 if [ -f "${__env_dir}/public.sh" ]; then

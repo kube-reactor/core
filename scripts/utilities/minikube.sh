@@ -39,7 +39,7 @@ function minikube_environment () {
 
 
 # Initialize Docker registry
-if [ "$REACTOR_LOCAL" != "1" ]; then
+if [ $REACTOR_LOCAL -eq 0 ]; then
   if minikube status 1>/dev/null 2>&1; then
     eval $(minikube docker-env)
   fi
@@ -78,7 +78,7 @@ function start_minikube () {
   fi
   minikube update-context
 
-  if [ "$REACTOR_LOCAL" != "1" ]; then
+  if [ $REACTOR_LOCAL -eq 0 ]; then
     eval $(minikube docker-env)
 
     debug "DOCKER_TLS_VERIFY=${DOCKER_TLS_VERIFY}"
