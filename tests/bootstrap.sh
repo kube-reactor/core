@@ -47,6 +47,7 @@ if [ "${__os}" == "darwin" ]; then
 
   brew install docker-machine docker
   brew install --cask virtualbox
+  docker-machine create default --virtualbox-no-vtx-check
 fi
 
 # Verify intallation of required executables
