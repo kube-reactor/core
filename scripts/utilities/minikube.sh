@@ -43,30 +43,22 @@ function minikube_environment () {
 
 # Initialize Docker registry
 if [ $REACTOR_LOCAL -eq 0 ]; then
-  if minikube status 1>/dev/null 2>&1; then
-    eval $(minikube docker-env)
+  if "${__binary_dir}/minikube" status 1>/dev/null 2>&1; then
+    eval $("${__binary_dir}/minikube" docker-env)
   fi
 fi
 
 
 function minikube_status () {
   minikube_environment
-  minikube status 1>/dev/null 2>&1
-  return $?
-}
-
-function minikube_host_status () {
-  # Runs on host machine
-  minikube_environment
   "${__binary_dir}/minikube" status 1>/dev/null 2>&1
   return $?
 }
 
-
 function start_minikube () {
   if ! minikube_status; then
     info "Starting Minikube ..."
-    minikube start \
+    "${__binary_dir}/minikube" start \
       --driver=${MINIKUBE_DRIVER} \
       --nodes=${MINIKUBE_NODES} \
       --cpus=${MINIKUBE_CPUS} \
@@ -79,8 +71,8 @@ function start_minikube () {
       --embed-certs \
       --dns-domain="${PRIMARY_DOMAIN}"
   fi
-  minikube update-context
-  eval $(minikube docker-env)
+  "${__binary_dir}/minikube" update-context
+  eval $("${__binary_dir}/minikube" docker-env)
 
   debug "DOCKER_TLS_VERIFY=${DOCKER_TLS_VERIFY}"
   debug "DOCKER_HOST=${DOCKER_HOST}"
@@ -91,7 +83,7 @@ function start_minikube () {
 function stop_minikube () {
   info "Stopping Minikube environment ..."
   if minikube_status; then
-    minikube stop
+    "${__binary_dir}/minikube" stop
     delete_minikube_kubeconfig
   fi
 }
@@ -105,7 +97,7 @@ function stop_host_minikube () {
 function destroy_minikube () {
   info "Destroying Minikube environment ..."
 
-  minikube delete --purge
+  "${__binary_dir}/minikube" delete --purge
   delete_minikube_kubeconfig
   delete_minikube_storage
 
@@ -120,9 +112,24 @@ function destroy_host_minikube () {
 }
 
 
+function delete_minikube_kubeconfig () {
+  if [ -f "$KUBECONFIG" ]; then
+    info "Deleting Minikube kubeconfig file ..."
+    rm -f "$KUBECONFIG"
+  fi
+}
+
+function delete_minikube_storage () {
+  if [ -d "$MINIKUBE_HOME" ]; then
+    info "Deleting Minikube project storage ..."
+    rm -Rf "$MINIKUBE_HOME"
+  fi
+}
+
+
 function launch_host_minikube_tunnel () {
   # Runs on host machine
-  if minikube_host_status; then
+  if minikube_status; then
     PID_FILE="${__log_dir}/tunnel.kpid"
 
     terminate_host_minikube_tunnel
@@ -150,7 +157,7 @@ function terminate_host_minikube_tunnel () {
 
 function launch_host_minikube_dashboard () {
   # Runs on host machine
-  if minikube_host_status; then
+  if minikube_status; then
     PID_FILE="${__log_dir}/dashboard.kpid"
 
     terminate_host_minikube_dashboard
@@ -172,20 +179,5 @@ function terminate_host_minikube_dashboard () {
       kill "$(cat "$PID_FILE")"
     fi
     rm -f "$PID_FILE"
-  fi
-}
-
-
-function delete_minikube_kubeconfig () {
-  if [ -f "$KUBECONFIG" ]; then
-    info "Deleting Minikube kubeconfig file ..."
-    rm -f "$KUBECONFIG"
-  fi
-}
-
-function delete_minikube_storage () {
-  if [ -d "$MINIKUBE_HOME" ]; then
-    info "Deleting Minikube project storage ..."
-    rm -Rf "$MINIKUBE_HOME"
   fi
 }

@@ -8,6 +8,6 @@ function helm_description () {
 }
 function helm_command () {
   helm_environment
-  helm "$@"
+  "${__binary_dir}/helm" "$@"
   echo ""
 }

@@ -17,7 +17,7 @@ function helm_environment () {
 
 # function update_helm_dependencies () {
 #   info "Updating chart Helm dependencies ..."
-#   helm dependency update \
+#   "${__binary_dir}/helm" dependency update \
 #     "${__charts_dir}/charts/zimagi"
 # }
 
@@ -33,10 +33,10 @@ function helm_environment () {
 #   )
 
 #   info "Generating Zimagi Helm template ..."
-#   helm "${TEMPLATE_ARGS[@]}" >"${__zimagi_data_dir}/zimagi.helm.template.yml" 2>&1
+#   "${__binary_dir}/helm" "${TEMPLATE_ARGS[@]}" >"${__zimagi_data_dir}/zimagi.helm.template.yml" 2>&1
 
 #   if [ $? -ne 0 ]; then
-#     helm "${TEMPLATE_ARGS[@]}" --debug
+#     "${__binary_dir}/helm" "${TEMPLATE_ARGS[@]}" --debug
 #   fi
 # }
 
