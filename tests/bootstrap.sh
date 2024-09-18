@@ -38,12 +38,13 @@ echo "Script directory: ${__script_dir}"
 echo "Operating System: ${__os}"
 echo "Computing Architecture: ${__architecture}"
 
-if [ "${__os}" == "darwin" ]; then
-  wget https://desktop.docker.com/mac/main/arm64/Docker.dmg
-  sudo hdiutil attach Docker.dmg
-  sudo /Volumes/Docker/Docker.app/Contents/MacOS/install
-  sudo hdiutil detach /Volumes/Docker
-fi
+# if [ "${__os}" == "darwin" ]; then
+#   wget https://desktop.docker.com/mac/main/arm64/Docker.dmg
+#   sudo hdiutil attach Docker.dmg
+#   sudo /Volumes/Docker/Docker.app/Contents/MacOS/install
+#   sudo hdiutil detach /Volumes/Docker
+#   export PATH="/Applications/Docker.app/Contents/Resources/bin:$PATH"
+# fi
 
 # Verify intallation of required executables
 which python3

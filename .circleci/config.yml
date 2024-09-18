@@ -19,7 +19,7 @@ ubuntu_arm64: &ubuntu_arm64
         image: ubuntu-2404:current
 
 macos_m1: &macos_m1
-    #resource_class: macos.m1.medium.gen1
+    resource_class: macos.m1.medium.gen1
     macos:
         xcode: 15.3.0
 
