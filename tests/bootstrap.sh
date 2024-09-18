@@ -1,10 +1,7 @@
-#!/usr/bin/env bash
 #
 #=========================================================================================
 # Initialization
 #
-set -e
-
 # Initialize top level directories and load bootstrap functions
 SCRIPT_PATH="${BASH_SOURCE[0]}" # bash
 if [[ -z "$SCRIPT_PATH" ]]; then
@@ -37,6 +34,11 @@ echo "Reactor directory: ${__reactor_dir}"
 echo "Script directory: ${__script_dir}"
 echo "Operating System: ${__os}"
 echo "Computing Architecture: ${__architecture}"
+
+#=========================================================================================
+# Boostrap process
+#
+set -e
 
 # Verify intallation of required executables
 which python3

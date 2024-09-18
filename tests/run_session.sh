@@ -1,10 +1,7 @@
-#!/usr/bin/env bash
 #
 #=========================================================================================
 # Initialization
 #
-set -e
-
 # Initialize top level directories and load bootstrap functions
 SCRIPT_PATH="${BASH_SOURCE[0]}" # bash
 if [[ -z "$SCRIPT_PATH" ]]; then
@@ -27,7 +24,7 @@ cd "${__project_dir}"
 #=========================================================================================
 # Development Session
 #
-
+set -e
 #
 # Starting Up
 #
@@ -56,7 +53,7 @@ fi
 # Running Command Tests
 #
 for file in "${__test_dir}/commands"/*.sh; do
-  echo "$file"
+  "$file"
 done
 
 #
