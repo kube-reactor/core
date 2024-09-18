@@ -45,7 +45,7 @@ if [ "${__os}" == "darwin" ]; then
 #   sudo hdiutil detach /Volumes/Docker
 #   export PATH="/Applications/Docker.app/Contents/Resources/bin:$PATH"
 
-  brew install --cask docker-machine docker
+  brew install docker-machine docker
   brew install --cask virtualbox
 fi
 
