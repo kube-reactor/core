@@ -38,6 +38,13 @@ echo "Script directory: ${__script_dir}"
 echo "Operating System: ${__os}"
 echo "Computing Architecture: ${__architecture}"
 
+if [ "${__os}" == "darwin" ]; then
+  wget https://desktop.docker.com/mac/main/arm64/Docker.dmg
+  sudo hdiutil attach Docker.dmg
+  sudo /Volumes/Docker/Docker.app/Contents/MacOS/install
+  sudo hdiutil detach /Volumes/Docker
+fi
+
 # Verify intallation of required executables
 which python3
 which docker
@@ -46,10 +53,5 @@ which curl
 which openssl
 
 # Install Python packages
-if [ "${__os}" == "darwin" ]; then
-  python3 -m pip install --upgrade pip setuptools wheel
-  python3 -m pip install -r "${__reactor_dir}/requirements.txt"
-else
-  python3 -m pip install --upgrade pip setuptools wheel
-  python3 -m pip install --no-build-isolation -r "${__reactor_dir}/requirements.txt"
-fi
+python3 -m pip install --upgrade pip setuptools wheel
+python3 -m pip install --no-build-isolation -r "${__reactor_dir}/requirements.txt"
