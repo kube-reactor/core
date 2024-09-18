@@ -108,11 +108,16 @@ function up_command () {
 
 function up_host_command () {
   up_environment "$@"
+  minikube_environment
   helm_environment
 
   info "Downloading local software dependencies ..."
   download_binary minikube \
     "https://storage.googleapis.com/minikube/releases/latest/minikube-${__os}-${__architecture}" \
+    "${__binary_dir}"
+
+  download_binary kubectl \
+    "https://dl.k8s.io/release/v${KUBECTL_VERSION}/bin/linux/${__architecture}/kubectl" \
     "${__binary_dir}"
 
   download_binary helm \
@@ -124,8 +129,8 @@ function up_host_command () {
     "https://github.com/argoproj/argo-cd/releases/latest/download/argocd-${__os}-${__architecture}" \
     "${__binary_dir}"
 
-  update_host_command
-
   launch_host_minikube_tunnel
   launch_host_minikube_dashboard
+
+  update_host_command
 }
