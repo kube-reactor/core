@@ -80,6 +80,6 @@ function launch_command () {
     emergency "Minikube is not running"
   fi
 
-  kubectl run -n "$SERVICE_NAMESPACE" "$SERVICE_POD_NAME" --image="$SERVICE_IMAGE"
+  "${__binary_dir}/kubectl" run -n "$SERVICE_NAMESPACE" "$SERVICE_POD_NAME" --image="$SERVICE_IMAGE"
   echo ""
 }

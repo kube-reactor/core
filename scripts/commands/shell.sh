@@ -69,5 +69,5 @@ function shell_command () {
   if ! minikube_status; then
     emergency "Minikube is not running"
   fi
-  kubectl exec -n "$SERVICE_NAMESPACE" -ti "$SERVICE_POD_NAME" -- "${SERVICE_COMMAND[@]}"
+  "${__binary_dir}/kubectl" exec -n "$SERVICE_NAMESPACE" -ti "$SERVICE_POD_NAME" -- "${SERVICE_COMMAND[@]}"
 }

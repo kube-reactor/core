@@ -72,6 +72,6 @@ function terminate_command () {
     emergency "Minikube is not running"
   fi
 
-  kubectl delete pod -n "$SERVICE_NAMESPACE" "$SERVICE_POD_NAME"
+  "${__binary_dir}/kubectl" delete pod -n "$SERVICE_NAMESPACE" "$SERVICE_POD_NAME"
   echo ""
 }
