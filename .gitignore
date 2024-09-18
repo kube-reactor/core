@@ -155,11 +155,19 @@ cython_debug/
 # Project files
 /project/
 /scripts/minikube
+/scripts/kubectl
 /scripts/helm
 /scripts/argocd
+/tests/project/logs/
+/tests/project/certs/
 /tests/project/docker/
 /tests/project/charts/
+/tests/project/.minikube/
+/tests/project/env/local/.kubeconfig
+/tests/project/.terraform/
 /tests/project/terraform/argocd-apps/
+/tests/project/terraform/argocd-apps/gateway/terraform.tfstate
+/tests/project/terraform/argocd-apps/gateway/.terraform.lock.hcl
 
 # Temporary folders
 /tmp/
