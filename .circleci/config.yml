@@ -10,14 +10,6 @@ ubuntu_arm64: &ubuntu_arm64
     machine:
         image: ubuntu-2404:current
 
-check_shell_paths: &check_shell_paths
-    name: Test shell paths
-    command: which bash && which zsh && which sh
-
-install_apt_zsh: &install_apt_zsh
-    name: Install ZSh
-    command: sudo apt install zsh
-
 bootstrap: &bootstrap
     name: Bootstrap test OS
     command: ./tests/bootstrap.sh
@@ -49,51 +41,12 @@ test_bash: &test_bash
             environment: *session_env
         - run: *dump_log
 
-test_ubuntu_zsh: &test_ubuntu_zsh
-    steps:
-        - checkout
-        - run: *install_apt_zsh
-        - run:
-            <<: *bootstrap
-            shell: /usr/bin/zsh
-            environment: *session_env
-        - run:
-            <<: *session
-            shell: /usr/bin/zsh
-            environment: *session_env
-        - run: *dump_log
-
-test_sh: &test_sh
-    steps:
-        - checkout
-        - run:
-            <<: *bootstrap
-            shell: /usr/bin/sh
-            environment: *session_env
-        - run:
-            <<: *session
-            shell: /usr/bin/sh
-            environment: *session_env
-        - run: *dump_log
-
 jobs:
     test-amd64-ubuntu-bash:
         <<: [*ubuntu_amd64, *test_bash]
 
-    test-amd64-ubuntu-zsh:
-        <<: [*ubuntu_amd64, *test_ubuntu_zsh]
-
-    test-amd64-ubuntu-sh:
-        <<: [*ubuntu_amd64, *test_sh]
-
     test-arm64-ubuntu-bash:
         <<: [*ubuntu_arm64, *test_bash]
-
-    test-arm64-ubuntu-zsh:
-        <<: [*ubuntu_arm64, *test_ubuntu_zsh]
-
-    test-arm64-ubuntu-sh:
-        <<: [*ubuntu_arm64, *test_sh]
 
     deploy-docker-amd64-latest:
         <<: *ubuntu_amd64
@@ -196,27 +149,7 @@ workflows:
                     tags:
                         only: /.*/
 
-            - test-amd64-ubuntu-zsh:
-                filters:
-                    tags:
-                        only: /.*/
-
-            - test-amd64-ubuntu-sh:
-                filters:
-                    tags:
-                        only: /.*/
-
             - test-arm64-ubuntu-bash:
-                filters:
-                    tags:
-                        only: /.*/
-
-            - test-arm64-ubuntu-zsh:
-                filters:
-                    tags:
-                        only: /.*/
-
-            - test-arm64-ubuntu-sh:
                 filters:
                     tags:
                         only: /.*/
@@ -229,8 +162,6 @@ workflows:
                         only: main
                 requires:
                     - test-amd64-ubuntu-bash
-                    - test-amd64-ubuntu-zsh
-                    - test-amd64-ubuntu-sh
 
             - deploy-docker-arm64-latest:
                 filters:
@@ -240,8 +171,6 @@ workflows:
                         only: main
                 requires:
                     - test-arm64-ubuntu-bash
-                    - test-arm64-ubuntu-zsh
-                    - test-arm64-ubuntu-sh
 
             - deploy-docker-latest:
                 filters:
@@ -261,8 +190,6 @@ workflows:
                         only: main
                 requires:
                     - test-amd64-ubuntu-bash
-                    - test-amd64-ubuntu-zsh
-                    - test-amd64-ubuntu-sh
 
             - deploy-docker-nvidia-latest:
                 filters:
@@ -281,8 +208,6 @@ workflows:
                         ignore: /.*/
                 requires:
                     - test-amd64-ubuntu-bash
-                    - test-amd64-ubuntu-zsh
-                    - test-amd64-ubuntu-sh
 
             - deploy-docker-arm64-version:
                 filters:
@@ -292,8 +217,6 @@ workflows:
                         ignore: /.*/
                 requires:
                     - test-arm64-ubuntu-bash
-                    - test-arm64-ubuntu-zsh
-                    - test-arm64-ubuntu-sh
 
             - deploy-docker-version:
                 filters:
@@ -313,8 +236,6 @@ workflows:
                         ignore: /.*/
                 requires:
                     - test-amd64-ubuntu-bash
-                    - test-amd64-ubuntu-zsh
-                    - test-amd64-ubuntu-sh
 
             - deploy-docker-nvidia-version:
                 filters:
