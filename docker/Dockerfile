@@ -57,29 +57,6 @@ RUN apt-get update -y \
 COPY ./requirements.txt /root/requirements.txt
 RUN pip3 install --no-cache-dir -r /root/requirements.txt
 #
-# Management utilities
-#
-RUN curl -sLo "/usr/local/bin/minikube" \
-  "https://storage.googleapis.com/minikube/releases/v1.34.0/minikube-linux-${REACTOR_ARCHITECTURE}" \
-  && chmod 755 "/usr/local/bin/minikube"
-
-RUN curl -sLo "/usr/local/bin/kubectl" \
-  "https://dl.k8s.io/release/v1.31.0/bin/linux/${REACTOR_ARCHITECTURE}/kubectl" \
-  && chmod 755 "/usr/local/bin/kubectl"
-
-RUN curl -sLo "/tmp/helm.tar.gz" \
-  "https://get.helm.sh/helm-v3.15.4-linux-${REACTOR_ARCHITECTURE}.tar.gz" \
-  && tar -xzf "/tmp/helm.tar.gz" -C "/tmp" \
-  && mv "/tmp/linux-${REACTOR_ARCHITECTURE}/helm" "/tmp/helm" \
-  && rm -f "/tmp/helm.tar.gz" \
-  && rm -Rf "/tmp/linux-${REACTOR_ARCHITECTURE}" \
-  && install "/tmp/helm" /usr/local/bin \
-  && rm -f "/tmp/helm"
-
-RUN curl -sLo "/usr/local/bin/argocd" \
-  "https://github.com/argoproj/argo-cd/releases/download/v2.11.8/argocd-linux-${REACTOR_ARCHITECTURE}" \
-  && chmod 755 "/usr/local/bin/argocd"
-#
 # User initialization
 #
 ENV HOME_DIR=/home/${REACTOR_USER_NAME}
