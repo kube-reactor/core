@@ -1,5 +1,13 @@
 version: 2
 
+#
+# Test Platforms:
+#--------------------------------------
+#
+# 1. Ubuntu (AMD / ARM)
+# 2. MacOS (ARM)
+#
+
 ubuntu_amd64: &ubuntu_amd64
     resource_class: medium
     machine:
@@ -10,11 +18,16 @@ ubuntu_arm64: &ubuntu_arm64
     machine:
         image: ubuntu-2404:current
 
+macos_m1: &macos_m1
+    resource_class: macos.m1.medium.gen1
+    macos:
+        xcode: 15.3.0
+
 check_shell_paths: &check_shell_paths
     name: Test shell paths
     command: which bash && which zsh && which sh
 
-install_zsh: &install_zsh
+install_apt_zsh: &install_apt_zsh
     name: Install ZSh
     command: sudo apt install zsh
 
@@ -39,18 +52,21 @@ dump_log: &dump_log
 test_bash: &test_bash
     steps:
         - checkout
+        - run: *check_shell_paths
         - run:
             <<: *bootstrap
+            shell: /usr/bin/bash
             environment: *session_env
         - run:
             <<: *session
+            shell: /usr/bin/bash
             environment: *session_env
         - run: *dump_log
 
-test_zsh: &test_zsh
+test_ubuntu_zsh: &test_ubuntu_zsh
     steps:
         - checkout
-        - run: *install_zsh
+        - run: *install_apt_zsh
         - run: *check_shell_paths
         - run:
             <<: *bootstrap
@@ -62,9 +78,24 @@ test_zsh: &test_zsh
             environment: *session_env
         - run: *dump_log
 
+test_macos_zsh: &test_macos_zsh
+    steps:
+        - checkout
+        - run: *check_shell_paths
+        - run:
+            <<: *bootstrap
+            shell: /bin/zsh
+            environment: *session_env
+        - run:
+            <<: *session
+            shell: /bin/zsh
+            environment: *session_env
+        - run: *dump_log
+
 test_sh: &test_sh
     steps:
         - checkout
+        - run: *check_shell_paths
         - run:
             <<: *bootstrap
             shell: /usr/bin/sh
@@ -80,7 +111,7 @@ jobs:
         <<: [*ubuntu_amd64, *test_bash]
 
     test-amd64-ubuntu-zsh:
-        <<: [*ubuntu_amd64, *test_zsh]
+        <<: [*ubuntu_amd64, *test_ubuntu_zsh]
 
     test-amd64-ubuntu-sh:
         <<: [*ubuntu_amd64, *test_sh]
@@ -89,10 +120,13 @@ jobs:
         <<: [*ubuntu_arm64, *test_bash]
 
     test-arm64-ubuntu-zsh:
-        <<: [*ubuntu_arm64, *test_zsh]
+        <<: [*ubuntu_arm64, *test_ubuntu_zsh]
 
     test-arm64-ubuntu-sh:
         <<: [*ubuntu_arm64, *test_sh]
+
+    test-macos-zsh:
+        <<: [*macos_m1, *test_macos_zsh]
 
     deploy-docker-amd64-latest:
         <<: *ubuntu_amd64
@@ -190,136 +224,163 @@ workflows:
     version: 2
     deploy:
         jobs:
-            - test-amd64-ubuntu-bash:
-                filters:
-                    tags:
-                        only: /.*/
+            # - test-amd64-ubuntu-bash:
+            #     filters:
+            #         tags:
+            #             only: /.*/
 
-            - test-amd64-ubuntu-zsh:
-                filters:
-                    tags:
-                        only: /.*/
+            # - test-amd64-ubuntu-zsh:
+            #     filters:
+            #         tags:
+            #             only: /.*/
 
-            - test-amd64-ubuntu-sh:
-                filters:
-                    tags:
-                        only: /.*/
+            # - test-amd64-ubuntu-sh:
+            #     filters:
+            #         tags:
+            #             only: /.*/
 
-            - test-arm64-ubuntu-bash:
-                filters:
-                    tags:
-                        only: /.*/
+            # - test-arm64-ubuntu-bash:
+            #     filters:
+            #         tags:
+            #             only: /.*/
 
-            - test-arm64-ubuntu-zsh:
-                filters:
-                    tags:
-                        only: /.*/
+            # - test-arm64-ubuntu-zsh:
+            #     filters:
+            #         tags:
+            #             only: /.*/
 
-            - test-arm64-ubuntu-sh:
-                filters:
-                    tags:
-                        only: /.*/
+            # - test-arm64-ubuntu-sh:
+            #     filters:
+            #         tags:
+            #             only: /.*/
 
-            - deploy-docker-amd64-latest:
-                filters:
-                    tags:
-                        ignore: /.*/
-                    branches:
-                        only: main
-                requires:
-                    - test-amd64-ubuntu-bash
-                    - test-amd64-ubuntu-zsh
-                    - test-amd64-ubuntu-sh
+            # - test-macos-bash:
+            #     filters:
+            #         tags:
+            #             only: /.*/
+            #         branches:
+            #             only:
+            #                 - main
+            #                 - macos
 
-            - deploy-docker-arm64-latest:
-                filters:
-                    tags:
-                        ignore: /.*/
-                    branches:
-                        only: main
-                requires:
-                    - test-arm64-ubuntu-bash
-                    - test-arm64-ubuntu-zsh
-                    - test-arm64-ubuntu-sh
-
-            - deploy-docker-latest:
-                filters:
-                    tags:
-                        ignore: /.*/
-                    branches:
-                        only: main
-                requires:
-                    - deploy-docker-amd64-latest
-                    - deploy-docker-arm64-latest
-
-            - deploy-docker-nvidia-amd64-latest:
-                filters:
-                    tags:
-                        ignore: /.*/
-                    branches:
-                        only: main
-                requires:
-                    - test-amd64-ubuntu-bash
-                    - test-amd64-ubuntu-zsh
-                    - test-amd64-ubuntu-sh
-
-            - deploy-docker-nvidia-latest:
-                filters:
-                    tags:
-                        ignore: /.*/
-                    branches:
-                        only: main
-                requires:
-                    - deploy-docker-nvidia-amd64-latest
-
-            - deploy-docker-amd64-version:
+            - test-macos-zsh:
                 filters:
                     tags:
                         only: /.*/
                     branches:
-                        ignore: /.*/
-                requires:
-                    - test-amd64-ubuntu-bash
-                    - test-amd64-ubuntu-zsh
-                    - test-amd64-ubuntu-sh
+                        only:
+                            - main
+                            - macos
 
-            - deploy-docker-arm64-version:
-                filters:
-                    tags:
-                        only: /.*/
-                    branches:
-                        ignore: /.*/
-                requires:
-                    - test-arm64-ubuntu-bash
-                    - test-arm64-ubuntu-zsh
-                    - test-arm64-ubuntu-sh
+            # - test-macos-sh:
+            #     filters:
+            #         tags:
+            #             only: /.*/
+            #         branches:
+            #             only:
+            #                 - main
+            #                 - macos
 
-            - deploy-docker-version:
-                filters:
-                    tags:
-                        only: /.*/
-                    branches:
-                        ignore: /.*/
-                requires:
-                    - deploy-docker-amd64-version
-                    - deploy-docker-arm64-version
+            # - deploy-docker-amd64-latest:
+            #     filters:
+            #         tags:
+            #             ignore: /.*/
+            #         branches:
+            #             only: main
+            #     requires:
+            #         - test-amd64-ubuntu-bash
+            #         - test-amd64-ubuntu-zsh
+            #         - test-amd64-ubuntu-sh
 
-            - deploy-docker-nvidia-amd64-version:
-                filters:
-                    tags:
-                        only: /.*/
-                    branches:
-                        ignore: /.*/
-                requires:
-                    - test-amd64-ubuntu-bash
-                    - test-amd64-ubuntu-zsh
-                    - test-amd64-ubuntu-sh
+            # - deploy-docker-arm64-latest:
+            #     filters:
+            #         tags:
+            #             ignore: /.*/
+            #         branches:
+            #             only: main
+            #     requires:
+            #         - test-arm64-ubuntu-bash
+            #         - test-arm64-ubuntu-zsh
+            #         - test-arm64-ubuntu-sh
 
-            - deploy-docker-nvidia-version:
-                filters:
-                    tags:
-                        only: /.*/
-                    branches:
-                        ignore: /.*/
-                requires:
-                    - deploy-docker-nvidia-amd64-version
+            # - deploy-docker-latest:
+            #     filters:
+            #         tags:
+            #             ignore: /.*/
+            #         branches:
+            #             only: main
+            #     requires:
+            #         - deploy-docker-amd64-latest
+            #         - deploy-docker-arm64-latest
+
+            # - deploy-docker-nvidia-amd64-latest:
+            #     filters:
+            #         tags:
+            #             ignore: /.*/
+            #         branches:
+            #             only: main
+            #     requires:
+            #         - test-amd64-ubuntu-bash
+            #         - test-amd64-ubuntu-zsh
+            #         - test-amd64-ubuntu-sh
+
+            # - deploy-docker-nvidia-latest:
+            #     filters:
+            #         tags:
+            #             ignore: /.*/
+            #         branches:
+            #             only: main
+            #     requires:
+            #         - deploy-docker-nvidia-amd64-latest
+
+            # - deploy-docker-amd64-version:
+            #     filters:
+            #         tags:
+            #             only: /.*/
+            #         branches:
+            #             ignore: /.*/
+            #     requires:
+            #         - test-amd64-ubuntu-bash
+            #         - test-amd64-ubuntu-zsh
+            #         - test-amd64-ubuntu-sh
+
+            # - deploy-docker-arm64-version:
+            #     filters:
+            #         tags:
+            #             only: /.*/
+            #         branches:
+            #             ignore: /.*/
+            #     requires:
+            #         - test-arm64-ubuntu-bash
+            #         - test-arm64-ubuntu-zsh
+            #         - test-arm64-ubuntu-sh
+
+            # - deploy-docker-version:
+            #     filters:
+            #         tags:
+            #             only: /.*/
+            #         branches:
+            #             ignore: /.*/
+            #     requires:
+            #         - deploy-docker-amd64-version
+            #         - deploy-docker-arm64-version
+
+            # - deploy-docker-nvidia-amd64-version:
+            #     filters:
+            #         tags:
+            #             only: /.*/
+            #         branches:
+            #             ignore: /.*/
+            #     requires:
+            #         - test-amd64-ubuntu-bash
+            #         - test-amd64-ubuntu-zsh
+            #         - test-amd64-ubuntu-sh
+
+            # - deploy-docker-nvidia-version:
+            #     filters:
+            #         tags:
+            #             only: /.*/
+            #         branches:
+            #             ignore: /.*/
+            #     requires:
+            #         - deploy-docker-nvidia-amd64-version
