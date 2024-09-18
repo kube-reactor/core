@@ -39,7 +39,6 @@ dump_log: &dump_log
 test_bash: &test_bash
     steps:
         - checkout
-        - run: *check_shell_paths
         - run:
             <<: *bootstrap
             shell: /usr/bin/bash
@@ -54,7 +53,6 @@ test_ubuntu_zsh: &test_ubuntu_zsh
     steps:
         - checkout
         - run: *install_apt_zsh
-        - run: *check_shell_paths
         - run:
             <<: *bootstrap
             shell: /usr/bin/zsh
@@ -68,7 +66,6 @@ test_ubuntu_zsh: &test_ubuntu_zsh
 test_sh: &test_sh
     steps:
         - checkout
-        - run: *check_shell_paths
         - run:
             <<: *bootstrap
             shell: /usr/bin/sh

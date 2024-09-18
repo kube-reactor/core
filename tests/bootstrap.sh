@@ -38,18 +38,6 @@ echo "Script directory: ${__script_dir}"
 echo "Operating System: ${__os}"
 echo "Computing Architecture: ${__architecture}"
 
-if [ "${__os}" == "darwin" ]; then
-#   wget https://desktop.docker.com/mac/main/arm64/Docker.dmg
-#   sudo hdiutil attach Docker.dmg
-#   sudo /Volumes/Docker/Docker.app/Contents/MacOS/install --accept-license
-#   sudo hdiutil detach /Volumes/Docker
-#   export PATH="/Applications/Docker.app/Contents/Resources/bin:$PATH"
-
-  brew install docker-machine docker
-  brew install --cask virtualbox
-  docker-machine create default --virtualbox-no-vtx-check
-fi
-
 # Verify intallation of required executables
 which python3
 which docker
