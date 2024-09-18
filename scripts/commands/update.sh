@@ -76,9 +76,6 @@ function update_command () {
   if [ $UPDATE_ALL -eq 1 -o $UPDATE_APPS -eq 1 ]; then
     provision_terraform
   fi
-  if [ $UPDATE_ALL -eq 1 -o $UPDATE_DNS -eq 1 ]; then
-    create_dns_records
-  fi
   # if [ $UPDATE_ALL -eq 1 -o $UPDATE_CHART -eq 1 ]; then
   #   sync_argocd_charts
   # fi
@@ -88,5 +85,8 @@ function update_command () {
 function update_host_command () {
   update_environment "$@"
 
-  save_host_dns_records
+  if [ $UPDATE_ALL -eq 1 -o $UPDATE_DNS -eq 1 ]; then
+    create_host_dns_records
+    save_host_dns_records
+  fi
 }

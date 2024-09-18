@@ -20,11 +20,11 @@ function dns_environment () {
 
 
 function dns_ip () {
-  echo "$(kubectl get service nginx-nginx-ingress-controller -n nginx -o jsonpath='{.status.loadBalancer.ingress[*].ip}' 2>/dev/null)"
+  echo "$("${__binary_dir}/kubectl" get service nginx-nginx-ingress-controller -n nginx -o jsonpath='{.status.loadBalancer.ingress[*].ip}' 2>/dev/null)"
 }
 
 function dns_hosts () {
-  echo "$(kubectl get ingress -A -o jsonpath='{.items[*].spec.rules[*].host}' 2>/dev/null)"
+  echo "$("${__binary_dir}/kubectl" get ingress -A -o jsonpath='{.items[*].spec.rules[*].host}' 2>/dev/null)"
 }
 
 function dns_records () {
@@ -42,13 +42,23 @@ function dns_records () {
 }
 
 
-function create_dns_records () {
+function create_host_dns_records () {
+  # Runs on host machine (must be run after minikube tunnel created)
   dns_environment
 
-  dns_records="$(dns_records)"
+  info "Waiting on Nginx ingress to initialize ..."
+  while true; do
+    dns_ip="$(dns_ip)"
+    if [ ! -z "$dns_ip" ]; then
+      break
+    fi
+    sleep 5
+  done
 
   info "Saving DNS records (hosts.txt):"
+  dns_records="$(dns_records)"
   info "$dns_records"
+
   printf "$dns_records" | sudo tee "$HOSTS_MANIFEST_FILE" >/dev/null 2>&1
 }
 
