@@ -35,7 +35,6 @@ echo "==========================================================================
 echo " Running Reactor startup"
 echo ""
 reactor up --build --debug
-source reactor
 
 if [[ ! -d "./cache" ]] \
   || [[ ! -d "./certs" ]] \
@@ -55,6 +54,31 @@ if [[ ! -d "./cache" ]] \
   echo "Reactor up failed with missing files"
   exit 1
 fi
+
+echo ""
+echo "> development environment"
+source reactor
+env
+
+echo ""
+echo "> docker ps -a"
+docker ps -a
+echo ""
+echo "> docker images"
+docker images
+
+echo ""
+echo "> minikube status"
+minikube status
+echo ""
+echo "> kubectl get pods -A"
+kubectl get pods -A
+echo ""
+echo "> kubectl get services -A"
+kubectl get services -A
+echo ""
+echo "> kubectl get ingress -A"
+kubectl get ingress -A
 
 #
 # Running Command Tests
