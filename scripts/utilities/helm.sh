@@ -40,7 +40,9 @@ function helm_environment () {
 #   fi
 # }
 
-# function clean_helm () {
-#   info "Cleaning Helm files ..."
-#   rm -f "${__env_dir}/zimagi.helm.template.yml"
-# }
+function clean_helm () {
+  info "Cleaning Helm files ..."
+  for chart in $(config charts); do
+    rm -f "${__env_dir}/${chart}.helm.template.yml"
+  done
+}
