@@ -60,6 +60,8 @@ function destroy_command () {
   destroy_minikube
   remove_dns_records
   clean_terraform
+  clean_helm
+  clean_argocd
 }
 
 function destroy_host_command () {

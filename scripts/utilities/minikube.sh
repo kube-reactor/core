@@ -126,15 +126,13 @@ function stop_host_minikube () {
 
 function destroy_minikube () {
   info "Destroying Minikube environment ..."
-
   "${__binary_dir}/minikube" delete --purge
+
   delete_minikube_kubeconfig
   delete_minikube_storage
   delete_minikube_docker_environment
-  rm -f "${__log_dir}/docker.sh"
 
-  # clean_helm
-  # clean_argocd
+  rm -f "${__log_dir}/docker.sh"
 }
 
 function destroy_host_minikube () {
