@@ -7,15 +7,18 @@ configs:
   params:
     server.insecure: true
 
+global:
+  domain: "argocd.${PRIMARY_DOMAIN}"
+
 server:
   ingress:
     enabled: true
     ingressClassName: nginx
     hosts:
-      - "argocd.${DOMAIN}"
+      - "argocd.${PRIMARY_DOMAIN}"
     paths:
       - /
     tls:
       - secretName: origin-cert
         hosts:
-          - "argocd.${DOMAIN}"
+          - "argocd.${PRIMARY_DOMAIN}"
