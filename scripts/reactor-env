@@ -5,10 +5,13 @@
 #  source reactor-env
 #
 #  > Requires: ${__script_dir}
+#  > Optional: $SOURCED => [ 1, 0 ]
 #
 #=========================================================================================
 # Initialization
 #
+export SOURCED=${1:-0}
+
 export __user_id="$(id -u)"
 export __user_name="$(id -nu)"
 export __group_id="$(id -g)"
@@ -25,8 +28,12 @@ source "${__script_dir}/state/bootstrap.sh"
 export __project_file="$(project_file "$(pwd)")"
 
 if [ -z "${__project_file}" ]; then
+  if [ $SOURCED -eq 1 ]; then
+    return
+  else
     echo "Project directory with a 'reactor.yml' file does not exist in current or parent directories"
     exit 1
+  fi
 fi
 
 export __project_dir="$(dirname "${__project_file}")"

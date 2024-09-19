@@ -7,7 +7,6 @@
 #=========================================================================================
 # Initialization
 #
-
 # Initialize top level directories and load bootstrap functions
 SCRIPT_PATH="${BASH_SOURCE[0]}" # bash
 if [[ -z "$SCRIPT_PATH" ]]; then
@@ -17,13 +16,13 @@ fi
 ((return 0 2>/dev/null) || [[ $ZSH_EVAL_CONTEXT =~ :file$ ]]) && SOURCED=1 || SOURCED=0
 
 export __script_dir="$(cd "$(dirname "${SCRIPT_PATH}")" && pwd)"
-source "${__script_dir}/reactor-env"
+source "${__script_dir}/reactor-env" $SOURCED
 
 if [[ $SOURCED -eq 1 ]]; then
   # script is being sourced
   return
 fi
-
+delete_minikube_docker_environment
 
 COMMAND_NAME="$1"
 COMMAND_HOST_FUNCTION="${COMMAND_NAME}_host_command"

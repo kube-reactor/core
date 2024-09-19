@@ -33,18 +33,53 @@ function minikube_environment () {
   debug "MINIKUBE_KUBERNETES_VERSION: ${MINIKUBE_KUBERNETES_VERSION}"
   debug "MINIKUBE_CONTAINER_RUNTIME: ${MINIKUBE_CONTAINER_RUNTIME}"
   debug "KUBECTL_VERSION: ${KUBECTL_VERSION}"
+}
 
-  debug "DOCKER_TLS_VERIFY: ${DOCKER_TLS_VERIFY:-}"
-  debug "DOCKER_HOST: ${DOCKER_HOST:-}"
-  debug "DOCKER_CERT_PATH: ${DOCKER_CERT_PATH:-}"
-  debug "MINIKUBE_ACTIVE_DOCKERD: ${MINIKUBE_ACTIVE_DOCKERD:-}"
+function add_minikube_docker_environment () {
+  docker_vars_file="${__log_dir}/docker.sh"
+
+  if [ ! -f "$docker_vars_file" ]; then
+    touch "$docker_vars_file"
+
+    if [ ! -z "${DOCKER_TLS_VERIFY:-}" ]; then
+      echo "DOCKER_TLS_VERIFY=${DOCKER_TLS_VERIFY}" >>"$docker_vars_file"
+    fi
+    if [ ! -z "${DOCKER_HOST:-}" ]; then
+      echo "DOCKER_HOST=${DOCKER_HOST}" >>"$docker_vars_file"
+    fi
+    if [ ! -z "${DOCKER_CERT_PATH:-}" ]; then
+      echo "DOCKER_CERT_PATH=${DOCKER_CERT_PATH}" >>"$docker_vars_file"
+    fi
+    if [ ! -z "${MINIKUBE_ACTIVE_DOCKERD:-}" ]; then
+      echo "MINIKUBE_ACTIVE_DOCKERD=${MINIKUBE_ACTIVE_DOCKERD}" >>"$docker_vars_file"
+    fi
+  fi
+  eval $("${__binary_dir}/minikube" docker-env)
+
+  debug "DOCKER_TLS_VERIFY=${DOCKER_TLS_VERIFY}"
+  debug "DOCKER_HOST=${DOCKER_HOST}"
+  debug "DOCKER_CERT_PATH=${DOCKER_CERT_PATH}"
+  debug "MINIKUBE_ACTIVE_DOCKERD=${MINIKUBE_ACTIVE_DOCKERD}"
+}
+
+function delete_minikube_docker_environment () {
+  docker_vars_file="${__log_dir}/docker.sh"
+
+  unset DOCKER_TLS_VERIFY
+  unset DOCKER_HOST
+  unset DOCKER_CERT_PATH
+  unset MINIKUBE_ACTIVE_DOCKERD
+
+  if [ -f "$docker_vars_file" ]; then
+    source "$docker_vars_file"
+  fi
 }
 
 
 # Initialize Docker registry
-if [ $REACTOR_LOCAL -eq 0 ]; then
+if [[ $REACTOR_LOCAL -eq 0 ]] || [[ $SOURCED -eq 1 ]]; then
   if "${__binary_dir}/minikube" status 1>/dev/null 2>&1; then
-    eval $("${__binary_dir}/minikube" docker-env)
+    add_minikube_docker_environment
   fi
 fi
 
@@ -72,12 +107,7 @@ function start_minikube () {
       --dns-domain="${PRIMARY_DOMAIN}"
   fi
   "${__binary_dir}/minikube" update-context
-  eval $("${__binary_dir}/minikube" docker-env)
-
-  debug "DOCKER_TLS_VERIFY=${DOCKER_TLS_VERIFY}"
-  debug "DOCKER_HOST=${DOCKER_HOST}"
-  debug "DOCKER_CERT_PATH=${DOCKER_CERT_PATH}"
-  debug "MINIKUBE_ACTIVE_DOCKERD=${MINIKUBE_ACTIVE_DOCKERD}"
+  add_minikube_docker_environment
 }
 
 function stop_minikube () {
@@ -100,6 +130,7 @@ function destroy_minikube () {
   "${__binary_dir}/minikube" delete --purge
   delete_minikube_kubeconfig
   delete_minikube_storage
+  delete_minikube_docker_environment
 
   # clean_helm
   # clean_argocd
