@@ -131,6 +131,7 @@ function destroy_minikube () {
   delete_minikube_kubeconfig
   delete_minikube_storage
   delete_minikube_docker_environment
+  rm -f "${__log_dir}/docker.sh"
 
   # clean_helm
   # clean_argocd
