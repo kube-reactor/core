@@ -12,6 +12,7 @@ function build_docker_image () {
   PROJECT_DIR="${__docker_dir}/${PROJECT_NAME}"
   DOCKER_DIR="${PROJECT_DIR}/$(config docker.$PROJECT_NAME.docker_dir docker)"
   BUILD_SCRIPT="${PROJECT_DIR}/reactor/build_image.sh"
+  PROJECT_BUILD_SCRIPT="${__project_reactor_dir}/docker/${PROJECT_NAME}_build_image.sh"
   DOCKER_FILE="Dockerfile"
   DOCKER_BUILD_VARS=()
 
@@ -20,10 +21,14 @@ function build_docker_image () {
   debug "> PROJECT_DIR: ${PROJECT_DIR}"
   debug "> DOCKER_DIR: ${DOCKER_DIR}"
   debug "> BUILD_SCRIPT: ${BUILD_SCRIPT}"
+  debug "> PROJECT_BUILD_SCRIPT: ${PROJECT_BUILD_SCRIPT}"
   debug "> NO_CACHE: ${NO_CACHE}"
 
   if [ -f "$BUILD_SCRIPT" ]; then
     source "$BUILD_SCRIPT" $NO_CACHE
+  fi
+  if [ -f "$PROJECT_BUILD_SCRIPT" ]; then
+    source "$PROJECT_BUILD_SCRIPT" $NO_CACHE
   fi
 
   DOCKER_ARGS=(
