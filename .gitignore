@@ -158,12 +158,14 @@ cython_debug/
 /scripts/kubectl
 /scripts/helm
 /scripts/argocd
+/tests/project/cache/
 /tests/project/logs/
 /tests/project/certs/
 /tests/project/docker/
 /tests/project/charts/
 /tests/project/.minikube/
 /tests/project/env/local/.kubeconfig
+/tests/project/env/local/secret.sh
 /tests/project/.terraform/
 /tests/project/terraform/argocd-apps/
 /tests/project/terraform/argocd-apps/gateway/terraform.tfstate
