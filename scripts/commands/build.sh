@@ -75,5 +75,16 @@ function build_command () {
         "${chart_dir}" \
         "$(config charts.$chart.reference)"
   done
+
+  info "Initializing extension repositories ..."
+  for extension in $(config extensions); do
+    extension_dir="${__extension_dir}/${extension}"
+
+    info "Initializing reactor ${extension} repository"
+    download_git_repo \
+        "$(config extensions.$extension.remote)" \
+        "${extension_dir}" \
+        "$(config extensions.$extension.reference)"
+  done
   info "Development environment initialization complete"
 }

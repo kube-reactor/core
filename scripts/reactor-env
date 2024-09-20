@@ -85,6 +85,15 @@ for chart in $(config charts); do
     done
   fi
 done
+for extension in $(config extensions); do
+  extension_dir="${__extension_dir}/${extension}"
+  utilities_dir="${extension_dir}/reactor/utilities"
+  if [ -d "$utilities_dir" ]; then
+    for file in "${utilities_dir}"/*.sh; do
+      source "$file"
+    done
+  fi
+done
 if [ -d "${__project_utilities_dir}" ]; then
   for file in "${__project_utilities_dir}"/*.sh; do
     source "$file"
@@ -106,6 +115,15 @@ done
 for chart in $(config charts); do
   chart_dir="${__charts_dir}/${chart}"
   commands_dir="${chart_dir}/reactor/commands"
+  if [ -d "$commands_dir" ]; then
+    for file in "${commands_dir}"/*.sh; do
+      source "$file"
+    done
+  fi
+done
+for extension in $(config extensions); do
+  extension_dir="${__extension_dir}/${extension}"
+  commands_dir="${extension_dir}/reactor/commands"
   if [ -d "$commands_dir" ]; then
     for file in "${commands_dir}"/*.sh; do
       source "$file"

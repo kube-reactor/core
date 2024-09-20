@@ -29,6 +29,7 @@ export __log_dir="${__project_dir}/logs"
 
 export __binary_dir="${__script_dir}"
 export __certs_dir="${__project_dir}/certs"
+export __extension_dir="${__project_dir}/extensions"
 export __docker_dir="${__project_dir}/docker"
 export __charts_dir="${__project_dir}/charts"
 export __terraform_dir="${__project_dir}/terraform"
@@ -71,12 +72,27 @@ for project in $(config docker); do
   if [ -f "$initialize_script" ]; then
     source "$initialize_script" "$project"
   fi
+  initialize_script="${__project_reactor_dir}/docker/${project}_initialize.sh"
+  if [ -f "$initialize_script" ]; then
+    source "$initialize_script" "$project"
+  fi
 done
 for chart in $(config charts); do
   chart_dir="${__charts_dir}/${chart}"
   initialize_script="${chart_dir}/reactor/initialize.sh"
   if [ -f "$initialize_script" ]; then
     source "$initialize_script" "$chart"
+  fi
+  initialize_script="${__project_reactor_dir}/charts/${chart}_initialize.sh"
+  if [ -f "$initialize_script" ]; then
+    source "$initialize_script" "$project"
+  fi
+done
+for extension in $(config extensions); do
+  extension_dir="${__extension_dir}/${extension}"
+  initialize_script="${extension_dir}/reactor/initialize.sh"
+  if [ -f "$initialize_script" ]; then
+    source "$initialize_script" "$extension"
   fi
 done
 
