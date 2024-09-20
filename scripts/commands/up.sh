@@ -129,7 +129,5 @@ function up_host_command () {
   up_environment "$@"
 
   launch_host_minikube_tunnel
-  launch_host_minikube_dashboard
-
   update_host_command
 }
