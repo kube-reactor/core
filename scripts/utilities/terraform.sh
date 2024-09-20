@@ -39,6 +39,10 @@ function provision_terraform () {
       "--env" "TF_VAR_argocd_admin_password=$("${__binary_dir}/argocd" account bcrypt --password "${ARGOCD_ADMIN_PASSWORD:-admin}")"
       "--env" "TF_VAR_variables"
     )
+    if [ ! -z "${ARGOCD_PROJECT_SEQUENCE}" ]; then
+      export TF_VAR_argocd_project_sequence="${ARGOCD_PROJECT_SEQUENCE}"
+      TERRAFORM_ARGS=("${TERRAFORM_ARGS[@]}" "--env" "TF_VAR_argocd_project_sequence")
+    fi
     if [[ "${LOG_LEVEL:-0}" -ge 7 ]]; then
       TERRAFORM_ARGS=("${TERRAFORM_ARGS[@]}" "--env" "TF_LOG=DEBUG")
     fi
