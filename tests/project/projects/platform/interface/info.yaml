@@ -1,0 +1,9 @@
+enabled: true
+
+name: interface
+repository: "https://fractalsynapse.github.io/nexical-charts"
+chart: nexical-core-interface
+version: 0.1.1
+
+labels:
+  reloader-enabled: "true"

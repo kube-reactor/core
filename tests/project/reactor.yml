@@ -8,8 +8,21 @@ docker:
         docker_dir: docker
         docker_tag: dev
 
+    nexical_interface:
+        remote: https://github.com/fractalsynapse/nexical-core-interface.git
+        reference: main
+        docker_dir: compose/production/django
+        docker_tag: dev
+
 charts:
     zimagi:
        name: zimagi
        remote: https://github.com/zimagi/charts.git
        reference: main
+       chart_dir: charts/zimagi
+
+    nexical:
+       name: nexical-core-interface
+       remote: https://github.com/fractalsynapse/nexical-charts.git
+       reference: main
+       chart_dir: charts/nexical-core-interface

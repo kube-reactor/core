@@ -1,0 +1,126 @@
+postgresql:
+  primary:
+    resources:
+      requests:
+        cpu: 250m
+        memory: 512Mi
+      limits:
+        cpu: 1
+        memory: 1024Mi
+
+image:
+  pullPolicy: Never
+  repository: ""
+  image: nexical_interface
+  tag: dev
+
+pvc:
+  claims:
+    private-media:
+      storageClass: standard
+      accessMode: ReadWriteOnce
+      size: 10Gi
+    public-media:
+      storageClass: standard
+      accessMode: ReadWriteOnce
+      size: 5Gi
+
+deployment:
+  env:
+    POSTGRES_HOST: "{{ .Values.postgresql.fullnameOverride }}"
+    POSTGRES_PORT: 5432
+    POSTGRES_DB: "{{ .Values.postgresql.auth.database }}"
+    POSTGRES_USER: "{{ .Values.postgresql.auth.username }}"
+    REDIS_HOST: "{{ .Values.redis.fullnameOverride }}-master"
+    REDIS_PORT: 6379
+
+services:
+  ui:
+    deployment:
+      replicaCount: 1
+      resources:
+        requests:
+          cpu: "50m"
+          memory: "1Gi"
+      env:
+        GUNICORN_LOG_LEVEL: debug
+
+    ingress:
+      enabled: true
+      className: nginx
+      hosts:
+        - host: "${PRIMARY_DOMAIN}"
+      tls:
+        - secretName: origin-cert
+
+    annotations:
+      configmap.reloader.stakater.com/reload: global,ui
+      secret.reloader.stakater.com/reload: global
+      nginx.ingress.kubernetes.io/proxy-body-size: 0
+      nginx.ingress.kubernetes.io/proxy-connect-timeout: 30
+      nginx.ingress.kubernetes.io/proxy-read-timeout: 300
+      nginx.ingress.kubernetes.io/proxy-send-timeout: 300
+
+  api:
+    deployment:
+      replicaCount: 1
+      resources:
+        requests:
+          cpu: "50m"
+          memory: "1Gi"
+
+    ingress:
+      enabled: true
+      className: nginx
+      hosts:
+        - host: "api.${PRIMARY_DOMAIN}"
+      tls:
+        - secretName: origin-cert
+
+    annotations:
+      configmap.reloader.stakater.com/reload: global,api
+      secret.reloader.stakater.com/reload: global
+      nginx.ingress.kubernetes.io/proxy-body-size: 0
+      nginx.ingress.kubernetes.io/proxy-connect-timeout: 30
+      nginx.ingress.kubernetes.io/proxy-read-timeout: 1800
+      nginx.ingress.kubernetes.io/proxy-send-timeout: 1800
+
+  scheduler:
+    deployment:
+      replicaCount: 1
+      resources:
+        requests:
+          cpu: "50m"
+          memory: "100Mi"
+
+    annotations:
+      configmap.reloader.stakater.com/reload: global,scheduler
+      secret.reloader.stakater.com/reload: global
+
+  worker:
+    deployment:
+      replicaCount: 1
+      resources:
+        requests:
+          cpu: "50m"
+          memory: "1Gi"
+
+    annotations:
+      configmap.reloader.stakater.com/reload: global,worker
+      secret.reloader.stakater.com/reload: global
+
+  tasks:
+    deployment:
+      replicaCount: 1
+      resources:
+        requests:
+          cpu: "50m"
+          memory: "250Mi"
+
+    ingress:
+      enabled: true
+      className: nginx
+      hosts:
+        - host: "interface-tasks.${PRIMARY_DOMAIN}"
+      tls:
+        - secretName: origin-cert
