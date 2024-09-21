@@ -24,7 +24,8 @@ ${__reactor_core_flags}
     --remote <url>        Project template Git remote URL (default: ${DEFAULT_PROJECT_TEMPLATE_REMOTE})
     --reference <str>     Project template Git reference (default: ${DEFAULT_PROJECT_TEMPLATE_REFERENCE})
     --config-file <file>  Configuration values for the project template
-    --name <str>          Cooiecutter project_slug value override
+    --name <str>          Cookiecutter project_slug value override
+    --project <str>       Cookiecutter project directory (alternate to --remote and --reference)
 
 EOF
   exit 1
@@ -73,6 +74,13 @@ function create_command () {
       PROJECT_NAME="$2"
       shift
       ;;
+      --project=*)
+      PROJECT_DIRECTORY="${1#*=}"
+      ;;
+      --project)
+      PROJECT_DIRECTORY="$2"
+      shift
+      ;;
       -h|--help)
       create_usage
       ;;
@@ -92,6 +100,7 @@ function create_command () {
   export PROJECT_TEMP_DIRECTORY="/tmp/reactor-project"
   export PROJECT_TEMPLATE_CONFIG_FILE
   export PROJECT_NAME
+  export PROJECT_DIRECTORY
 
   debug "Command: create"
   debug "> USE_DEFAULTS: ${USE_DEFAULTS}"
@@ -100,15 +109,20 @@ function create_command () {
   debug "> PROJECT_TEMPLATE_REFERENCE: ${PROJECT_TEMPLATE_REFERENCE}"
   debug "> PROJECT_TEMPLATE_CONFIG_FILE: ${PROJECT_TEMPLATE_CONFIG_FILE}"
   debug "> PROJECT_NAME: ${PROJECT_NAME}"
+  debug "> PROJECT_DIRECTORY: ${PROJECT_DIRECTORY}"
 
   if [ -d "$PROJECT_TEMP_DIRECTORY" ]; then
     rm -Rf "$PROJECT_TEMP_DIRECTORY"
   fi
-  info "Fetching cluster template ..."
-  download_git_repo \
-    "$PROJECT_TEMPLATE_REMOTE" \
-    "$PROJECT_TEMP_DIRECTORY" \
-    "$PROJECT_TEMPLATE_REFERENCE"
+  if [ ! -d "$PROJECT_DIRECTORY" ]; then
+    info "Fetching cluster template ..."
+    download_git_repo \
+      "$PROJECT_TEMPLATE_REMOTE" \
+      "$PROJECT_TEMP_DIRECTORY" \
+      "$PROJECT_TEMPLATE_REFERENCE"
+  else
+    PROJECT_TEMP_DIRECTORY="$PROJECT_DIRECTORY"
+  fi
 
   TEMPLATE_VARS=(
     "--overwrite-if-exists"
@@ -127,5 +141,7 @@ function create_command () {
   info "Creating cluster project ..."
   cookiecutter "${TEMPLATE_VARS[@]}"
 
-  rm -Rf "$PROJECT_TEMP_DIRECTORY"
+  if [ ! -d "$PROJECT_DIRECTORY" ]; then
+    rm -Rf "$PROJECT_TEMP_DIRECTORY"
+  fi
 }
