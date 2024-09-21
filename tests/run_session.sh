@@ -45,122 +45,120 @@ cd "${__project_dir}"
 #
 # Starting Up
 #
-# echo ""
-# echo "==========================================================================="
-# echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-# echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-# echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-# echo "==========================================================================="
-# echo " Running Reactor startup"
-# echo ""
-# reactor up --build --debug
+echo ""
+echo "==========================================================================="
+echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+echo "==========================================================================="
+echo " Running Reactor startup"
+echo ""
+reactor up --build --debug
 
-# if [[ ! -d "./cache" ]] \
-#   || [[ ! -d "./certs" ]] \
-#   || [[ ! -d "./docker" ]] \
-#   || ! git --work-tree=./docker/zimagi status 1>/dev/null 2>&1 \
-#   || [[ ! -d "./charts" ]] \
-#   || ! git --work-tree=./charts/zimagi status 1>/dev/null 2>&1 \
-#   || [[ ! -d "./.minikube" ]] \
-#   || [[ ! -f "./env/local/.kubeconfig" ]] \
-#   || [[ ! -f "./logs/tunnel.kpid" ]] \
-#   || [[ ! -f "./logs/dashboard.kpid" ]] \
-#   || [[ ! -d "./.terraform" ]] \
-#   || [[ ! -f "./terraform/argocd-apps/gateway/.terraform.lock.hcl" ]] \
-#   || [[ ! -f "./terraform/argocd-apps/gateway/terraform.tfstate" ]] \
-#   || [[ ! -f "./logs/hosts.txt" ]] \
-#   || ! cat /etc/hosts | grep test 1>/dev/null 2>/dev/null; then
-#   echo "Reactor up failed with missing files"
-#   exit 1
-# fi
+if [[ ! -d "./cache" ]] \
+  || [[ ! -d "./certs" ]] \
+  || [[ ! -d "./docker" ]] \
+  || [[ ! -d "./charts" ]] \
+  || [[ ! -d "./.minikube" ]] \
+  || [[ ! -f "./env/local/.kubeconfig" ]] \
+  || [[ ! -f "./logs/tunnel.kpid" ]] \
+  || [[ ! -f "./logs/dashboard.kpid" ]] \
+  || [[ ! -d "./.terraform" ]] \
+  || [[ ! -f "./terraform/argocd-apps/gateway/.terraform.lock.hcl" ]] \
+  || [[ ! -f "./terraform/argocd-apps/gateway/terraform.tfstate" ]] \
+  || [[ ! -f "./logs/hosts.txt" ]] \
+  || ! cat /etc/hosts | grep test 1>/dev/null 2>/dev/null; then
+  echo "Reactor up failed with missing files"
+  exit 1
+fi
 
-# echo ""
-# echo "> development environment"
-# source reactor
-# env
+echo ""
+echo "> development environment"
+source reactor
+env
 
-# echo ""
-# echo "> docker ps -a"
-# docker ps -a
-# echo ""
-# echo "> docker images"
-# docker images
+echo ""
+echo "> docker ps -a"
+docker ps -a
+echo ""
+echo "> docker images"
+docker images
 
-# echo ""
-# echo "> minikube status"
-# minikube status
-# echo ""
-# echo "> kubectl get pods -A"
-# kubectl get pods -A
-# echo ""
-# echo "> kubectl get services -A"
-# kubectl get services -A
-# echo ""
-# echo "> kubectl get ingress -A"
-# kubectl get ingress -A
+echo ""
+echo "> minikube status"
+minikube status
+echo ""
+echo "> kubectl get pods -A"
+kubectl get pods -A
+echo ""
+echo "> kubectl get services -A"
+kubectl get services -A
+echo ""
+echo "> kubectl get ingress -A"
+kubectl get ingress -A
 
-# #
-# # Running Command Tests
-# #
-# for file in "${__test_dir}/commands"/*.sh; do
-#   echo ""
-#   echo "==========================================================================="
-#   echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-#   echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-#   echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-#   echo "==========================================================================="
-#   echo " Running reactor command: ${file}"
-#   echo ""
-#   "$file"
-# done
+#
+# Running Command Tests
+#
+for file in "${__test_dir}/commands"/*.sh; do
+  echo ""
+  echo "==========================================================================="
+  echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+  echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+  echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+  echo "==========================================================================="
+  echo " Running reactor command: ${file}"
+  echo ""
+  "$file"
+done
 
-# #
-# # Shutting Down
-# #
-# echo ""
-# echo "==========================================================================="
-# echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-# echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-# echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-# echo "==========================================================================="
-# echo " Running Reactor shutdown"
-# echo ""
-# reactor down --debug
+#
+# Shutting Down
+#
+echo ""
+echo "==========================================================================="
+echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+echo "==========================================================================="
+echo " Running Reactor shutdown"
+echo ""
+reactor down --debug
 
-# if [[ -f "./env/local/.kubeconfig" ]] \
-#   || [[ -f "./logs/tunnel.kpid" ]] \
-#   || [[ -f "./logs/dashboard.kpid" ]] \
-#   || [[ -f "./logs/hosts.txt" ]] \
-#   || cat /etc/hosts | grep test; then
-#   echo "Reactor down failed with remaining files"
-#   exit 1
-# fi
+if [[ -f "./env/local/.kubeconfig" ]] \
+  || [[ -f "./logs/tunnel.kpid" ]] \
+  || [[ -f "./logs/dashboard.kpid" ]] \
+  || [[ -f "./logs/hosts.txt" ]] \
+  || cat /etc/hosts | grep test; then
+  echo "Reactor down failed with remaining files"
+  exit 1
+fi
 
-# #
-# # Cleaning Up
-# #
-# echo ""
-# echo "==========================================================================="
-# echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-# echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-# echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-# echo "==========================================================================="
-# echo " Running Reactor cleanup"
-# echo ""
-# reactor destroy --force --debug
+#
+# Cleaning Up
+#
+echo ""
+echo "==========================================================================="
+echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+echo "==========================================================================="
+echo " Running Reactor cleanup"
+echo ""
+reactor destroy --force --debug
 
-# if [[ -d "./.minikube" ]] \
-#   || [[ -d "./.terraform" ]] \
-#   || [[ -f "./terraform/argocd-apps/gateway/.terraform.lock.hcl" ]] \
-#   || [[ -f "./terraform/argocd-apps/gateway/terraform.tfstate" ]]; then
-#   echo "Reactor destroy failed with remaining files"
-#   exit 1
-# fi
+if [[ -d "./.minikube" ]] \
+  || [[ -d "./.terraform" ]] \
+  || [[ -f "./terraform/argocd-apps/gateway/.terraform.lock.hcl" ]] \
+  || [[ -f "./terraform/argocd-apps/gateway/terraform.tfstate" ]]; then
+  echo "Reactor destroy failed with remaining files"
+  exit 1
+fi
 
-# reactor clean --force --debug
+reactor clean --force --debug
 
-# if [[ -d "./cache" ]] \
-#   || [[ -d "./certs" ]]; then
-#   echo "Reactor clean failed with remaining files"
-#   exit 1
-# fi
+if [[ -d "./cache" ]] \
+  || [[ -d "./certs" ]]; then
+  echo "Reactor clean failed with remaining files"
+  exit 1
+fi
