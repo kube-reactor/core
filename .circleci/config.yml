@@ -36,6 +36,9 @@ test_bash: &test_bash
             shell: /usr/bin/bash
             environment: *session_env
         - run:
+            name: Test for bootstrap command
+            command: find / -name cookiecutter
+        - run:
             <<: *session
             shell: /usr/bin/bash
             environment: *session_env
