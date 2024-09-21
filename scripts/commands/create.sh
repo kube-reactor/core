@@ -31,6 +31,7 @@ EOF
   exit 1
 }
 function create_command () {
+  PROJECT_DIRECTORY=""
   PROJECT_PARENT_DIRECTORY="./"
   PROJECT_TEMPLATE_CONFIG_FILE=""
 
