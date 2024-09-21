@@ -37,7 +37,7 @@ test_bash: &test_bash
             environment: *session_env
         - run:
             name: Test for bootstrap command
-            command: sudo find / -name cookiecutter | grep bin
+            command: dirname "$(sudo find / -name cookiecutter | grep bin)"
         - run:
             <<: *session
             shell: /usr/bin/bash
