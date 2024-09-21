@@ -4,7 +4,11 @@
 #
 
 function logfile () {
-    echo "${__log_dir}/${__log_file}.log"
+    if [ -d "${__log_dir}" ]; then
+      echo "${__log_dir}/${__log_file}.log"
+    else
+      echo "/dev/null"
+    fi
 }
 
 function check_binary () {
