@@ -64,7 +64,6 @@ if [[ ! -d "./cache" ]] \
   || [[ ! -d "./.minikube" ]] \
   || [[ ! -f "./env/local/.kubeconfig" ]] \
   || [[ ! -f "./logs/tunnel.kpid" ]] \
-  || [[ ! -f "./logs/dashboard.kpid" ]] \
   || [[ ! -d "./.terraform" ]] \
   || [[ ! -f "./terraform/argocd-apps/gateway/.terraform.lock.hcl" ]] \
   || [[ ! -f "./terraform/argocd-apps/gateway/terraform.tfstate" ]] \
