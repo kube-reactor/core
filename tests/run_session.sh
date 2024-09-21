@@ -27,7 +27,8 @@ set -e
 
 if [ -d "$PROJECT_TEMPLATE_DIRECTORY" ]; then
   __project_dir="$PROJECT_TEMPLATE_DIRECTORY"
-else
+fi
+if [[ -z "${__project_dir}" ]] || [[ $PROJECT_TEMPLATE_BUILD -eq 1 ]]; then
   reactor create --defaults \
     --directory="${__projects_dir}" \
     --remote="${PROJECT_TEMPLATE_REMOTE:-https://github.com/zimagi/reactor-base-cluster.git}" \
