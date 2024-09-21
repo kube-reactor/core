@@ -47,4 +47,6 @@ which openssl
 
 # Install Python packages
 python3 -m pip install --upgrade pip setuptools wheel
-python3 -m pip install --no-build-isolation -r "${__reactor_dir}/requirements.txt"
+python3 -m pip install --no-build-isolation \
+  --install-option="--install-scripts=${__script_dir}" \
+  -r "${__reactor_dir}/requirements.txt"
