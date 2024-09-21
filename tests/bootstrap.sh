@@ -46,7 +46,9 @@ which curl
 which openssl
 
 # Install Python packages
-python3 -m pip install --upgrade pip setuptools wheel
+python3 -m pip install --no-build-isolation \
+  --upgrade pip setuptools wheel
+
 python3 -m pip install --no-build-isolation \
   --global-option="--install-scripts=${__script_dir}" \
   --requirement "${__reactor_dir}/requirements.txt"
