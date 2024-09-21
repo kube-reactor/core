@@ -10,13 +10,15 @@ export __test_dir="$(cd "$(dirname "${SCRIPT_PATH}")" && pwd)"
 export __reactor_dir="$(dirname "${__test_dir}")"
 export __script_dir="${__reactor_dir}/scripts"
 export __projects_dir="${__reactor_dir}/projects"
+export __cookiecutter_dir="$(dirname "$(sudo find / -name cookiecutter | grep bin)")"
 
 echo "Test directory: ${__test_dir}"
 echo "Reactor directory: ${__reactor_dir}"
 echo "Script directory: ${__script_dir}"
 echo "Projects directory: ${__projects_dir}"
+echo "Cookiecutter directory: ${__cookiecutter_dir}"
 
-export PATH="${__script_dir}:$PATH"
+export PATH="${__script_dir}:${__cookiecutter_dir}:$PATH"
 
 #=========================================================================================
 # Project initialization
