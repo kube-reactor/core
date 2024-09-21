@@ -20,7 +20,7 @@ ${__reactor_core_flags}
 
     --apps                Provision any ArgoCD application updates
     --dns                 Update local DNS with service endpoints
-    --chart               Sync local charts to ArgoCD application
+    --charts              Sync local charts to ArgoCD application
 
 EOF
   exit 1
@@ -38,8 +38,8 @@ function update_environment () {
       --dns)
       UPDATE_DNS=1
       ;;
-      --chart)
-      UPDATE_CHART=1
+      --charts)
+      UPDATE_CHARTS=1
       ;;
       -h|--help)
       update_usage
@@ -55,10 +55,10 @@ function update_environment () {
   done
   export UPDATE_APPS=${UPDATE_APPS:-0}
   export UPDATE_DNS=${UPDATE_DNS:-0}
-  export UPDATE_CHART=${UPDATE_CHART:-0}
+  export UPDATE_CHARTS=${UPDATE_CHARTS:-0}
 
   UPDATE_ALL=1
-  if [ $UPDATE_APPS -eq 1 -o $UPDATE_DNS -eq 1 -o $UPDATE_CHART -eq 1 ]; then
+  if [ $UPDATE_APPS -eq 1 -o $UPDATE_DNS -eq 1 -o $UPDATE_CHARTS -eq 1 ]; then
     UPDATE_ALL=0
   fi
   export UPDATE_ALL
@@ -66,7 +66,7 @@ function update_environment () {
   debug "Command: update"
   debug "> UPDATE_APPS: ${UPDATE_APPS}"
   debug "> UPDATE_DNS: ${UPDATE_DNS}"
-  debug "> UPDATE_CHART: ${UPDATE_CHART}"
+  debug "> UPDATE_CHARTS: ${UPDATE_CHARTS}"
   debug "> UPDATE_ALL: ${UPDATE_ALL}"
 }
 
@@ -86,7 +86,7 @@ function update_host_command () {
     create_host_dns_records
     save_host_dns_records
   fi
-  if [ $UPDATE_ALL -eq 1 -o $UPDATE_CHART -eq 1 ]; then
+  if [ $UPDATE_ALL -eq 1 -o $UPDATE_CHARTS -eq 1 ]; then
     sync_argocd_charts
   fi
 }

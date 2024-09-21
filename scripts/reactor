@@ -15,6 +15,7 @@ fi
 
 ((return 0 2>/dev/null) || [[ $ZSH_EVAL_CONTEXT =~ :file$ ]]) && SOURCED=1 || SOURCED=0
 
+export __command_name="$1"
 export __script_dir="$(cd "$(dirname "${SCRIPT_PATH}")" && pwd)"
 source "${__script_dir}/reactor-env" $SOURCED
 
@@ -24,8 +25,7 @@ if [[ $SOURCED -eq 1 ]]; then
 fi
 delete_minikube_docker_environment
 
-COMMAND_NAME="$1"
-COMMAND_HOST_FUNCTION="${COMMAND_NAME}_host_command"
+COMMAND_HOST_FUNCTION="${__command_name}_host_command"
 COMMAND_ARGS=()
 
 while [[ $# -gt 0 ]]; do
@@ -123,47 +123,44 @@ for variable in ${ENVIRONMENT[@]}; do
   REACTOR_ARGS=("${REACTOR_ARGS[@]}" "--env" "$variable")
 done
 
-if [ -f "${__home_dir}/.bashrc" ]; then
-  REACTOR_ARGS=("${REACTOR_ARGS[@]}" "--volume" "${__home_dir}/.bashrc:${__home_dir}/.bashrc")
-fi
-if [ -f "${__home_dir}/.bash_profile" ]; then
-  REACTOR_ARGS=("${REACTOR_ARGS[@]}" "--volume" "${__home_dir}/.bash_profile:${__home_dir}/.bash_profile")
-fi
-if [ -f "${__home_dir}/.profile" ]; then
-  REACTOR_ARGS=("${REACTOR_ARGS[@]}" "--volume" "${__home_dir}/.profile:${__home_dir}/.profile")
-fi
+for share_dir_name in ${HOME_SHARES[@]}; do
+  if [ -e "${__home_dir}/${share_dir_name}" ]; then
+    REACTOR_ARGS=("${REACTOR_ARGS[@]}" "--volume" "${__home_dir}/${share_dir_name}:${__home_dir}/${share_dir_name}")
+  fi
+done
 
-if [ -d "${__home_dir}/.ssh" ]; then
-  REACTOR_ARGS=("${REACTOR_ARGS[@]}" "--volume" "${__home_dir}/.ssh:${__home_dir}/.ssh")
-fi
-if [ -d "${__home_dir}/.git" ]; then
-  REACTOR_ARGS=("${REACTOR_ARGS[@]}" "--volume" "${__home_dir}/.git:${__home_dir}/.git")
-fi
-
-if ! docker inspect "$REACTOR_RUNTIME_IMAGE" >/dev/null 2>&1; then
+if [ "${__command_name}" != "create" ]; then
+  if ! docker inspect "$REACTOR_RUNTIME_IMAGE" >/dev/null 2>&1; then
     "${__script_dir}/reactor-build"
     REACTOR_RUNTIME_IMAGE="${APP_NAME}:${__reactor_version}"
+  fi
 fi
 REACTOR_ARGS=("${REACTOR_ARGS[@]}" "${REACTOR_DOCKER_RUN_ARGS[@]}" "$REACTOR_RUNTIME_IMAGE")
 
 debug "Command Arguments: ${COMMAND_ARGS[@]}"
 debug "Reactor Arguments: ${REACTOR_ARGS[@]}"
 
-if [[ ${#COMMAND_ARGS[@]} -gt 0 ]] && [[ "${COMMAND_ARGS[0]}" == "enter" ]]; then
-  info "Entering reactor environment ..."
-  docker run --entrypoint bash "${REACTOR_ARGS[@]}"
-else
-  # Containerized execution (primary command logic)
-  debug "Running reactor command ..."
-  docker run "${REACTOR_ARGS[@]}" "${COMMAND_ARGS[@]}"
+if [ ${#COMMAND_ARGS[@]} -gt 0 ]; then
+  if [ "${COMMAND_ARGS[0]}" == "enter" ]; then
+    info "Entering reactor environment ..."
+    docker run --entrypoint bash "${REACTOR_ARGS[@]}"
+    exit
+  elif [ "${COMMAND_ARGS[0]}" == "create" ]; then
+    reactor-exec "${COMMAND_ARGS[@]}"
+    exit
+  fi
+fi
 
-  if [ $? -eq 0 ]; then
-    # Local execution (use sparingly)
-    if function_exists $COMMAND_HOST_FUNCTION; then
-      COMMAND_ARGS=( "${COMMAND_ARGS[@]:1}" )
+# Containerized execution (primary command logic)
+debug "Running reactor command ..."
+docker run "${REACTOR_ARGS[@]}" "${COMMAND_ARGS[@]}"
 
-      reactor_args "${COMMAND_ARGS[@]}"
-      $COMMAND_HOST_FUNCTION "${COMMAND_ARGS[@]}"
-    fi
+if [ $? -eq 0 ]; then
+  # Local execution (use sparingly)
+  if function_exists $COMMAND_HOST_FUNCTION; then
+    COMMAND_ARGS=( "${COMMAND_ARGS[@]:1}" )
+
+    reactor_args "${COMMAND_ARGS[@]}"
+    $COMMAND_HOST_FUNCTION "${COMMAND_ARGS[@]}"
   fi
 fi

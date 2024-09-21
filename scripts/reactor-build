@@ -43,14 +43,14 @@ info "Removing existing Docker image: ${REACTOR_IMAGE}:${REACTOR_TAG}"
 docker image rm "${REACTOR_IMAGE}:${REACTOR_TAG}" 2>/dev/null
 
 info "Building Docker image: ${REACTOR_IMAGE}:${REACTOR_TAG}"
-rm -Rf "${__reactor_dir}/project"
-mkdir -p "${__reactor_dir}/project"
+rm -Rf "${__reactor_dir}/share"
+mkdir -p "${__reactor_dir}/share"
 
 if [ -f "${__project_dir}/reactor/requirements.txt" ]; then
-  cp -f "${__project_dir}/reactor/requirements.txt" "${__reactor_dir}/project/requirements.txt"
+  cp -f "${__project_dir}/reactor/requirements.txt" "${__reactor_dir}/share/requirements.txt"
 fi
 if [ -f "${__project_dir}/reactor/install.sh" ]; then
-  cp -f "${__project_dir}/reactor/install.sh" "${__reactor_dir}/project/install.sh"
+  cp -f "${__project_dir}/reactor/install.sh" "${__reactor_dir}/share/install.sh"
 fi
 
 if [ -z ${REACTOR_DOCKER_BUILD_ARGS+x} ]; then
@@ -78,4 +78,4 @@ REACTOR_ARGS=(
 
 debug "Reactor Arguments: ${REACTOR_ARGS[@]}"
 docker build "${REACTOR_ARGS[@]}"
-rm -Rf "${__reactor_dir}/project"
+rm -Rf "${__reactor_dir}/share"

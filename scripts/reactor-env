@@ -30,7 +30,7 @@ export __project_file="$(project_file "$(pwd)")"
 if [ -z "${__project_file}" ]; then
   if [ $SOURCED -eq 1 ]; then
     return
-  else
+  elif [ "${__command_name}" != "create" ]; then
     echo "Project directory with a 'reactor.yml' file does not exist in current or parent directories"
     exit 1
   fi
@@ -94,7 +94,7 @@ for extension in $(config extensions); do
     done
   fi
 done
-if [ -d "${__project_utilities_dir}" ]; then
+if compgen -G "${__project_utilities_dir}"/*.sh >/dev/null; then
   for file in "${__project_utilities_dir}"/*.sh; do
     source "$file"
   done
@@ -130,7 +130,7 @@ for extension in $(config extensions); do
     done
   fi
 done
-if [ -d "${__project_commands_dir}" ]; then
+if compgen -G "${__project_commands_dir}"/*.sh >/dev/null; then
   for file in "${__project_commands_dir}"/*.sh; do
     source "$file"
   done

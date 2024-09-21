@@ -46,6 +46,9 @@ export __reactor_core_flags="
     -h --help             Display help message"
 
 # Default environment configuration
+export DEFAULT_PROJECT_TEMPLATE_REMOTE="${DEFAULT_REACTOR_TEMPLATE_REMOTE:-https://github.com/zimagi/reactor-base-cluster.git}"
+export DEFAULT_PROJECT_TEMPLATE_REFERENCE="${DEFAULT_REACTOR_TEMPLATE_REFERENCE:-main}"
+
 export LOG_LEVEL="${LOG_LEVEL:-6}" # 7 = debug -> 0 = emergency
 export NO_COLOR="${NO_COLOR:-}"    # true = disable color. otherwise autodetected
 
@@ -54,16 +57,26 @@ export APP_LABEL="$(config name)"
 
 export PRIMARY_DOMAIN="$(echo "$APP_NAME" | tr '_' '-').local"
 
-# Set top level directory as working directory
-cd "${__project_dir}"
+export HOME_SHARES=(
+  ".bashrc"
+  ".bash_profile"
+  ".profile"
+  ".ssh"
+  ".git"
+)
 
-# Directory creation
-mkdir -p "${__terraform_dir}"
-mkdir -p "${__cache_dir}"
-mkdir -p "${__log_dir}"
-mkdir -p "${__certs_dir}"
-mkdir -p "${__docker_dir}"
-mkdir -p "${__charts_dir}"
+if [ "${__command_name}" != "create" ]; then
+  # Set top level directory as working directory
+  cd "${__project_dir}"
+
+  # Directory creation
+  mkdir -p "${__terraform_dir}"
+  mkdir -p "${__cache_dir}"
+  mkdir -p "${__log_dir}"
+  mkdir -p "${__certs_dir}"
+  mkdir -p "${__docker_dir}"
+  mkdir -p "${__charts_dir}"
+fi
 
 # Include dependency initialization if it exists
 for project in $(config docker); do

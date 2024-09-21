@@ -81,7 +81,7 @@ RUN groupmod --gid ${REACTOR_DOCKER_GID} docker \
 #
 ENV REACTOR_DIR="/reactor"
 ENV SCRIPT_DIR="${REACTOR_DIR}/scripts"
-ENV BUILD_DIR="${REACTOR_DIR}/project"
+ENV SHARE_DIR="${REACTOR_DIR}/share"
 
 ENV PATH="${SCRIPT_DIR}:${PATH}"
 #
@@ -94,11 +94,11 @@ RUN ln -s ${REACTOR_DIR}/VERSION /REACTOR.txt
 #
 # Project customization
 #
-RUN test ! -f ${BUILD_DIR}/requirements.txt \
-  || pip3 install --no-cache-dir -r ${BUILD_DIR}/requirements.txt
+RUN test ! -f ${SHARE_DIR}/requirements.txt \
+  || pip3 install --no-cache-dir -r ${SHARE_DIR}/requirements.txt
 
-RUN test ! -x ${BUILD_DIR}/install.sh \
-  || ${BUILD_DIR}/install.sh
+RUN test ! -x ${SHARE_DIR}/install.sh \
+  || ${SHARE_DIR}/install.sh
 #
 # Execution gateway
 #
