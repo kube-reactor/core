@@ -64,7 +64,7 @@ echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 echo "==========================================================================="
 echo " Running Reactor startup"
 echo ""
-reactor up --build --debug
+reactor up --build --no-cache --debug
 
 if [[ ! -d "./cache" ]] \
   || [[ ! -d "./certs" ]] \
@@ -108,7 +108,7 @@ echo "> kubectl get ingress -A"
 kubectl get ingress -A
 
 #
-# Running Command Tests
+# Running Reactor Command Tests
 #
 for file in "${__test_dir}/commands"/*.sh; do
   echo ""
@@ -118,6 +118,21 @@ for file in "${__test_dir}/commands"/*.sh; do
   echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
   echo "==========================================================================="
   echo " Running reactor command: ${file}"
+  echo ""
+  "$file"
+done
+
+#
+# Running Project Command Tests
+#
+for file in "${__project_dir}/reactor/tests"/*.sh; do
+  echo ""
+  echo "==========================================================================="
+  echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+  echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+  echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+  echo "==========================================================================="
+  echo " Running reactor test: ${file}"
   echo ""
   "$file"
 done
