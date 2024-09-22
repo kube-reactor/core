@@ -57,8 +57,6 @@ function create_host_dns_records () {
 
   info "Saving DNS records (hosts.txt):"
   dns_records="$(dns_records)"
-  info "$dns_records"
-
   printf "$dns_records" | sudo tee "$HOSTS_MANIFEST_FILE" >/dev/null 2>&1
 }
 
