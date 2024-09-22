@@ -19,6 +19,8 @@ function update_helm_dependencies () {
   info "Updating chart Helm dependencies ..."
   for chart in $(config charts); do
     chart_dir="${__charts_dir}/${chart}/$(config charts.$chart.chart_dir "charts/${chart}")"
-    "${__binary_dir}/helm" dependency update "$chart_dir"
+
+    info "Updating ${chart} Helm chart dependencies"
+    "${__binary_dir}/helm" dependency update "$chart_dir" 1>>"$(logfile)" 2>&1
   done
 }

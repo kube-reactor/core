@@ -54,13 +54,13 @@ function provision_terraform () {
     debug "Terraform Arguments: ${TERRAFORM_ARGS[@]}"
 
     info "Initializing Terraform project ..."
-    docker run "${TERRAFORM_ARGS[@]}" init
+    docker run "${TERRAFORM_ARGS[@]}" init 1>>"$(logfile)" 2>&1
 
     info "Validating Terraform project ..."
-    docker run "${TERRAFORM_ARGS[@]}" validate
+    docker run "${TERRAFORM_ARGS[@]}" validate 1>>"$(logfile)" 2>&1
 
     info "Deploying Minikube cluster ..."
-    docker run "${TERRAFORM_ARGS[@]}" apply -auto-approve -input=false
+    docker run "${TERRAFORM_ARGS[@]}" apply -auto-approve -input=false 1>>"$(logfile)" 2>&1
   fi
 }
 

@@ -104,16 +104,16 @@ function start_minikube () {
       --mount \
       --mount-string="${__project_dir}:${__project_dir}" \
       --embed-certs \
-      --dns-domain="${PRIMARY_DOMAIN}"
+      --dns-domain="${PRIMARY_DOMAIN}" 1>>"$(logfile)" 2>&1
   fi
-  "${__binary_dir}/minikube" update-context
+  "${__binary_dir}/minikube" update-context 1>>"$(logfile)" 2>&1
   add_minikube_docker_environment
 }
 
 function stop_minikube () {
   info "Stopping Minikube environment ..."
   if minikube_status; then
-    "${__binary_dir}/minikube" stop
+    "${__binary_dir}/minikube" stop 1>>"$(logfile)" 2>&1
     delete_minikube_kubeconfig
   fi
 }
@@ -126,7 +126,7 @@ function stop_host_minikube () {
 
 function destroy_minikube () {
   info "Destroying Minikube environment ..."
-  "${__binary_dir}/minikube" delete --purge
+  "${__binary_dir}/minikube" delete --purge 1>>"$(logfile)" 2>&1
 
   delete_minikube_kubeconfig
   delete_minikube_storage

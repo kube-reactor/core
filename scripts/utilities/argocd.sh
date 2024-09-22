@@ -9,8 +9,8 @@ function login_argocd () {
     "${__binary_dir}/argocd" login \
       "argocd.${PRIMARY_DOMAIN}" \
       --username admin --password \
-      "${ARGOCD_ADMIN_PASSWORD:-admin}" \
-      --insecure --grpc-web
+      "$ARGOCD_ADMIN_PASSWORD" \
+      --insecure --grpc-web 1>>"$(logfile)" 2>&1
   fi
 }
 
@@ -18,27 +18,18 @@ function sync_argocd_charts () {
   update_helm_dependencies
 
   if minikube_status; then
-    info "Syncing Zimagi chart into ArgoCD ..."
+    info "Syncing application charts into ArgoCD ..."
     login_argocd
 
     for chart in $(config charts); do
-      if "${__binary_dir}/argocd" app get "$chart" 2>&1 >/dev/null; then
-        info "Syncing ${chart} chart into ArgoCD ..."
-        "${__binary_dir}/argocd" app set "$chart" --grpc-web --sync-policy none
-        "${__binary_dir}/argocd" app sync "$chart" --prune --grpc-web \
-          --local "${__charts_dir}/${chart}/$(config charts.$chart.chart_dir "charts/${chart}")" >"${__log_dir}/${chart}.sync.log" 2>&1
+      app_name="$(config charts.$chart.app "$chart")"
 
-        if [ $? -ne 0 ]; then
-          cat "${__log_dir}/${chart}.sync.log"
-        fi
+      if "${__binary_dir}/argocd" app get "$app_name" 2>&1 >/dev/null; then
+        info "Syncing ${app_name} chart into ArgoCD ..."
+        "${__binary_dir}/argocd" app set "$app_name" --grpc-web --sync-policy none 1>>"$(logfile)" 2>&1
+        "${__binary_dir}/argocd" app sync "$app_name" --prune --grpc-web \
+          --local "${__charts_dir}/${chart}/$(config charts.$chart.chart_dir "charts/${chart}")" 1>>"$(logfile)" 2>&1
       fi
     done
   fi
-}
-
-function clean_argocd () {
-  info "Cleaning ArgoCD files ..."
-  for chart in $(config charts); do
-    rm -f "${__log_dir}/${chart}.sync.log"
-  done
 }
