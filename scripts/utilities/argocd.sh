@@ -15,7 +15,7 @@ function login_argocd () {
 }
 
 function sync_argocd_charts () {
-  #generate_helm_template
+  update_helm_dependencies
 
   if minikube_status; then
     info "Syncing Zimagi chart into ArgoCD ..."

@@ -15,34 +15,10 @@ function helm_environment () {
 }
 
 
-# function update_helm_dependencies () {
-#   info "Updating chart Helm dependencies ..."
-#   "${__binary_dir}/helm" dependency update \
-#     "${__charts_dir}/charts/zimagi"
-# }
-
-# function generate_helm_template () {
-#   update_helm_dependencies
-
-#   TEMPLATE_ARGS=(
-#     "template"
-#     "zimagi"
-#     "${__charts_dir}/charts/zimagi"
-#     "-f" "${__cluster_dir}/projects/platform/zimagi/values.yaml"
-#     "-n" "zimagi"
-#   )
-
-#   info "Generating Zimagi Helm template ..."
-#   "${__binary_dir}/helm" "${TEMPLATE_ARGS[@]}" >"${__zimagi_data_dir}/zimagi.helm.template.yml" 2>&1
-
-#   if [ $? -ne 0 ]; then
-#     "${__binary_dir}/helm" "${TEMPLATE_ARGS[@]}" --debug
-#   fi
-# }
-
-function clean_helm () {
-  info "Cleaning Helm files ..."
+function update_helm_dependencies () {
+  info "Updating chart Helm dependencies ..."
   for chart in $(config charts); do
-    rm -f "${__env_dir}/${chart}.helm.template.yml"
+    chart_dir="${__charts_dir}/${chart}/$(config charts.$chart.chart_dir "charts/${chart}")"
+    "${__binary_dir}/helm" dependency update "$chart_dir"
   done
 }
