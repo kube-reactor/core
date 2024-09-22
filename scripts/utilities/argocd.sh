@@ -22,7 +22,6 @@ function sync_argocd_charts () {
     login_argocd
 
     for chart in $(config charts); do
-      echo "$chart"
       if "${__binary_dir}/argocd" app get "$chart" 2>&1 >/dev/null; then
         info "Syncing ${chart} chart into ArgoCD ..."
         "${__binary_dir}/argocd" app set "$chart" --grpc-web --sync-policy none
