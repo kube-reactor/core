@@ -27,8 +27,16 @@ set -e
 
 if [ -d "$PROJECT_TEMPLATE_DIRECTORY" ]; then
   __project_dir="$PROJECT_TEMPLATE_DIRECTORY"
-fi
-if [[ -z "${__project_dir}" ]] || [[ $PROJECT_TEMPLATE_BUILD -eq 1 ]]; then
+
+  if [ -f "${__project_dir}/cookiecutter.json" ]; then
+    reactor create --defaults \
+      --project="${__project_dir}" \
+      --directory="${__projects_dir}" \
+      --name="test"
+
+    __project_dir="${__projects_dir}/test"
+  fi
+else
   reactor create --defaults \
     --directory="${__projects_dir}" \
     --remote="${PROJECT_TEMPLATE_REMOTE:-https://github.com/zimagi/reactor-base-cluster.git}" \
