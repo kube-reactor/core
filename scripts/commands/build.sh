@@ -50,16 +50,19 @@ function build_command () {
 
   info "Initializing docker image repositories ..."
   for project in $(config docker); do
-    project_dir="${__docker_dir}/${project}"
+    project_dir="${__docker_dir}/$(config docker.$project.directory $project)"
+    project_remote="$(config docker.$project.remote)"
+    project_reference="$(config docker.$project.reference main)"
 
-    info "Initializing ${project} docker image repository"
-    download_git_repo \
-        "$(config docker.$project.remote)" \
+    if [ ! -z "$project_remote" ]; then
+      info "Initializing ${project} docker image repository"
+      download_git_repo \
+        "$project_remote" \
         "$project_dir" \
-        "$(config docker.$project.reference)"
-
+        "$project_reference"
+    fi
     if [ -f "${project_dir}/reactor/initialize.sh" ]; then
-      source "${project_dir}/reactor/initialize.sh" "$project"
+      source "${project_dir}/reactor/initialize.sh" "$project" "$project_dir"
     fi
     info "Building ${project} docker image"
     build_docker_image "$project" $NO_CACHE
@@ -67,13 +70,20 @@ function build_command () {
 
   info "Initializing Helm chart repositories ..."
   for chart in $(config charts); do
-    chart_dir="${__charts_dir}/${chart}"
+    chart_dir="${__charts_dir}/$(config charts.$chart.directory $chart)"
+    chart_remote="$(config charts.$chart.remote)"
+    chart_reference="$(config charts.$chart.reference main)"
 
-    info "Initializing ${chart} Helm chart repository"
-    download_git_repo \
-        "$(config charts.$chart.remote)" \
-        "${chart_dir}" \
-        "$(config charts.$chart.reference)"
+    if [ ! -z "$chart_remote" ]; then
+      info "Initializing ${chart} Helm chart repository"
+      download_git_repo \
+        "$chart_remote" \
+        "$chart_dir" \
+        "$chart_reference"
+    fi
+    if [ -f "${chart_dir}/reactor/initialize.sh" ]; then
+      source "${chart_dir}/reactor/initialize.sh" "$project" "$chart_dir"
+    fi
   done
 
   info "Initializing extension repositories ..."

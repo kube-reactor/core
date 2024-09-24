@@ -68,7 +68,7 @@ for file in "${__script_dir}/utilities"/*.sh; do
   fi
 done
 for project in $(config docker); do
-  project_dir="${__docker_dir}/${project}"
+  project_dir="${__docker_dir}/$(config docker.$project.directory $project)"
   utilities_dir="${project_dir}/reactor/utilities"
   if [ -d "$utilities_dir" ]; then
     for file in "${utilities_dir}"/*.sh; do
@@ -77,7 +77,7 @@ for project in $(config docker); do
   fi
 done
 for chart in $(config charts); do
-  chart_dir="${__charts_dir}/${chart}"
+  chart_dir="${__charts_dir}/$(config charts.$chart.directory $chart)"
   utilities_dir="${chart_dir}/reactor/utilities"
   if [ -d "$utilities_dir" ]; then
     for file in "${utilities_dir}"/*.sh; do
@@ -104,7 +104,7 @@ for file in "${__script_dir}/commands"/*.sh; do
   source "$file"
 done
 for project in $(config docker); do
-  project_dir="${__docker_dir}/${project}"
+  project_dir="${__docker_dir}/$(config docker.$project.directory $project)"
   commands_dir="${project_dir}/reactor/commands"
   if [ -d "$commands_dir" ]; then
     for file in "${commands_dir}"/*.sh; do
@@ -113,7 +113,7 @@ for project in $(config docker); do
   fi
 done
 for chart in $(config charts); do
-  chart_dir="${__charts_dir}/${chart}"
+  chart_dir="${__charts_dir}/$(config charts.$chart.directory $chart)"
   commands_dir="${chart_dir}/reactor/commands"
   if [ -d "$commands_dir" ]; then
     for file in "${commands_dir}"/*.sh; do

@@ -80,32 +80,32 @@ fi
 
 # Include dependency initialization if it exists
 for project in $(config docker); do
-  project_dir="${__docker_dir}/${project}"
+  project_dir="${__docker_dir}/$(config docker.$project.directory $project)"
   initialize_script="${project_dir}/reactor/initialize.sh"
   if [ -f "$initialize_script" ]; then
-    source "$initialize_script" "$project"
+    source "$initialize_script" "$project" "$project_dir"
   fi
   initialize_script="${__project_reactor_dir}/docker/${project}_initialize.sh"
   if [ -f "$initialize_script" ]; then
-    source "$initialize_script" "$project"
+    source "$initialize_script" "$project" "$project_dir"
   fi
 done
 for chart in $(config charts); do
-  chart_dir="${__charts_dir}/${chart}"
+  chart_dir="${__charts_dir}/$(config charts.$chart.directory $chart)"
   initialize_script="${chart_dir}/reactor/initialize.sh"
   if [ -f "$initialize_script" ]; then
-    source "$initialize_script" "$chart"
+    source "$initialize_script" "$chart" "$chart_dir"
   fi
   initialize_script="${__project_reactor_dir}/charts/${chart}_initialize.sh"
   if [ -f "$initialize_script" ]; then
-    source "$initialize_script" "$project"
+    source "$initialize_script" "$project" "$chart_dir"
   fi
 done
 for extension in $(config extensions); do
   extension_dir="${__extension_dir}/${extension}"
   initialize_script="${extension_dir}/reactor/initialize.sh"
   if [ -f "$initialize_script" ]; then
-    source "$initialize_script" "$extension"
+    source "$initialize_script" "$extension" "$extension_dir"
   fi
 done
 
