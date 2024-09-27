@@ -73,4 +73,6 @@ function certs_command () {
     generate_certs "$SUBJECT" $DAYS
   fi
   display_certs
+
+  exec_hook certs
 }

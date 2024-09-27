@@ -76,7 +76,7 @@ function update_command () {
   if [ $UPDATE_ALL -eq 1 -o $UPDATE_APPS -eq 1 ]; then
     provision_terraform
   fi
-  info "Minikube development environment has been updated"
+  exec_hook update
 }
 
 function update_host_command () {
@@ -89,4 +89,7 @@ function update_host_command () {
   if [ $UPDATE_ALL -eq 1 -o $UPDATE_CHARTS -eq 1 ]; then
     sync_argocd_charts
   fi
+
+  exec_hook update_host
+  info "Minikube development environment has been updated"
 }

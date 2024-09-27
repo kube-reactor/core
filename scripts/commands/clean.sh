@@ -64,6 +64,8 @@ function clean_command () {
   clean_terraform
   clean_certs
   clean_cache
+
+  exec_hook clean
 }
 
 function clean_host_command () {
@@ -72,5 +74,6 @@ function clean_host_command () {
   destroy_host_minikube
   remove_host_dns_records
 
+  exec_hook clean_host
   info "Reactor development environment has been cleaned"
 }

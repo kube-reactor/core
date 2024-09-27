@@ -123,6 +123,8 @@ function up_command () {
     build_command "${BUILD_ARGS[@]}"
   fi
   update_command
+
+  exec_hook up
 }
 
 function up_host_command () {
@@ -130,4 +132,6 @@ function up_host_command () {
 
   launch_host_minikube_tunnel
   update_host_command
+
+  exec_hook up_host
 }

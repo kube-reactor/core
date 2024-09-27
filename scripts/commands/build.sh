@@ -96,5 +96,7 @@ function build_command () {
         "${extension_dir}" \
         "$(config extensions.$extension.reference)"
   done
+
+  exec_hook build
   info "Development environment initialization complete"
 }

@@ -60,6 +60,8 @@ function destroy_command () {
   destroy_minikube
   remove_dns_records
   clean_terraform
+
+  exec_hook destroy
 }
 
 function destroy_host_command () {
@@ -68,5 +70,6 @@ function destroy_host_command () {
   destroy_host_minikube
   remove_host_dns_records
 
+  exec_hook destroy_host
   info "Minikube development environment has been destroyed"
 }

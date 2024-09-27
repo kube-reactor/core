@@ -145,4 +145,5 @@ function create_command () {
   if [ ! -d "$PROJECT_DIRECTORY" ]; then
     rm -Rf "$PROJECT_TEMP_DIRECTORY"
   fi
+  exec_hook create
 }
