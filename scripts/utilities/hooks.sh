@@ -86,25 +86,32 @@ function exec_hook () {
   # Execute dependency hook if it exists
   for project in $(config docker); do
     project_dir="${__docker_dir}/$(config docker.$project.project $project)"
-    if function_exists "${project}_${hook_name}"; then
-      "${project}_${hook_name}" "$project_dir"
+    hook_function="hook_${project}_${hook_name}"
+
+    if function_exists "$hook_function"; then
+      "$hook_function" "$project_dir"
     fi
   done
   for chart in $(config charts); do
     chart_dir="${__charts_dir}/$(config charts.$chart.project $chart)"
-    if function_exists "${chart}_${hook_name}"; then
-      "${chart}_${hook_name}" "$chart_dir"
+    hook_function="hook_${chart}_${hook_name}"
+
+    if function_exists "$hook_function"; then
+      "$hook_function" "$chart_dir"
     fi
   done
   for extension in $(config extensions); do
     extension_dir="${__extension_dir}/${extension}"
-    if function_exists "${extension}_${hook_name}"; then
-      "${extension}_${hook_name}" "$extension_dir"
+    hook_function="hook_${extension}_${hook_name}"
+
+    if function_exists "$hook_function"; then
+      "$hook_function" "$extension_dir"
     fi
   done
 
   # Execute project hook if it exists
-  if function_exists "$hook_name"; then
-    "$hook_name"
+  hook_function="hook_${hook_name}"
+  if function_exists "$hook_function"; then
+    "$hook_function"
   fi
 }
