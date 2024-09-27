@@ -50,7 +50,7 @@ function build_command () {
 
   info "Initializing docker image repositories ..."
   for project in $(config docker); do
-    project_dir="${__docker_dir}/$(config docker.$project.directory $project)"
+    project_dir="${__docker_dir}/$(config docker.$project.project $project)"
     project_remote="$(config docker.$project.remote)"
     project_reference="$(config docker.$project.reference main)"
 
@@ -70,7 +70,7 @@ function build_command () {
 
   info "Initializing Helm chart repositories ..."
   for chart in $(config charts); do
-    chart_dir="${__charts_dir}/$(config charts.$chart.directory $chart)"
+    chart_dir="${__charts_dir}/$(config charts.$chart.project $chart)"
     chart_remote="$(config charts.$chart.remote)"
     chart_reference="$(config charts.$chart.reference main)"
 

@@ -9,7 +9,7 @@ function build_docker_image () {
   PROJECT_NAME="${1}"
   NO_CACHE=${2:-0}
 
-  PROJECT_DIR="${__docker_dir}/$(config docker.$PROJECT_NAME.directory $PROJECT_NAME)"
+  PROJECT_DIR="${__docker_dir}/$(config docker.$PROJECT_NAME.project $PROJECT_NAME)"
   DOCKER_DIR="${PROJECT_DIR}/$(config docker.$PROJECT_NAME.docker_dir docker)"
   BUILD_SCRIPT="${PROJECT_DIR}/reactor/build_image.sh"
   PROJECT_BUILD_SCRIPT="${__project_reactor_dir}/docker/${PROJECT_NAME}_build_image.sh"

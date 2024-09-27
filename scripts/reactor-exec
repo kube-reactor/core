@@ -114,4 +114,5 @@ else
   fi
 fi
 
-source "${__script_dir}/state/finalize.sh"
+# Source finalization scripts
+exec_hook finalize
