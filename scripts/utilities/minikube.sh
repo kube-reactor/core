@@ -211,3 +211,12 @@ function terminate_host_minikube_dashboard () {
     rm -f "$PID_FILE"
   fi
 }
+
+function get_pods () {
+  namespace="$1"
+  pod_list="$(kubectl get pods -n "$namespace" --no-headers -o custom-columns=':metadata.name')"
+
+  for pod in ${pod_list[@]}; do
+    echo "$pod"
+  done
+}
