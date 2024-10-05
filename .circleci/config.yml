@@ -48,6 +48,28 @@ jobs:
     test-arm64-ubuntu-bash:
         <<: [*ubuntu_arm64, *test_bash]
 
+    deploy-docs:
+        docker:
+            - image: python:3.10
+        steps:
+            - run:
+                name: Install core dependencies
+                command: |
+                    apt-get update
+                    apt-get install -y git g++ gcc make
+
+            - checkout
+            - run:
+                name: Install documentation dependencies
+                command: pip install --no-cache-dir -r ./docs/requirements.txt
+
+            - run:
+                name: Deploy documentation
+                command: |
+                    git config --global user.name "CircleCI ( ${CIRCLE_USERNAME} )"
+                    git config --global user.email "${CIRCLE_USERNAME}@${CIRCLE_BRANCH}"
+                    ./docs/deploy.sh git@github.com:zimagi/reactor.git "${CIRCLE_BRANCH}"
+
     deploy-docker-amd64-latest:
         <<: *ubuntu_amd64
         steps:
@@ -153,6 +175,16 @@ workflows:
                 filters:
                     tags:
                         only: /.*/
+
+            - deploy-docs:
+                filters:
+                    branches:
+                        only:
+                            - main
+                            - docs
+                requires:
+                    - test-amd64-ubuntu-bash
+                    - test-arm64-ubuntu-bash
 
             - deploy-docker-amd64-latest:
                 filters:
