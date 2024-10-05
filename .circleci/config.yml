@@ -52,6 +52,9 @@ jobs:
         docker:
             - image: python:3.10
         steps:
+            - add_ssh_keys:
+                fingerprints:
+                    - "SHA256:Et02GjIRCFTsh5JKh7j9STKDqFmdx3S2RYTiTNooa+Q"
             - run:
                 name: Install core dependencies
                 command: |
@@ -193,7 +196,7 @@ workflows:
                     branches:
                         only: main
                 requires:
-                    - test-amd64-ubuntu-bash
+                    - deploy-docs
 
             - deploy-docker-arm64-latest:
                 filters:
@@ -202,7 +205,7 @@ workflows:
                     branches:
                         only: main
                 requires:
-                    - test-arm64-ubuntu-bash
+                    - deploy-docs
 
             - deploy-docker-latest:
                 filters:
@@ -221,7 +224,7 @@ workflows:
                     branches:
                         only: main
                 requires:
-                    - test-amd64-ubuntu-bash
+                    - deploy-docs
 
             - deploy-docker-nvidia-latest:
                 filters:
@@ -239,7 +242,7 @@ workflows:
                     branches:
                         ignore: /.*/
                 requires:
-                    - test-amd64-ubuntu-bash
+                    - deploy-docs
 
             - deploy-docker-arm64-version:
                 filters:
@@ -248,7 +251,7 @@ workflows:
                     branches:
                         ignore: /.*/
                 requires:
-                    - test-arm64-ubuntu-bash
+                    - deploy-docs
 
             - deploy-docker-version:
                 filters:
@@ -267,7 +270,7 @@ workflows:
                     branches:
                         ignore: /.*/
                 requires:
-                    - test-amd64-ubuntu-bash
+                    - deploy-docs
 
             - deploy-docker-nvidia-version:
                 filters:
