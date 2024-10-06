@@ -79,13 +79,14 @@ jobs:
         steps:
             - attach_workspace:
                 at: ./artifacts
+            - checkout
             - run:
                 name: Deploy release
                 command: |
-                    # VERSION="$(cat ./artifacts/VERSION)"
-                    # SHA256="$(sha256sum ./artifacts/requirements.txt | sed 's/\s.*$//')"
-                    # echo "${VERSION}"
-                    # echo "${SHA256}"
+                    VERSION="$(cat ./VERSION)"
+                    SHA256="$(sha256sum ./requirements.txt | sed 's/\s.*$//')"
+                    echo "${VERSION}"
+                    echo "${SHA256}"
                     echo "${GITHUB_TOKEN:0:5}"
                     echo "${CIRCLE_PROJECT_USERNAME}"
                     echo "${CIRCLE_PROJECT_REPONAME}"
