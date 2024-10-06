@@ -82,15 +82,16 @@ jobs:
             - run:
                 name: Deploy release
                 command: |
-                    VERSION="$(cat ./artifacts/VERSION)"
-                    SHA256="$(sha256sum ./artifacts/requirements.txt | sed 's/\s.*$//')"
-                    echo "${VERSION}"
-                    echo "${SHA256}"
+                    # VERSION="$(cat ./artifacts/VERSION)"
+                    # SHA256="$(sha256sum ./artifacts/requirements.txt | sed 's/\s.*$//')"
+                    # echo "${VERSION}"
+                    # echo "${SHA256}"
                     echo "${GITHUB_TOKEN:0:5}"
                     echo "${CIRCLE_PROJECT_USERNAME}"
                     echo "${CIRCLE_PROJECT_REPONAME}"
                     echo "${CIRCLE_SHA1}"
                     ls -al ./artifacts
+                    ls -al ./
                     # ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -delete ${VERSION} ./artifacts/
 
     deploy-docker-amd64-latest:
