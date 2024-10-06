@@ -106,7 +106,11 @@
 <p class="caption" role="heading"><span class="caption-text">Fundamentals</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="readme.html">Getting Started with Reactor</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">System Requirements</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">System Requirements</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#supported-operating-systems">Supported Operating Systems</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#required-tools-and-dependencies">Required Tools and Dependencies</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="quick_start.html">Quick Start Guide</a></li>
 <li class="toctree-l2"><a class="reference internal" href="basic_concepts.html">Basic Concepts</a></li>
@@ -252,13 +256,49 @@
                 
   <section id="system-requirements">
 <h1>System Requirements<a class="headerlink" href="#system-requirements" title="Permalink to this heading">¶</a></h1>
-<p>Requirements:
-* Bash Shell scripting language
-* Git version control system
-* Python 3 programming language with PyYAML package
-* Docker Engine
-* Curl CLI web downloader
-* OpenSSL CLI tool</p>
+<p>Before installing and using <strong>reactor</strong>, ensure that your system meets the following requirements. These prerequisites are essential for proper functionality of the CLI platform and for managing Kubernetes environments effectively.</p>
+<section id="supported-operating-systems">
+<h2>Supported Operating Systems<a class="headerlink" href="#supported-operating-systems" title="Permalink to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><strong>Linux</strong>: Any modern Linux distribution (e.g., Ubuntu, CentOS, Debian, Fedora).</p></li>
+<li><p><strong>macOS</strong>: macOS 10.15 (Catalina) or later.</p></li>
+<li><p><strong>Windows</strong>: Windows Subsystem for Linux (WSL) is required for running the CLI on Windows.</p></li>
+</ul>
+</section>
+<section id="required-tools-and-dependencies">
+<h2>Required Tools and Dependencies<a class="headerlink" href="#required-tools-and-dependencies" title="Permalink to this heading">¶</a></h2>
+<p>To use <strong>reactor</strong>, the following tools and software must be installed:</p>
+<ul class="simple">
+<li><p><strong>Bash Shell</strong>: Required for scripting and executing commands. Ensure that your system has Bash installed and available in your system path.</p></li>
+<li><p><strong>Git</strong>: The Git version control system is required for managing repositories and interacting with the platform’s components. Make sure Git is installed and accessible from your command line.</p>
+<ul>
+<li><p>Installation guide: [Git Installation](<a class="reference external" href="https://git-scm.com/book/en/v2/Getting-Started-Installing-Git">https://git-scm.com/book/en/v2/Getting-Started-Installing-Git</a>)</p></li>
+</ul>
+</li>
+<li><p><strong>Python 3</strong>: <strong>reactor</strong> requires Python 3 for running certain scripts and automating processes. Additionally, the <strong>PyYAML</strong> package is needed for parsing YAML configuration files.</p>
+<ul>
+<li><p>Installation guide for Python 3: [Python Downloads](<a class="reference external" href="https://www.python.org/downloads/">https://www.python.org/downloads/</a>)</p></li>
+<li><p>Install PyYAML: <cite>pip install PyYAML</cite></p></li>
+</ul>
+</li>
+<li><p><strong>Docker Engine</strong>: Docker is essential for containerizing and managing applications within Kubernetes clusters. Ensure Docker Engine is installed and running on your system.</p>
+<ul>
+<li><p>Installation guide: [Docker Installation](<a class="reference external" href="https://docs.docker.com/engine/install/">https://docs.docker.com/engine/install/</a>)</p></li>
+</ul>
+</li>
+<li><p><strong>Curl</strong>: Curl is required for downloading resources from the web. This CLI tool enables easy interaction with various HTTP-based services.</p>
+<ul>
+<li><p>Installation guide: [Curl Documentation](<a class="reference external" href="https://curl.se/">https://curl.se/</a>)</p></li>
+</ul>
+</li>
+<li><p><strong>OpenSSL</strong>: The OpenSSL CLI tool is used for managing certificates and encryption protocols, necessary for secure communication and configuration within Kubernetes environments.</p>
+<ul>
+<li><p>Installation guide: [OpenSSL Download](<a class="reference external" href="https://www.openssl.org/source/">https://www.openssl.org/source/</a>)</p></li>
+</ul>
+</li>
+</ul>
+<p>Ensure that all the above components are installed and configured properly before proceeding with the installation and setup of <strong>reactor</strong>.</p>
+</section>
 </section>
 
 
