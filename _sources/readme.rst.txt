@@ -48,7 +48,6 @@ Ready to get started? Explore the fundamentals, dive into advanced topics, or re
     :maxdepth: 2
     :caption: Fundamentals
 
-    changelog/readme
     getting_started/readme
     core_concepts/readme
     modular_architecture/readme
@@ -68,6 +67,7 @@ Ready to get started? Explore the fundamentals, dive into advanced topics, or re
     troubleshooting/readme
     testing/readme
     faq/readme
+    changelog/readme
 
 .. toctree::
     :maxdepth: 2
