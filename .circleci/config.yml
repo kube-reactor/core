@@ -209,6 +209,12 @@ workflows:
                     - test-amd64-ubuntu-bash
                     - test-arm64-ubuntu-bash
 
+            - deploy-release:
+                filters:
+                    branches:
+                        only:
+                            - main
+
             - deploy-docker-amd64-latest:
                 filters:
                     tags:
