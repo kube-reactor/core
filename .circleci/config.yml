@@ -77,9 +77,9 @@ jobs:
         docker:
             - image: cibuilds/github:0.10
         steps:
-            - attach_workspace:
-                at: ./artifacts
             - checkout
+            - attach_workspace:
+                at: /tmp/artifacts
             - run:
                 name: Deploy release
                 command: |
@@ -93,7 +93,7 @@ jobs:
                     echo "${CIRCLE_SHA1}"
                     ls -al ./artifacts
                     ls -al ./
-                    # ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -delete ${VERSION} ./artifacts/
+                    # ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -delete ${VERSION} /tmp/artifacts/
 
     deploy-docker-amd64-latest:
         <<: *ubuntu_amd64
