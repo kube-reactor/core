@@ -78,22 +78,18 @@ jobs:
             - image: cibuilds/github:0.10
         steps:
             - checkout
-            - attach_workspace:
-                at: /tmp/artifacts
             - run:
                 name: Deploy release
                 command: |
                     VERSION="$(cat ./VERSION)"
-                    SHA256="$(sha256sum ./requirements.txt | sed 's/\s.*$//')"
-                    echo "${VERSION}"
-                    echo "${SHA256}"
-                    echo "${GITHUB_TOKEN:0:5}"
-                    echo "${CIRCLE_PROJECT_USERNAME}"
-                    echo "${CIRCLE_PROJECT_REPONAME}"
-                    echo "${CIRCLE_SHA1}"
-                    ls -al /tmp/artifacts
-                    ls -al ./
-                    ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -delete ${VERSION} /tmp/artifacts/
+
+                    mkdir /tmp/reactor
+                    cp -R ./scripts /tmp/reactor/scripts
+                    cp ./requirements.txt /tmp/reactor/requirements.txt
+                    cp ./VERSION /tmp/reactor/VERSION
+                    cp ./LICENSE /tmp/reactor/LICENSE
+
+                    ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -delete ${VERSION} /tmp/reactor/
 
     deploy-docker-amd64-latest:
         <<: *ubuntu_amd64
