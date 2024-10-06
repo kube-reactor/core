@@ -93,7 +93,7 @@ jobs:
                     echo "${CIRCLE_SHA1}"
                     ls -al /tmp/artifacts
                     ls -al ./
-                    # ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -delete ${VERSION} /tmp/artifacts/
+                    ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -delete ${VERSION} /tmp/artifacts/
 
     deploy-docker-amd64-latest:
         <<: *ubuntu_amd64
