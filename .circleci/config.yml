@@ -73,6 +73,26 @@ jobs:
                     git config --global user.email "${CIRCLE_USERNAME}@${CIRCLE_BRANCH}"
                     ./docs/deploy.sh git@github.com:zimagi/reactor.git "${CIRCLE_BRANCH}"
 
+    deploy-release:
+        docker:
+            - image: cibuilds/github:0.10
+        steps:
+            - attach_workspace:
+                at: ./artifacts
+            - run:
+                name: Deploy release
+                command: |
+                    VERSION="$(cat ./VERSION)"
+                    # SHA256="$(sha256sum requirements.txt | sed 's/\s.*$//')"
+                    echo "${VERSION}"
+                    # echo "${SHA256}"
+                    echo "${GITHUB_TOKEN:0:5}"
+                    echo "${CIRCLE_PROJECT_USERNAME}"
+                    echo "${CIRCLE_PROJECT_REPONAME}"
+                    echo "${CIRCLE_SHA1}"
+                    ls -al ./artifacts
+                    # ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -delete ${VERSION} ./artifacts/
+
     deploy-docker-amd64-latest:
         <<: *ubuntu_amd64
         steps:
