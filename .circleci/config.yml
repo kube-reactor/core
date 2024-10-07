@@ -81,17 +81,23 @@ jobs:
             - run:
                 name: Deploy release
                 command: |
-                    VERSION="$(cat ./VERSION)"
-
                     mkdir /tmp/reactor
                     cp -R ./scripts /tmp/reactor/scripts
                     cp ./requirements.txt /tmp/reactor/requirements.txt
                     cp ./VERSION /tmp/reactor/VERSION
                     cp ./LICENSE /tmp/reactor/LICENSE
 
-                    ls -al /tmp/reactor
+                    mkdir /tmp/release
+                    tar -czf /tmp/release/reactor.tar.gz /tmp/reactor
+                    cp ./reactor.template.yaml /tmp/release/reactor.yaml
 
-                    ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -delete ${VERSION} /tmp/reactor/
+                    VERSION="$(cat ./VERSION)"
+                    SHA256="$(sha256sum /tmp/release/reactor.tar.gz | sed 's/\s.*$//')"
+
+                    sed -i "s/\<\<\<VERSION\>\>\>/${VERSION}/" /tmp/release/reactor.yaml
+                    sed -i "s/\<\<\<SHA256\>\>\>/${SHA256}/" /tmp/release/reactor.yaml
+
+                    ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -delete ${VERSION} /tmp/release/
 
     deploy-docker-amd64-latest:
         <<: *ubuntu_amd64
