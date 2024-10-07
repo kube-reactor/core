@@ -41,12 +41,42 @@ test_bash: &test_bash
             environment: *session_env
         - run: *dump_log
 
+test_package: &test_package
+    steps:
+        - checkout
+        - run:
+            shell: /usr/bin/bash
+            command: |
+              ARCH="$(uname -m | sed -e 's/x86_64/amd64/' -e 's/\(arm\)\(64\)\?.*/\1\2/' -e 's/aarch64$/arm64/')"
+              curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/${ARCH}/kubectl"
+              sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+        - run:
+            shell: /usr/bin/bash
+            command: |
+              OS="$(uname | tr '[:upper:]' '[:lower:]')"
+              ARCH="$(uname -m | sed -e 's/x86_64/amd64/' -e 's/\(arm\)\(64\)\?.*/\1\2/' -e 's/aarch64$/arm64/')"
+              curl -fsSLO "https://github.com/kubernetes-sigs/krew/releases/latest/download/krew-${OS}_${ARCH}.tar.gz"
+              tar zxvf "krew-${OS}_${ARCH}.tar.gz"
+              ./"krew-${OS}_${ARCH}" install krew
+              echo 'export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"' >> $BASH_ENV
+        - run:
+            shell: /usr/bin/bash
+            command: |
+               kubectl version --client
+               kubectl krew
+
 jobs:
     test-amd64-ubuntu-bash:
         <<: [*ubuntu_amd64, *test_bash]
 
     test-arm64-ubuntu-bash:
         <<: [*ubuntu_arm64, *test_bash]
+
+    test-amd64-ubuntu-package:
+        <<: [*ubuntu_amd64, *test_package]
+
+    test-arm64-ubuntu-package:
+        <<: [*ubuntu_arm64, *test_package]
 
     deploy-docs:
         docker:
@@ -195,6 +225,16 @@ workflows:
                     tags:
                         only: /.*/
 
+            - test-amd64-ubuntu-package:
+                filters:
+                    tags:
+                        only: /.*/
+
+            - test-arm64-ubuntu-package:
+                filters:
+                    tags:
+                        only: /.*/
+
             - deploy-docs:
                 filters:
                     branches:
@@ -204,6 +244,8 @@ workflows:
                 requires:
                     - test-amd64-ubuntu-bash
                     - test-arm64-ubuntu-bash
+                    - test-amd64-ubuntu-package
+                    - test-arm64-ubuntu-package
 
             - deploy-release:
                 filters:
@@ -214,6 +256,8 @@ workflows:
                 requires:
                     - test-amd64-ubuntu-bash
                     - test-arm64-ubuntu-bash
+                    - test-amd64-ubuntu-package
+                    - test-arm64-ubuntu-package
 
             - deploy-docker-amd64-latest:
                 filters:
@@ -224,6 +268,8 @@ workflows:
                 requires:
                     - test-amd64-ubuntu-bash
                     - test-arm64-ubuntu-bash
+                    - test-amd64-ubuntu-package
+                    - test-arm64-ubuntu-package
 
             - deploy-docker-arm64-latest:
                 filters:
@@ -234,6 +280,8 @@ workflows:
                 requires:
                     - test-amd64-ubuntu-bash
                     - test-arm64-ubuntu-bash
+                    - test-amd64-ubuntu-package
+                    - test-arm64-ubuntu-package
 
             - deploy-docker-latest:
                 filters:
@@ -254,6 +302,8 @@ workflows:
                 requires:
                     - test-amd64-ubuntu-bash
                     - test-arm64-ubuntu-bash
+                    - test-amd64-ubuntu-package
+                    - test-arm64-ubuntu-package
 
             - deploy-docker-nvidia-latest:
                 filters:
@@ -273,6 +323,8 @@ workflows:
                 requires:
                     - test-amd64-ubuntu-bash
                     - test-arm64-ubuntu-bash
+                    - test-amd64-ubuntu-package
+                    - test-arm64-ubuntu-package
 
             - deploy-docker-arm64-version:
                 filters:
@@ -283,6 +335,8 @@ workflows:
                 requires:
                     - test-amd64-ubuntu-bash
                     - test-arm64-ubuntu-bash
+                    - test-amd64-ubuntu-package
+                    - test-arm64-ubuntu-package
 
             - deploy-docker-version:
                 filters:
@@ -303,6 +357,8 @@ workflows:
                 requires:
                     - test-amd64-ubuntu-bash
                     - test-arm64-ubuntu-bash
+                    - test-amd64-ubuntu-package
+                    - test-arm64-ubuntu-package
 
             - deploy-docker-nvidia-version:
                 filters:
