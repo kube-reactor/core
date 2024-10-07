@@ -113,7 +113,7 @@ jobs:
         steps:
             - add_ssh_keys:
                 fingerprints:
-                    - "SHA256:Et02GjIRCFTsh5JKh7j9STKDqFmdx3S2RYTiTNooa+Q"
+                    - "SHA256:iE95/6H6eI+Bv00LaLvA/DTqpOf/Qzi1ck6caPgBOsA"
             - checkout
             - run:
                 name: Deploy release
@@ -259,9 +259,10 @@ workflows:
 
             - deploy-docs:
                 filters:
+                    tags:
+                        only: /.*/
                     branches:
                         only:
-                            - main
                             - docs
                 requires:
                     - test-amd64-ubuntu-bash
