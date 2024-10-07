@@ -207,9 +207,12 @@ workflows:
 
             - deploy-release:
                 filters:
+                    tags:
+                        only: /.*/
                     branches:
-                        only:
-                            - main
+                        ignore: /.*/
+                requires:
+                    - deploy-docs
 
             - deploy-docker-amd64-latest:
                 filters:
@@ -218,7 +221,7 @@ workflows:
                     branches:
                         only: main
                 requires:
-                    - deploy-docs
+                    - deploy-release
 
             - deploy-docker-arm64-latest:
                 filters:
@@ -227,7 +230,7 @@ workflows:
                     branches:
                         only: main
                 requires:
-                    - deploy-docs
+                    - deploy-release
 
             - deploy-docker-latest:
                 filters:
@@ -246,7 +249,7 @@ workflows:
                     branches:
                         only: main
                 requires:
-                    - deploy-docs
+                    - deploy-release
 
             - deploy-docker-nvidia-latest:
                 filters:
@@ -264,7 +267,7 @@ workflows:
                     branches:
                         ignore: /.*/
                 requires:
-                    - deploy-docs
+                    - deploy-release
 
             - deploy-docker-arm64-version:
                 filters:
@@ -273,7 +276,7 @@ workflows:
                     branches:
                         ignore: /.*/
                 requires:
-                    - deploy-docs
+                    - deploy-release
 
             - deploy-docker-version:
                 filters:
@@ -292,7 +295,7 @@ workflows:
                     branches:
                         ignore: /.*/
                 requires:
-                    - deploy-docs
+                    - deploy-release
 
             - deploy-docker-nvidia-version:
                 filters:
