@@ -65,9 +65,11 @@ test_package: &test_package
         - run:
             shell: /usr/bin/bash
             command: |
-               kubectl version --client
-               kubectl krew
-               ./tests/test_package.sh
+              pwd
+              ls -al
+              kubectl version --client
+              kubectl krew
+              ./tests/test_package.sh
 
 jobs:
     test-amd64-ubuntu-bash:
