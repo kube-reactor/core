@@ -104,8 +104,8 @@ jobs:
                 name: Deploy documentation
                 command: |
                     git config --global user.name "CircleCI ( ${CIRCLE_USERNAME} )"
-                    git config --global user.email "${CIRCLE_USERNAME}@${CIRCLE_BRANCH}"
-                    ./docs/deploy.sh git@github.com:zimagi/reactor.git "${CIRCLE_BRANCH}"
+                    git config --global user.email "${CIRCLE_USERNAME}@main"
+                    ./docs/deploy.sh git@github.com:zimagi/reactor.git main
 
     deploy-release:
         docker:
@@ -262,8 +262,7 @@ workflows:
                     tags:
                         only: /.*/
                     branches:
-                        only:
-                            - docs
+                        ignore: /.*/
                 requires:
                     - test-amd64-ubuntu-bash
                     - test-arm64-ubuntu-bash
