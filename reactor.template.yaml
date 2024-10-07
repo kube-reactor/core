@@ -23,24 +23,6 @@ spec:
         - darwin
         - linux
 
+    bin: "./kubectl-reactor"
     uri: "https://github.com/zimagi/reactor/releases/download/!!!VERSION!!!/reactor.tar.gz"
     sha256: "!!!SHA256!!!"
-
-    bin: "./kubectl-reactor"
-    files:
-    - from: "scripts/*reactor*"
-      to: "."
-
-    - from: "scripts/state/*.sh"
-      to: "state"
-    - from: "scripts/commands/*.sh"
-      to: "commands"
-    - from: "scripts/utilities/*.sh"
-      to: "utilities"
-
-    - from: "LICENSE"
-      to: "."
-    - from: "VERSION"
-      to: "."
-    - from: "*.*"
-      to: "."
