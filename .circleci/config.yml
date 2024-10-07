@@ -88,10 +88,12 @@ jobs:
                     cp ./LICENSE /tmp/reactor/LICENSE
 
                     mkdir /tmp/release
-                    tar -C /tmp/reactor -cvzf /tmp/release/reactor.tar.gz /tmp/reactor/*
                     cp ./reactor.template.yaml /tmp/release/reactor.yaml
 
-                    VERSION="$(cat ./VERSION)"
+                    cd /tmp/reactor
+                    tar -cvzf /tmp/release/reactor.tar.gz *
+
+                    VERSION="$(cat /tmp/reactor/VERSION)"
                     SHA256="$(sha256sum /tmp/release/reactor.tar.gz | sed 's/\s.*$//')"
 
                     sed -i "s/!!!VERSION!!!/${VERSION}/" /tmp/release/reactor.yaml
