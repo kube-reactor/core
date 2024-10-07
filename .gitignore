@@ -155,6 +155,7 @@ cython_debug/
 # Project files
 /projects/
 /share/
+/package/
 /scripts/minikube
 /scripts/kubectl
 /scripts/helm
