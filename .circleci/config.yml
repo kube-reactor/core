@@ -64,6 +64,7 @@ test_package: &test_package
             command: |
                kubectl version --client
                kubectl krew
+               ./tests/test_package.sh
 
 jobs:
     test-amd64-ubuntu-bash:
