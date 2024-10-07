@@ -88,14 +88,14 @@ jobs:
                     cp ./LICENSE /tmp/reactor/LICENSE
 
                     mkdir /tmp/release
-                    tar -czf /tmp/release/reactor.tar.gz /tmp/reactor
+                    tar -czf /tmp/release/reactor.tar.gz -C /tmp/reactor /tmp/reactor
                     cp ./reactor.template.yaml /tmp/release/reactor.yaml
 
                     VERSION="$(cat ./VERSION)"
                     SHA256="$(sha256sum /tmp/release/reactor.tar.gz | sed 's/\s.*$//')"
 
-                    sed -i "s/\<\<\<VERSION\>\>\>/${VERSION}/" /tmp/release/reactor.yaml
-                    sed -i "s/\<\<\<SHA256\>\>\>/${SHA256}/" /tmp/release/reactor.yaml
+                    sed -i "s/!!!VERSION!!!/${VERSION}/" /tmp/release/reactor.yaml
+                    sed -i "s/!!!SHA256!!!/${SHA256}/" /tmp/release/reactor.yaml
 
                     ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -delete ${VERSION} /tmp/release/
 
