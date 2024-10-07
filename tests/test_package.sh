@@ -4,7 +4,8 @@
 #-------------------------------------------------------------------------------
 set -e
 
-export __reactor_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+export __test_dir="$(cd "$(dirname "${SCRIPT_PATH}")" && pwd)"
+export __reactor_dir="$(dirname "${__test_dir}")"
 export __package_dir="${__reactor_dir}/package"
 #
 # Generate Krew plugin package files and manifest
