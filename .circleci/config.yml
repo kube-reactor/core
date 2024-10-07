@@ -212,7 +212,8 @@ workflows:
                     branches:
                         ignore: /.*/
                 requires:
-                    - deploy-docs
+                    - test-amd64-ubuntu-bash
+                    - test-arm64-ubuntu-bash
 
             - deploy-docker-amd64-latest:
                 filters:
@@ -221,7 +222,8 @@ workflows:
                     branches:
                         only: main
                 requires:
-                    - deploy-release
+                    - test-amd64-ubuntu-bash
+                    - test-arm64-ubuntu-bash
 
             - deploy-docker-arm64-latest:
                 filters:
@@ -230,7 +232,8 @@ workflows:
                     branches:
                         only: main
                 requires:
-                    - deploy-release
+                    - test-amd64-ubuntu-bash
+                    - test-arm64-ubuntu-bash
 
             - deploy-docker-latest:
                 filters:
@@ -249,7 +252,8 @@ workflows:
                     branches:
                         only: main
                 requires:
-                    - deploy-release
+                    - test-amd64-ubuntu-bash
+                    - test-arm64-ubuntu-bash
 
             - deploy-docker-nvidia-latest:
                 filters:
@@ -267,7 +271,8 @@ workflows:
                     branches:
                         ignore: /.*/
                 requires:
-                    - deploy-release
+                    - test-amd64-ubuntu-bash
+                    - test-arm64-ubuntu-bash
 
             - deploy-docker-arm64-version:
                 filters:
@@ -276,7 +281,8 @@ workflows:
                     branches:
                         ignore: /.*/
                 requires:
-                    - deploy-release
+                    - test-amd64-ubuntu-bash
+                    - test-arm64-ubuntu-bash
 
             - deploy-docker-version:
                 filters:
@@ -295,7 +301,8 @@ workflows:
                     branches:
                         ignore: /.*/
                 requires:
-                    - deploy-release
+                    - test-amd64-ubuntu-bash
+                    - test-arm64-ubuntu-bash
 
             - deploy-docker-nvidia-version:
                 filters:
