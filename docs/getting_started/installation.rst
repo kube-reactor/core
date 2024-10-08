@@ -69,7 +69,7 @@ Installation Steps
    .. code-block:: bash
 
       # Add the following line to your ~/.bashrc or ~/.profile
-      export PATH="$HOME/.reactor:$PATH
+      export PATH="${HOME}/.reactor:${PATH}"
 
 3. Verify the installation by checking the Reactor CLI version:
 
