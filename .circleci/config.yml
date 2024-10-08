@@ -44,6 +44,7 @@ test_bash: &test_bash
 test_package: &test_package
     steps:
         - run:
+            name: Install Kubectl CLI
             shell: /usr/bin/bash
             command: |
               ARCH="$(uname -m | sed -e 's/x86_64/amd64/' -e 's/\(arm\)\(64\)\?.*/\1\2/' -e 's/aarch64$/arm64/')"
@@ -51,6 +52,7 @@ test_package: &test_package
               curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/${ARCH}/kubectl"
               sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
         - run:
+            name: Install Kubectl Krew plugin
             shell: /usr/bin/bash
             command: |
               OS="$(uname | tr '[:upper:]' '[:lower:]')"
@@ -63,6 +65,7 @@ test_package: &test_package
 
         - checkout
         - run:
+            name: Test Reactor Krew Plugin packaging and installation
             shell: /usr/bin/bash
             command: |
               kubectl version --client
