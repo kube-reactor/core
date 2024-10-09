@@ -58,6 +58,9 @@ function destroy_command () {
   fi
 
   destroy_minikube
+
+  rm -f "${__init_file}"
+
   remove_dns_records
   clean_terraform
 

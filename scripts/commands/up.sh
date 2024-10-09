@@ -115,13 +115,15 @@ function up_command () {
   info "Initializing ArgoCD application repository ..."
   download_git_repo \
     https://github.com/zimagi/argocd-apps.git \
-    "${__argocd_apps_dir}"
+    "${__argocd_apps_dir}" \
+    "$ARGOCD_APPS_VERSION"
 
   start_minikube
 
-  if [[ $BUILD -eq 1 ]]; then
+  if [[ $BUILD -eq 1 ]] || [[ ! -f "${__init_file}" ]]; then
     build_command "${BUILD_ARGS[@]}"
   fi
+  touch "${__init_file}"
   update_command
 
   exec_hook up

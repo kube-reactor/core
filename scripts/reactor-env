@@ -39,6 +39,7 @@ fi
 export __project_dir="$(dirname "${__project_file}")"
 export __environment="${REACTOR_ENV:-local}"
 export __env_dir="${__project_dir}/env/${__environment}"
+export __init_file="${__env_dir}/.initialized"
 
 if [ -f /REACTOR.txt ]; then
   REACTOR_LOCAL=0
@@ -46,6 +47,7 @@ else
   REACTOR_LOCAL=1
 fi
 export REACTOR_LOCAL
+export ARGOCD_APPS_VERSION="main"
 
 # Load environment configuration
 if [ -f "${__env_dir}/public.sh" ]; then
