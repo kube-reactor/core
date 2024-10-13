@@ -20,3 +20,17 @@ function current_environment () {
 
   echo "${ENVIRONMENT_VARS[@]}"
 }
+
+
+function parse_environment () {
+  local command="$1"
+  local environment_function="${command}_command_environment"
+
+  if function_exists "$environment_function"; then
+    "$environment_function"
+  fi
+  if [ "${__reactor_arg_errors}" ]; then
+    command_usage "$command"
+    exit 1
+  fi
+}

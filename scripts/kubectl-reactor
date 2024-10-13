@@ -9,4 +9,6 @@
 #
 SCRIPT_PATH="${BASH_SOURCE[0]}"
 SCRIPT_DIR="$(cd "$(dirname "${SCRIPT_PATH}")" && pwd)"
+
+export __script_name="${__script_name:-$(basename "${SCRIPT_PATH//-/ }")}"
 "$SCRIPT_DIR/reactor" "$@"

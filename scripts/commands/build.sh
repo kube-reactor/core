@@ -6,46 +6,14 @@
 function build_description () {
   echo "Build Kubernetes development environment artifacts"
 }
-function build_usage () {
-    cat <<EOF >&2
 
-$(build_description)
-
-Usage:
-
-  kubectl reactor build [flags] [options]
-
-Flags:
-${__reactor_core_flags}
-
-    --no-cache            Regenerate all intermediate images
-
-EOF
-  exit 1
+function build_command_environment () {
+  parse_flag --no-cache \
+    NO_CACHE \
+    "Regenerate all intermediate images"
 }
+
 function build_command () {
-  while [[ $# -gt 0 ]]; do
-    case "$1" in
-      --no-cache)
-      NO_CACHE=1
-      ;;
-      -h|--help)
-      build_usage
-      ;;
-      *)
-      if [[ "$1" == "-"* ]]; then
-        error "Unknown argument: ${1}"
-        build_usage
-      fi
-      ;;
-    esac
-    shift
-  done
-  NO_CACHE=${NO_CACHE:-0}
-
-  debug "Command: build"
-  debug "> NO_CACHE: ${NO_CACHE}"
-
   helm_environment
 
   info "Initializing docker image repositories ..."
@@ -65,7 +33,7 @@ function build_command () {
       source "${project_dir}/reactor/initialize.sh" "$project" "$project_dir"
     fi
     info "Building ${project} docker image"
-    build_docker_image "$project" $NO_CACHE
+    build_docker_image "$project" "$NO_CACHE"
   done
 
   info "Initializing Helm chart repositories ..."

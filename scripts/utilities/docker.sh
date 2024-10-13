@@ -7,7 +7,7 @@ function build_docker_image () {
   cert_environment
 
   PROJECT_NAME="${1}"
-  NO_CACHE=${2:-0}
+  NO_CACHE="${2:-}"
 
   PROJECT_DIR="${__docker_dir}/$(config docker.$PROJECT_NAME.project $PROJECT_NAME)"
   DOCKER_DIR="${PROJECT_DIR}/$(config docker.$PROJECT_NAME.docker_dir docker)"
@@ -25,10 +25,10 @@ function build_docker_image () {
   debug "> NO_CACHE: ${NO_CACHE}"
 
   if [ -f "$BUILD_SCRIPT" ]; then
-    source "$BUILD_SCRIPT" $NO_CACHE
+    source "$BUILD_SCRIPT" "$NO_CACHE"
   fi
   if [ -f "$PROJECT_BUILD_SCRIPT" ]; then
-    source "$PROJECT_BUILD_SCRIPT" $NO_CACHE
+    source "$PROJECT_BUILD_SCRIPT" "$NO_CACHE"
   fi
 
   DOCKER_ARGS=(
@@ -36,7 +36,7 @@ function build_docker_image () {
     "--tag" "${PROJECT_NAME}:$(config docker.$PROJECT_NAME.docker_tag dev)"
     "--platform" "linux/${__architecture}"
   )
-  if [ $NO_CACHE -eq 1 ]; then
+  if [ "$NO_CACHE" ]; then
     DOCKER_ARGS=("${DOCKER_ARGS[@]}" "--no-cache" "--force-rm")
   fi
 

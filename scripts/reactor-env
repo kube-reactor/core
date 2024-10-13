@@ -2,7 +2,7 @@
 #
 # Usage:
 #
-#  source reactor-env
+#  source reactor-env $SOURCED
 #
 #  > Requires: ${__script_dir}
 #  > Optional: $SOURCED => [ 1, 0 ]
@@ -26,16 +26,6 @@ export __log_file="reactor"
 source "${__script_dir}/state/bootstrap.sh"
 
 export __project_file="$(project_file "$(pwd)")"
-
-if [ -z "${__project_file}" ]; then
-  if [ $SOURCED -eq 1 ]; then
-    return
-  elif [ "${__command_name}" != "create" ]; then
-    echo "Project directory with a 'reactor.yml' file does not exist in current or parent directories"
-    exit 1
-  fi
-fi
-
 export __project_dir="$(dirname "${__project_file}")"
 export __environment="${REACTOR_ENV:-local}"
 export __env_dir="${__project_dir}/env/${__environment}"

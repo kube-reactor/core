@@ -36,11 +36,6 @@ export __argocd_apps_dir="${__terraform_dir}/argocd-apps"
 
 # shellcheck disable=SC2034,SC2015
 export __reactor_invocation="$(printf %q "${__project_file}")$( (($#)) && printf ' %q' "$@" || true)"
-export __reactor_core_flags="
-    --verbose             Enable verbose mode, print script as it is executed
-    --debug               Enables debug mode
-    --no-color            Disable color output
-    -h --help             Display help message"
 
 # Default environment configuration
 export DEFAULT_PROJECT_TEMPLATE_REMOTE="${DEFAULT_REACTOR_TEMPLATE_REMOTE:-https://github.com/zimagi/reactor-base-cluster.git}"

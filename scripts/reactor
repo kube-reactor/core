@@ -15,6 +15,7 @@ fi
 
 ((return 0 2>/dev/null) || [[ $ZSH_EVAL_CONTEXT =~ :file$ ]]) && SOURCED=1 || SOURCED=0
 
+export __script_name="${__script_name:-$(basename "${SCRIPT_PATH//-/ }")}"
 export __command_name="$1"
 export __script_dir="$(cd "$(dirname "${SCRIPT_PATH}")" && pwd)"
 source "${__script_dir}/reactor-env" $SOURCED
@@ -26,30 +27,14 @@ fi
 delete_minikube_docker_environment
 
 COMMAND_HOST_FUNCTION="${__command_name}_host_command"
-COMMAND_ARGS=()
 
-while [[ $# -gt 0 ]]; do
-  COMMAND_ARGS=("${COMMAND_ARGS[@]}" "$1")
+export __app_args=("$@")
+export __normalized_params="$(normalize_params "$@")"
 
-  case "$1" in
-    --verbose)
-      arg_v=1
-      shift
-      ;;
-    --debug)
-      arg_d=1
-      shift
-      ;;
-    --no-color)
-      arg_n=1
-      shift
-      ;;
-    *)
-      shift
-      ;;
-  esac
-done
-
+parse_flag '-h|--help' arg_h
+parse_flag --verbose arg_v
+parse_flag --debug arg_d
+parse_flag --no-color arg_n
 #
 #=========================================================================================
 # Execution
@@ -65,7 +50,7 @@ set -o pipefail
 [[ "${LOG_LEVEL:-6}" ]] || emergency "Cannot continue without LOG_LEVEL"
 
 # Debug mode
-if [[ "${arg_d:-0}" = "1" ]]; then
+if [ "$arg_d" ]; then
   #set -o xtrace
   PS4='+(${BASH_SOURCE}:${LINENO}): ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
   LOG_LEVEL="7"
@@ -74,24 +59,19 @@ if [[ "${arg_d:-0}" = "1" ]]; then
 fi
 
 # Verbose mode
-if [[ "${arg_v:-0}" = "1" ]]; then
+if [ "$arg_v" ]; then
   set -o verbose
 fi
 
 # No color mode
-if [[ "${arg_n:-0}" = "1" ]]; then
+if [ "$arg_n" ]; then
   NO_COLOR="true"
 fi
 
-
-echo "" >"$(logfile)"
-debug "====================================================================="
-debug "Executing reactor command: $@"
-
-debug "Environment variables"
-debug "======================================"
-debug "$(env)"
-debug "--------------------------------------"
+# Display help
+if [ ${#__app_args[@]} -eq 0 ]; then
+  arg_h="1"
+fi
 
 if [[ "$__os" == "darwin" ]]; then
   REACTOR_DOCKER_SOCKET_FILE="${REACTOR_DOCKER_SOCKET_FILE:-/var/run/docker.sock.raw}"
@@ -116,6 +96,7 @@ REACTOR_ARGS=(
   "--volume" "${__reactor_dir}:/reactor"
   "--volume" "${__project_dir}:${__project_dir}"
   "--workdir" "${__project_dir}"
+  "--env" "__script_name=${__script_name}"
 )
 
 ENVIRONMENT="$(current_environment)"
@@ -129,38 +110,57 @@ for share_dir_name in ${HOME_SHARES[@]}; do
   fi
 done
 
-if [ "${__command_name}" != "create" ]; then
-  if ! docker inspect "$REACTOR_RUNTIME_IMAGE" >/dev/null 2>&1; then
-    "${__script_dir}/reactor-build"
-    REACTOR_RUNTIME_IMAGE="${APP_NAME}:${__reactor_version}"
-  fi
-fi
-REACTOR_ARGS=("${REACTOR_ARGS[@]}" "${REACTOR_DOCKER_RUN_ARGS[@]}" "$REACTOR_RUNTIME_IMAGE")
-
-debug "Command Arguments: ${COMMAND_ARGS[@]}"
-debug "Reactor Arguments: ${REACTOR_ARGS[@]}"
-
-if [ ${#COMMAND_ARGS[@]} -gt 0 ]; then
-  if [ "${COMMAND_ARGS[0]}" == "enter" ]; then
-    info "Entering reactor environment ..."
-    docker run --entrypoint bash "${REACTOR_ARGS[@]}"
-    exit
-  elif [ "${COMMAND_ARGS[0]}" == "create" ]; then
-    reactor-exec "${COMMAND_ARGS[@]}"
-    exit
-  fi
+if [[ -z "${__project_file}" ]] && [[ "${__command_name}" != "create" ]]; then
+  echo ""
+  error "  Project directory with a 'reactor.yml' file does not exist in current or parent directories"
+  echo ""
 fi
 
-# Containerized execution (primary command logic)
-debug "Running reactor command ..."
-docker run "${REACTOR_ARGS[@]}" "${COMMAND_ARGS[@]}"
+if [[ -z "$APP_NAME" ]] \
+  && ([[ "$arg_h" ]] || [[ "${__command_name}" == "help" ]]); then
+  reactor-exec "${__app_args[@]}"
+else
+  if [[ -z "${__project_file}" ]] \
+    && [[ "${__command_name}" != "create" ]] \
+    && [[ -z "$arg_h" ]]; then
+    exit 1
+  fi
+
+  if [ "${__command_name}" != "create" ]; then
+    if ! docker inspect "$REACTOR_RUNTIME_IMAGE" >/dev/null 2>&1; then
+      "${__script_dir}/reactor-build"
+      REACTOR_RUNTIME_IMAGE="${APP_NAME}:${__reactor_version}"
+    fi
+  fi
+  REACTOR_ARGS=("${REACTOR_ARGS[@]}" "${REACTOR_DOCKER_RUN_ARGS[@]}" "$REACTOR_RUNTIME_IMAGE")
+
+  debug "======================================"
+  debug "Reactor arguments: ${REACTOR_ARGS[@]}"
+  debug "======================================"
+
+  if [ ${#__app_args[@]} -gt 0 ]; then
+    if [ "${__app_args[0]}" == "enter" ]; then
+      info "Entering reactor environment ..."
+      docker run --entrypoint bash "${__app_args[@]}"
+      exit
+    elif [ "${__app_args[0]}" == "create" ]; then
+      reactor-exec "${__app_args[@]}"
+      exit
+    fi
+  fi
+
+  # Containerized execution (primary command logic)
+  debug "Running reactor command ..."
+  docker run "${REACTOR_ARGS[@]}" "${__app_args[@]}"
+fi
 
 if [ $? -eq 0 ]; then
   # Local execution (use sparingly)
   if function_exists $COMMAND_HOST_FUNCTION; then
-    COMMAND_ARGS=( "${COMMAND_ARGS[@]:1}" )
+    COMMAND_ARGS=( "${__app_args[@]:1}" )
 
     reactor_args "${COMMAND_ARGS[@]}"
+    parse_environment "${__command_name}"
     $COMMAND_HOST_FUNCTION "${COMMAND_ARGS[@]}"
   fi
 fi
