@@ -72,17 +72,16 @@ function up_command () {
   start_minikube
 
   if [[ "$BUILD" ]] || [[ ! -f "${__init_file}" ]]; then
-    build_command "${BUILD_ARGS[@]}"
+    exec_command build "${BUILD_ARGS[@]}"
   fi
   touch "${__init_file}"
-  update_command
-
+  exec_command update
   exec_hook up
 }
 
 function up_host_command () {
   launch_host_minikube_tunnel
-  update_host_command
 
+  exec_host_command update
   exec_hook up_host
 }
