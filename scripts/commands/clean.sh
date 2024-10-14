@@ -14,7 +14,7 @@ function clean_command_environment () {
 }
 
 function clean_command () {
-  if [ "$FORCE" ]; then
+  if [ ! "$FORCE" ]; then
     confirm
   fi
 

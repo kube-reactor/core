@@ -14,7 +14,7 @@ function destroy_command_environment () {
 }
 
 function destroy_command () {
-  if [ "$FORCE" ]; then
+  if [ ! "$FORCE" ]; then
     confirm
   fi
 
