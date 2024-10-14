@@ -41,7 +41,7 @@ Ready to get started? Explore the fundamentals, dive into advanced topics, or re
     :maxdepth: 1
     :caption: Links
 
-    GitHub Project <https://github.com/zimagi/reactor/>
+    GitHub Project <https://github.com/kube-reactor/core/>
     Discord Community <https://discord.gg/U7tNTQN4KQ>
 
 .. toctree::

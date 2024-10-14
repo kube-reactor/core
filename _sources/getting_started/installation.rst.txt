@@ -25,8 +25,8 @@ Installation Steps
 
       # Copy, paste, and run the following command sequence into your terminal
       (
-        kubectl krew index add zimagi https://github.com/zimagi/krew-index.git &&
-        kubectl krew install zimagi/reactor
+        kubectl krew index add reactor https://github.com/kube-reactor/krew-index.git &&
+        kubectl krew install reactor/reactor
       )
 
 2. Once the installation is complete, verify that Reactor is installed:
@@ -56,11 +56,11 @@ Installation Steps
    .. code-block:: bash
 
       # Copy, paste, and run the following command sequence into your terminal
-      # You can find the latest reactor release here: https://github.com/zimagi/reactor/releases
+      # You can find the latest reactor release here: https://github.com/kube-reactor/core/releases
       (
         REACTOR_VERSION=0.1.2 &&
         set -x && mkdir -p "${HOME}/.reactor" && cd "${HOME}/.reactor" &&
-        curl -fsSLO https://github.com/zimagi/reactor/releases/download/${REACTOR_VERSION}/reactor.tar.gz &&
+        curl -fsSLO https://github.com/kube-reactor/core/releases/download/${REACTOR_VERSION}/reactor.tar.gz &&
         tar -zxvf reactor.tar.gz
       )
 

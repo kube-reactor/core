@@ -136,20 +136,20 @@ h2 {
   border-top: 1px solid #e1e4e5;
 }
 
-#zimagi-system-documentation ul.simple {
+#reactor-system-documentation ul.simple {
   margin-bottom: 25px;
 }
 
-#zimagi-system-documentation ul.simple li {
+#reactor-system-documentation ul.simple li {
   padding-top: 10px;
 }
 
-#zimagi-system-documentation ul.simple li p>a {
+#reactor-system-documentation ul.simple li p>a {
   font-size: 1.2em;
   font-weight: bold;
 }
 
-#zimagi-system-documentation ul.simple ul {
+#reactor-system-documentation ul.simple ul {
   padding-top: 10px;
 }
 
