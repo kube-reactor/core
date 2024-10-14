@@ -11,7 +11,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Installation &mdash; reactor 0.1.2
+  <title>Installation &mdash; reactor 0.2.0
  documentation</title>
   
 
@@ -75,7 +75,7 @@
               
               
               <span class="version">
-                (0.1.2
+                (0.2.0
 )
               </span>
               
@@ -113,7 +113,19 @@
 <li class="toctree-l3"><a class="reference internal" href="system_requirements.html#required-tools-and-dependencies">Required Tools and Dependencies</a></li>
 </ul>
 </li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Installation</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Installation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#option-1-install-reactor-as-a-kubectl-krew-plugin">Option 1: Install Reactor as a Kubectl Krew Plugin</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#installation-steps">Installation Steps</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#option-2-install-reactor-as-a-local-script-library">Option 2: Install Reactor as a Local Script Library</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id1">Prerequisites</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id2">Installation Steps</a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="quick_start.html">Quick Start Guide</a></li>
 <li class="toctree-l2"><a class="reference internal" href="basic_concepts.html">Basic Concepts</a></li>
 <li class="toctree-l2"><a class="reference internal" href="simple_example.html">A Simple Example</a></li>
@@ -258,6 +270,79 @@
                 
   <section id="installation">
 <h1>Installation<a class="headerlink" href="#installation" title="Permalink to this heading">¶</a></h1>
+<p>This guide will walk you through two approaches to install <strong>Reactor</strong>, the CLI tool for <strong>Kubernetes development and management</strong>. Depending on your environment and preferences, you can either install Reactor as a <strong>Kubectl Krew plugin</strong> or as a <strong>local script library</strong> that you can add to your system <cite>PATH</cite>.</p>
+<section id="option-1-install-reactor-as-a-kubectl-krew-plugin">
+<h2>Option 1: Install Reactor as a Kubectl Krew Plugin<a class="headerlink" href="#option-1-install-reactor-as-a-kubectl-krew-plugin" title="Permalink to this heading">¶</a></h2>
+<p><strong>Krew</strong> is a plugin manager for <cite>kubectl</cite> that makes it easy to discover and install kubectl plugins. Installing <strong>Reactor</strong> as a Krew plugin integrates it seamlessly with <cite>kubectl</cite>, allowing you to develop your Kubernetes cluster applications using the familiar Kubernetes CLI.</p>
+<section id="prerequisites">
+<h3>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>You must have <cite>kubectl</cite> installed and configured.</p></li>
+<li><p>Krew must be installed on your system. Follow the Krew installation instructions here: <cite>https://krew.sigs.k8s.io/docs/user-guide/setup/install/</cite>.</p></li>
+</ul>
+<p>Note: We have plans to add <strong>reactor</strong> to the official Krew plugin registry but until we complete that process we have created a custom plugin registry in the Zimagi GitHub organization.</p>
+</section>
+<section id="installation-steps">
+<h3>Installation Steps<a class="headerlink" href="#installation-steps" title="Permalink to this heading">¶</a></h3>
+<ol class="arabic">
+<li><p>Install Reactor using Krew by running the following command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Copy, paste, and run the following command sequence into your terminal</span>
+<span class="o">(</span>
+<span class="w">  </span>kubectl<span class="w"> </span>krew<span class="w"> </span>index<span class="w"> </span>add<span class="w"> </span>zimagi<span class="w"> </span>https://github.com/zimagi/krew-index.git<span class="w"> </span><span class="o">&amp;&amp;</span>
+<span class="w">  </span>kubectl<span class="w"> </span>krew<span class="w"> </span>install<span class="w"> </span>zimagi/reactor
+<span class="o">)</span>
+</pre></div>
+</div>
+</li>
+<li><p>Once the installation is complete, verify that Reactor is installed:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>kubectl<span class="w"> </span>reactor<span class="w"> </span>--help
+</pre></div>
+</div>
+</li>
+</ol>
+<p>Reactor is now installed as a <cite>kubectl</cite> plugin and can be accessed using the <cite>kubectl reactor</cite> command. For more information on how to use Reactor with kubectl, refer to the usage section in this documentation.</p>
+</section>
+</section>
+<section id="option-2-install-reactor-as-a-local-script-library">
+<h2>Option 2: Install Reactor as a Local Script Library<a class="headerlink" href="#option-2-install-reactor-as-a-local-script-library" title="Permalink to this heading">¶</a></h2>
+<p>Alternatively, you can install <strong>Reactor</strong> as a standalone script library and add it to your system <cite>PATH</cite> for direct usage. This method provides flexibility for those who prefer managing tools outside of <cite>kubectl</cite> and want to use Reactor as a standalone CLI.</p>
+<section id="id1">
+<h3>Prerequisites<a class="headerlink" href="#id1" title="Permalink to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Ensure that you have <cite>curl</cite> installed for downloading the Reactor CLI.</p></li>
+<li><p>Ensure that your system <cite>PATH</cite> is properly configured to include additional binaries or scripts.</p></li>
+</ul>
+</section>
+<section id="id2">
+<h3>Installation Steps<a class="headerlink" href="#id2" title="Permalink to this heading">¶</a></h3>
+<ol class="arabic">
+<li><p>Download the Reactor CLI scripts to a location on your machine:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Copy, paste, and run the following command sequence into your terminal</span>
+<span class="c1"># You can find the latest reactor release here: https://github.com/zimagi/reactor/releases</span>
+<span class="o">(</span>
+<span class="w">  </span><span class="nv">REACTOR_VERSION</span><span class="o">=</span><span class="m">0</span>.1.2<span class="w"> </span><span class="o">&amp;&amp;</span>
+<span class="w">  </span><span class="nb">set</span><span class="w"> </span>-x<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>mkdir<span class="w"> </span>-p<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">HOME</span><span class="si">}</span><span class="s2">/.reactor&quot;</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">HOME</span><span class="si">}</span><span class="s2">/.reactor&quot;</span><span class="w"> </span><span class="o">&amp;&amp;</span>
+<span class="w">  </span>curl<span class="w"> </span>-fsSLO<span class="w"> </span>https://github.com/zimagi/reactor/releases/download/<span class="si">${</span><span class="nv">REACTOR_VERSION</span><span class="si">}</span>/reactor.tar.gz<span class="w"> </span><span class="o">&amp;&amp;</span>
+<span class="w">  </span>tar<span class="w"> </span>-zxvf<span class="w"> </span>reactor.tar.gz
+<span class="o">)</span>
+</pre></div>
+</div>
+</li>
+<li><p>Add the installation directory to your system <cite>PATH</cite> (if not already done):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Add the following line to your ~/.bashrc or ~/.profile</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">PATH</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">HOME</span><span class="si">}</span><span class="s2">/.reactor:</span><span class="si">${</span><span class="nv">PATH</span><span class="si">}</span><span class="s2">&quot;</span>
+</pre></div>
+</div>
+</li>
+<li><p>Verify the installation by checking the Reactor CLI version:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>reactor<span class="w"> </span>--version
+</pre></div>
+</div>
+</li>
+</ol>
+<p>Reactor is now installed as a standalone CLI tool and can be run using the <cite>reactor</cite> command from any terminal session.</p>
+</section>
+</section>
 </section>
 
 
