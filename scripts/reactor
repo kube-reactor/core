@@ -112,7 +112,7 @@ done
 
 if [[ -z "${__project_file}" ]] && [[ "${__command_name}" != "create" ]]; then
   echo ""
-  error "  Project directory with a 'reactor.yml' file does not exist in current or parent directories"
+  error "Project directory with a 'reactor.yml' file does not exist in current or parent directories"
   echo ""
 fi
 
@@ -135,7 +135,7 @@ else
   REACTOR_ARGS=("${REACTOR_ARGS[@]}" "${REACTOR_DOCKER_RUN_ARGS[@]}" "$REACTOR_RUNTIME_IMAGE")
 
   debug "======================================"
-  debug "Reactor arguments: ${REACTOR_ARGS[@]}"
+  debug "Reactor Arguments: ${REACTOR_ARGS[@]}"
   debug "======================================"
 
   if [ ${#__app_args[@]} -gt 0 ]; then

@@ -24,12 +24,12 @@ debug "Command: $@"
 debug "====================================================================="
 debug ""
 
-debug "Environment variables"
+debug "Environment Variables"
 debug "======================================"
 debug "$(env)"
 debug ""
 
-debug "Processing arguments"
+debug "Processing Arguments"
 debug "======================================"
 reactor_args "$@"
 
@@ -40,9 +40,11 @@ reactor_args "$@"
 
 if [[ "$arg_h" ]] || [[ ${#__app_args[@]} -eq 0 ]]; then
   if [[ ${#__app_args[@]} -gt 0 ]] && [[ "${__app_args[0]}" =~ ^[^-] ]]; then
-    "${__app_args[0]}_description" >/dev/null 2>&1
-    if [ -z "${PASSTHROUGH:-}" ]; then
-      generate_command_help "${__app_args[0]}"
+    if function_exists "${__app_args[0]}_description"; then
+      "${__app_args[0]}_description" >/dev/null 2>&1
+      if [ -z "${PASSTHROUGH:-}" ]; then
+        generate_command_help "${__app_args[0]}"
+      fi
     fi
   else
     usage
@@ -59,7 +61,9 @@ if [ "$COMMAND" == "help" ]; then
   else
     generate_command_help "${COMMAND_ARGS[0]}"
   fi
-elif function_exists $COMMAND_FUNCTION; then
+fi
+
+if function_exists $COMMAND_FUNCTION; then
   pop_arg_command
   parse_environment "$COMMAND"
 
@@ -75,10 +79,10 @@ elif function_exists $COMMAND_FUNCTION; then
   if function_exists $COMMAND_EXIT_FUNCTION; then
     $COMMAND_EXIT_FUNCTION "${COMMAND_ARGS[@]:-}"
   fi
+
+  # Source finalization scripts
+  exec_hook finalize
 else
   error "Unknown command: ${COMMAND}"
   usage
 fi
-
-# Source finalization scripts
-exec_hook finalize
