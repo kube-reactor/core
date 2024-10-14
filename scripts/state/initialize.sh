@@ -38,7 +38,7 @@ export __argocd_apps_dir="${__terraform_dir}/argocd-apps"
 export __reactor_invocation="$(printf %q "${__project_file}")$( (($#)) && printf ' %q' "$@" || true)"
 
 # Default environment configuration
-export DEFAULT_PROJECT_TEMPLATE_REMOTE="${DEFAULT_REACTOR_TEMPLATE_REMOTE:-https://github.com/zimagi/reactor-base-cluster.git}"
+export DEFAULT_PROJECT_TEMPLATE_REMOTE="${DEFAULT_REACTOR_TEMPLATE_REMOTE:-https://github.com/kube-reactor/cluster-base.git}"
 export DEFAULT_PROJECT_TEMPLATE_REFERENCE="${DEFAULT_REACTOR_TEMPLATE_REFERENCE:-main}"
 
 export LOG_LEVEL="${LOG_LEVEL:-6}" # 7 = debug -> 0 = emergency

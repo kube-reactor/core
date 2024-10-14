@@ -39,7 +39,7 @@ if [ -d "$PROJECT_TEMPLATE_DIRECTORY" ]; then
 else
   reactor create --defaults \
     --directory="${__projects_dir}" \
-    --remote="${PROJECT_TEMPLATE_REMOTE:-https://github.com/zimagi/reactor-base-cluster.git}" \
+    --remote="${PROJECT_TEMPLATE_REMOTE:-https://github.com/kube-reactor/cluster-base.git}" \
     --reference="${PROJECT_TEMPLATE_REFERENCE:-main}" \
     --name="test"
 

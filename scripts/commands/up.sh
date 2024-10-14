@@ -65,7 +65,7 @@ function up_command () {
 
   info "Initializing ArgoCD application repository ..."
   download_git_repo \
-    https://github.com/zimagi/argocd-apps.git \
+    https://github.com/kube-reactor/argocd-apps.git \
     "${__argocd_apps_dir}" \
     "$ARGOCD_APPS_VERSION"
 

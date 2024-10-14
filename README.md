@@ -22,19 +22,19 @@ We also focus on ensuring that Helm chart usage within the project structure is 
 
 For detailed setup instructions, core concepts, usage examples, and advanced configurations, please visit the official documentation site:
 
-[Official Documentation](https://zimagi.github.io/reactor/)
+[Official Documentation](https://kube-reactor.github.io/core/)
 
 ## Getting Started
 
 To quickly get started with **reactor**, follow the installation guide in the documentation:
 
-[Installation Guide](https://zimagi.github.io/reactor/getting_started/readme.html)
+[Installation Guide](https://kube-reactor.github.io/core/getting_started/readme.html)
 
 ## Contributing
 
 We welcome contributions! Please review the contribution guidelines on how to get involved:
 
-[Contributing Guide](https://zimagi.github.io/reactor/community_support/readme.html)
+[Contributing Guide](https://kube-reactor.github.io/core/community_support/readme.html)
 
 ## License
 

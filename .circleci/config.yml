@@ -108,7 +108,7 @@ jobs:
                 command: |
                     git config --global user.name "CircleCI ( ${CIRCLE_USERNAME} )"
                     git config --global user.email "${CIRCLE_USERNAME}@main"
-                    ./docs/deploy.sh git@github.com:zimagi/reactor.git main
+                    ./docs/deploy.sh git@github.com:kube-reactor/core.git main
 
     deploy-release:
         docker:
@@ -136,7 +136,7 @@ jobs:
                     git config --global user.name "CircleCI ( ${CIRCLE_USERNAME} )"
                     git config --global user.email "${CIRCLE_USERNAME}@${CIRCLE_BRANCH}"
 
-                    git clone git@github.com:zimagi/krew-index.git /tmp/krew-index
+                    git clone git@github.com:kube-reactor/krew-index.git /tmp/krew-index
                     cp -f ./package/reactor.yaml /tmp/krew-index/plugins/reactor.yaml
 
                     cd /tmp/krew-index
