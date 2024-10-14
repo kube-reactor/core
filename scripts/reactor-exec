@@ -54,6 +54,7 @@ fi
 COMMAND="${__app_args[0]}"
 COMMAND_ARGS=("${__app_args[@]:1}")
 COMMAND_FUNCTION="${COMMAND}_command"
+COMMAND_HOST_FUNCTION="${COMMAND}_host_command"
 
 if [ "$COMMAND" == "help" ]; then
   if [[ ${#COMMAND_ARGS[@]} -eq 0 ]]; then
@@ -82,7 +83,8 @@ if function_exists $COMMAND_FUNCTION; then
 
   # Source finalization scripts
   exec_hook finalize
-else
+
+elif ! function_exists $COMMAND_HOST_FUNCTION; then
   error "Unknown command: ${COMMAND}"
   usage
 fi
