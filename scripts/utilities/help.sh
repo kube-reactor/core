@@ -79,10 +79,19 @@ $options
 
 function command_usage () {
   local command="$1"
+  local help_text=""
+
+  if function_exists "${command}_help"; then
+    help_content="$(${command}_help)"
+    help_text="""
+
+  $(format_width "$help_content" 2)
+"""
+  fi
 
   cat <<EOF >&2
 
-  $(${command}_description)
+  $(${command}_description) ${help_text}
 
 
   Usage:
