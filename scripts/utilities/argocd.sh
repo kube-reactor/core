@@ -6,6 +6,9 @@
 function login_argocd () {
   if minikube_status; then
     info "Logging into ArgoCD via CLI ..."
+    debug "PRIMARY_DOMAIN: ${PRIMARY_DOMAIN}"
+    debug "ARGOCD_ADMIN_PASSWORD: ${ARGOCD_ADMIN_PASSWORD}"
+
     "${__binary_dir}/argocd" login \
       "argocd.${PRIMARY_DOMAIN}" \
       --username admin --password \
@@ -24,7 +27,9 @@ function sync_argocd_charts () {
     for chart in $(config charts); do
       app_name="$(config charts.$chart.app "$chart")"
 
-      if "${__binary_dir}/argocd" app get "$app_name" 2>&1 >/dev/null; then
+      debug "app_name: ${app_name}"
+
+      if "${__binary_dir}/argocd" app get "$app_name" >/dev/null 2>&1; then
         info "Syncing ${app_name} chart into ArgoCD ..."
         "${__binary_dir}/argocd" app set "$app_name" --grpc-web --sync-policy none 1>>"$(logfile)" 2>&1
         "${__binary_dir}/argocd" app sync "$app_name" --prune --grpc-web \
