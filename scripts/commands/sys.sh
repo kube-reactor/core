@@ -9,6 +9,11 @@ function sys_description () {
 }
 
 function sys_command () {
+  minikube_environment
+
+  if ! minikube_status; then
+    emergency "Minikube is not running"
+  fi
   "${__binary_dir}/kubectl" "$@"
   echo ""
 }
