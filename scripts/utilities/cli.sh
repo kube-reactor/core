@@ -3,6 +3,10 @@
 # CLI Utilities
 #
 
+export TERMINAL_COLUMNS="$(stty -a | grep -Po '(?<=columns )\d+')"
+export TERMINAL_ROWS="$(stty -a | grep -Po '(?<=rows )\d+')"
+
+
 function function_exists () {
   declare -F "$1" > /dev/null;
 }
@@ -79,4 +83,9 @@ function confirm () {
 
 function check_admin () {
   sudo -v
+}
+
+function add_line () {
+  local char="$1"
+  for ((i=1; i<=$TERMINAL_COLUMNS; i++)); do echo -n "$char"; done
 }
