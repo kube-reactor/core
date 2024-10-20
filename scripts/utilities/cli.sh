@@ -89,3 +89,9 @@ function add_line () {
   local char="$1"
   for ((i=1; i<=$TERMINAL_COLUMNS; i++)); do echo -n "$char"; done
 }
+
+function format_width () {
+  local text="$1"
+  local indent="${2:-0}"
+  echo "$(echo "$text" | fold -s -w $TERMINAL_COLUMNS | sed "2,\$s/^/$(printf ' %.0s' $(seq 1 $indent))/")"
+}
