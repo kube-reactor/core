@@ -118,16 +118,19 @@ fi
 
 if [[ -z "$APP_NAME" ]] \
   && ([[ "$arg_h" ]] || [[ "${__command_name}" == "help" ]]); then
+  debug "Entering local help: --help flag or help command"
   reactor-exec "${__app_args[@]}"
 else
   if [[ -z "${__project_file}" ]] \
     && [[ "${__command_name}" != "create" ]] \
     && [[ -z "$arg_h" ]]; then
+    debug "Exiting due to no project, not creating, and no help specified"
     exit 1
   fi
 
   if [ "${__command_name}" != "create" ]; then
     if ! docker inspect "$REACTOR_RUNTIME_IMAGE" >/dev/null 2>&1; then
+      debug "Building local virtualization container"
       "${__script_dir}/reactor-build"
       REACTOR_RUNTIME_IMAGE="${APP_NAME}:${__reactor_version}"
     fi
