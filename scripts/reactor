@@ -139,9 +139,12 @@ else
   debug "======================================"
 
   if [ ${#__app_args[@]} -gt 0 ]; then
+    debug "__app_args: ${__app_args[@]}"
+
     if [ "${__app_args[0]}" == "enter" ]; then
       info "Entering reactor environment ..."
-      docker run --entrypoint bash "${__app_args[@]}"
+
+      docker run --entrypoint bash "${REACTOR_ARGS[@]}"
       exit
     elif [ "${__app_args[0]}" == "create" ]; then
       reactor-exec "${__app_args[@]}"
@@ -161,6 +164,21 @@ if [ $? -eq 0 ]; then
 
     reactor_args "${COMMAND_ARGS[@]}"
     parse_environment "${__command_name}"
-    $COMMAND_HOST_FUNCTION "${COMMAND_ARGS[@]}"
+
+    COMMAND_INIT_FUNCTION="${COMMAND_HOST_FUNCTION}_init"
+    COMMAND_EXIT_FUNCTION="${COMMAND_HOST_FUNCTION}_exit"
+
+    if function_exists $COMMAND_INIT_FUNCTION; then
+      $COMMAND_INIT_FUNCTION "${COMMAND_ARGS[@]:-}"
+    fi
+
+    $COMMAND_HOST_FUNCTION "${COMMAND_ARGS[@]:-}"
+
+    if function_exists $COMMAND_EXIT_FUNCTION; then
+      $COMMAND_EXIT_FUNCTION "${COMMAND_ARGS[@]:-}"
+    fi
+
+    # Source finalization scripts
+    exec_hook finalize_host
   fi
 fi
