@@ -8,7 +8,7 @@ SCRIPT_PATH="${BASH_SOURCE[0]}"
 
 export __test_dir="$(cd "$(dirname "${SCRIPT_PATH}")" && pwd)"
 export __reactor_dir="$(dirname "${__test_dir}")"
-export __script_dir="${__reactor_dir}/scripts"
+export __script_dir="${__reactor_dir}/bin"
 export __projects_dir="${__reactor_dir}/projects"
 export __cookiecutter_dir="$(dirname "$(sudo find / -name cookiecutter | grep bin)")"
 

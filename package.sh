@@ -27,10 +27,10 @@ cp "${__reactor_dir}/VERSION" "${__package_files_dir}"
 cp "${__reactor_dir}/LICENSE" "${__package_files_dir}"
 cp "${__reactor_dir}"/*.* "${__package_files_dir}"
 
-cp "${__reactor_dir}/scripts"/*reactor* "${__package_files_dir}"
-cp "${__reactor_dir}/scripts/commands"/*.sh "${__command_dir}"
-cp "${__reactor_dir}/scripts/state"/*.sh "${__state_dir}"
-cp "${__reactor_dir}/scripts/utilities"/*.sh "${__utility_dir}"
+cp "${__reactor_dir}/bin"/*reactor* "${__package_files_dir}"
+cp "${__reactor_dir}/bin/commands"/*.sh "${__command_dir}"
+cp "${__reactor_dir}/bin/state"/*.sh "${__state_dir}"
+cp "${__reactor_dir}/bin/utilities"/*.sh "${__utility_dir}"
 
 cd "${__package_files_dir}"
 tar -cvzf "${__package_dir}/reactor.tar.gz" *

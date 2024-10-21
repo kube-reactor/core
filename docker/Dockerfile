@@ -80,7 +80,7 @@ RUN groupmod --gid ${REACTOR_DOCKER_GID} docker \
 # Application environment variables
 #
 ENV REACTOR_DIR="/reactor"
-ENV SCRIPT_DIR="${REACTOR_DIR}/scripts"
+ENV SCRIPT_DIR="${REACTOR_DIR}/bin"
 ENV SHARE_DIR="${REACTOR_DIR}/share"
 
 ENV PATH="${SCRIPT_DIR}:${PATH}"
