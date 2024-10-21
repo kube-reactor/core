@@ -159,10 +159,10 @@ cython_debug/
 /projects/
 /share/
 /package/
-/bin/minikube
-/bin/kubectl
-/bin/helm
-/bin/argocd
+/bin
+!/bin/kubectl-reactor
+!/bin/reactor
+!/bin/reactor-*
 
 # Temporary folders
 /tmp/
