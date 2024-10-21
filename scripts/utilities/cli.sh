@@ -110,9 +110,6 @@ function terminal_color () {
   fi
 }
 
-function function_exists () {
-  declare -F "$1" > /dev/null;
-}
 
 # requires `set -o errtrace`
 function __err_report() {
