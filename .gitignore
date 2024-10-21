@@ -159,7 +159,8 @@ cython_debug/
 /projects/
 /share/
 /package/
-/bin
+/bin/*
+!/bin/*/
 !/bin/kubectl-reactor
 !/bin/reactor
 !/bin/reactor-*
