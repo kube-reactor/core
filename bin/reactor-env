@@ -87,8 +87,10 @@ if [[ $REACTOR_LOCAL -eq 0 ]] || [[ $SOURCED -eq 1 ]]; then
   fi
 fi
 load_library utilities
+run_hook initialize_utilities
 
 for file in "${__script_dir}/commands"/*.sh; do
   source "$file"
 done
 load_library commands
+run_hook initialize_commands
