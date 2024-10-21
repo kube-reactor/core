@@ -1,19 +1,19 @@
 #
 #=========================================================================================
-# <Sys> Command
+# <Logs> Command
 #
 
-function sys_description () {
-  render "Execute a kubectl operation within the reactor environment context"
+function logs_description () {
+  render "Return logging information for Kubernetes pods"
   export PASSTHROUGH="1"
 }
 
-function sys_command () {
+function logs_command () {
   minikube_environment
 
   if ! minikube_status; then
     emergency "Minikube is not running"
   fi
-  "${__binary_dir}/kubectl" "$@"
+  "${__binary_dir}/kubectl" logs --timestamps "$@"
   add_space
 }

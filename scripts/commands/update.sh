@@ -4,7 +4,7 @@
 #
 
 function update_description () {
-  echo "Update the application stack in the Minikube environment"
+  render "Update the application stack in the Minikube environment"
 }
 
 function update_command_environment () {
@@ -33,7 +33,7 @@ function update_command () {
   if [ "$UPDATE_ALL" -o "$UPDATE_APPS" ]; then
     provision_terraform
   fi
-  exec_hook update
+  run_hook update
 }
 
 function update_host_command () {
@@ -45,6 +45,6 @@ function update_host_command () {
     sync_argocd_charts
   fi
 
-  exec_hook update_host
+  run_hook update_host
   info "Minikube development environment has been updated"
 }

@@ -24,17 +24,18 @@ if [[ $SOURCED -eq 1 ]]; then
   # script is being sourced
   return
 fi
-delete_minikube_docker_environment
 
 COMMAND_HOST_FUNCTION="${__command_name}_host_command"
 
 export __app_args=("$@")
 export __normalized_params="$(normalize_params "$@")"
 
+parse_flag '-n|--no-color' arg_n
 parse_flag '-h|--help' arg_h
-parse_flag --verbose arg_v
-parse_flag --debug arg_d
-parse_flag --no-color arg_n
+parse_flag '-v|--verbose' arg_v
+parse_flag '-d|--debug' arg_d
+
+delete_minikube_docker_environment
 #
 #=========================================================================================
 # Execution
@@ -61,11 +62,6 @@ fi
 # Verbose mode
 if [ "$arg_v" ]; then
   set -o verbose
-fi
-
-# No color mode
-if [ "$arg_n" ]; then
-  NO_COLOR="true"
 fi
 
 # Display help
@@ -111,9 +107,9 @@ for share_dir_name in ${HOME_SHARES[@]}; do
 done
 
 if [[ -z "${__project_file}" ]] && [[ "${__command_name}" != "create" ]]; then
-  echo ""
+  add_space
   error "Project directory with a 'reactor.yml' file does not exist in current or parent directories"
-  echo ""
+  add_space
 fi
 
 if [[ -z "$APP_NAME" ]] \
@@ -182,6 +178,6 @@ if [ $? -eq 0 ]; then
     fi
 
     # Source finalization scripts
-    exec_hook finalize_host
+    run_hook finalize_host
   fi
 fi

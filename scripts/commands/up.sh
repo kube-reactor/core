@@ -4,7 +4,7 @@
 #
 
 function up_description () {
-  echo "Initialize and ensure Minikube development environment is running"
+  render "Initialize and ensure Minikube development environment is running"
 }
 
 function up_command_environment () {
@@ -12,19 +12,8 @@ function up_command_environment () {
     BUILD \
     "Build development environment artifacts after startup"
 
-  parse_flag --no-cache \
-    NO_CACHE \
-    "Regenerate all intermediate images (requires --build)"
-
-  parse_option --cert-subject \
-    CERT_SUBJECT \
-    "Self signed ingress SSL certificate subject" \
-    "$DEFAULT_CERT_SUBJECT"
-
-  parse_option --cert-days \
-    CERT_DAYS \
-    "Self signed ingress SSL certificate days to expiration" \
-    "$DEFAULT_CERT_DAYS"
+  image_build_options "(requires --build)"
+  cert_options
 
   BUILD_ARGS=()
   if [ "$NO_CACHE" ]; then
@@ -72,16 +61,16 @@ function up_command () {
   start_minikube
 
   if [[ "$BUILD" ]] || [[ ! -f "${__init_file}" ]]; then
-    exec_command build "${BUILD_ARGS[@]}"
+    run_command build "${BUILD_ARGS[@]}"
   fi
   touch "${__init_file}"
-  exec_command update
-  exec_hook up
+  run_command update
+  run_hook up
 }
 
 function up_host_command () {
   launch_host_minikube_tunnel
 
-  exec_host_command update
-  exec_hook up_host
+  run_host_command update
+  run_hook up_host
 }

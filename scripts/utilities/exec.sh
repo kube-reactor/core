@@ -3,7 +3,7 @@
 # Command Execution Utilities
 #
 
-function exec_command () {
+function run_command () {
   local command="$1"
   local args="${@:2}"
 
@@ -13,7 +13,7 @@ function exec_command () {
   "${command}_command" "${args[@]}"
 }
 
-function exec_host_command () {
+function run_host_command () {
   local command="$1"
   local args="${@:2}"
 

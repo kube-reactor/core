@@ -4,22 +4,13 @@
 #
 
 function launch_description () {
-  echo "Launch a service within the Minikube cluster"
+  render "Launch a service within the Minikube cluster"
 }
 
 function launch_command_environment () {
-  parse_option --namespace \
-    SERVICE_NAMESPACE \
-    "Kubernetes namespace" \
-    default
-
-  parse_arg service_pod_name \
-    SERVICE_POD_NAME \
-    "Kubernetes service pod name"
-
-  parse_arg service_image \
-    SERVICE_IMAGE \
-    "Kubernetes service container image"
+  namespace_option
+  pod_arg
+  service_image_arg
 }
 
 function launch_command () {
@@ -28,9 +19,13 @@ function launch_command () {
   if ! minikube_status; then
     emergency "Minikube is not running"
   fi
+
+  SERVICE_OPTIONS=(
+    "-n" "$SERVICE_NAMESPACE"
+    "--image" "$SERVICE_IMAGE"
+  )
   "${__binary_dir}/kubectl" run \
-    -n "$SERVICE_NAMESPACE" \
-    --image "$SERVICE_IMAGE" \
+    "${SERVICE_OPTIONS[@]}" \
     "$SERVICE_POD_NAME"
-  echo ""
+  add_space
 }

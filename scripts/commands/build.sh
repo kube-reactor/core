@@ -4,13 +4,11 @@
 #
 
 function build_description () {
-  echo "Build Kubernetes development environment artifacts"
+  render "Build Kubernetes development environment artifacts"
 }
 
 function build_command_environment () {
-  parse_flag --no-cache \
-    NO_CACHE \
-    "Regenerate all intermediate images"
+  image_build_options
 }
 
 function build_command () {
@@ -65,6 +63,6 @@ function build_command () {
         "$(config extensions.$extension.reference)"
   done
 
-  exec_hook build
+  run_hook build
   info "Development environment initialization complete"
 }

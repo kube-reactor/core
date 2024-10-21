@@ -17,6 +17,7 @@ fi
 export __script_name="${__script_name:-$(basename "${SCRIPT_PATH//-/ }")}"
 export __script_dir="$(cd "$(dirname "${SCRIPT_PATH}")" && pwd)"
 source "${__script_dir}/reactor-env"
+reactor_args "$@"
 
 echo "" >"$(logfile)"
 debug "====================================================================="
@@ -26,13 +27,8 @@ debug ""
 
 debug "Environment Variables"
 debug "======================================"
-debug "$(env)"
+debug "$(render_environment)"
 debug ""
-
-debug "Processing Arguments"
-debug "======================================"
-reactor_args "$@"
-
 #
 #=========================================================================================
 # Execution
@@ -82,7 +78,7 @@ if function_exists $COMMAND_FUNCTION; then
   fi
 
   # Source finalization scripts
-  exec_hook finalize
+  run_hook finalize
 
 elif ! function_exists $COMMAND_HOST_FUNCTION; then
   error "Unknown command: ${COMMAND}"

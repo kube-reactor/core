@@ -4,23 +4,13 @@
 #
 
 function shell_description () {
-  echo "Open a terminal session to a running Minikube pod"
+  render "Open a terminal session to a running Minikube pod"
 }
 
 function shell_command_environment () {
-  parse_option --namespace \
-    SERVICE_NAMESPACE \
-    "Kubernetes namespace" \
-    default
-
-  parse_option --command \
-    SERVICE_COMMAND \
-    "Kubernetes service command" \
-    "bash"
-
-  parse_arg service_pod_name \
-    SERVICE_POD_NAME \
-    "Kubernetes service pod name"
+  namespace_option
+  command_option
+  pod_arg
 }
 
 function shell_command () {

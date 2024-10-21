@@ -12,15 +12,10 @@ function reactor_args () {
   export __reactor_arg_help=()
   export __reactor_arg_errors=""
 
+  parse_flag '-n|--no-color' arg_n "Disable color output"
   parse_flag '-h|--help' arg_h "Display help message"
-  parse_flag --verbose arg_v "Enable verbose mode, print script as it is executed"
-  parse_flag --debug arg_d "Enables debug mode"
-  parse_flag --no-color arg_n "Disable color output"
-
-  export arg_h
-  export arg_v
-  export arg_d
-  export arg_n
+  parse_flag '-v|--verbose' arg_v "Enable verbose mode, print script as it is executed"
+  parse_flag '-d|--debug' arg_d "Enables debug mode"
 
   # Error handling
   set -o errexit
@@ -45,11 +40,6 @@ function reactor_args () {
     set -o verbose
   fi
 
-  # No color mode
-  if [ "$arg_n" ]; then
-    export NO_COLOR="true"
-  fi
-
   debug ""
   debug "Command Arguments"
   debug "======================================"
@@ -61,7 +51,6 @@ function reactor_args () {
   debug "======================================"
   debug "> Debug: ${arg_d}"
   debug "> Verbosity: ${arg_v}"
-  debug "> Color: ${NO_COLOR:-}"
   debug "> Help: ${arg_h}"
   debug ""
 
@@ -140,11 +129,6 @@ function parse_flag () {
   eval $FOUND_REF=''
 
   IFS='|'
-
-  __reactor_flags=(
-    "${__reactor_flags[@]}"
-    "    $(printf %-30s ${FLAGS//|/ }) ${HELP_TEXT}"
-  )
   read -ra FLAG_ARRAY <<< "$FLAGS"
 
   IFS=$'\n'
@@ -163,9 +147,15 @@ function parse_flag () {
 
     LOCAL_FOUND=''
   done
-
-  __normalized_params=$ALT_PARAMS
   IFS="$IFS_ORIG"
+
+  local NAME=$(variable_color "\$$FOUND_REF")
+
+  __reactor_flags=(
+    "${__reactor_flags[@]}"
+    "    $(printf %-35s "$(key_color "${FLAGS//|/ }")") [ ${NAME} ] ${HELP_TEXT}"
+  )
+  __normalized_params=$ALT_PARAMS
 
   debug "> ${FLAGS//|/ }: ${!FOUND_REF}"
 }
@@ -173,6 +163,7 @@ function parse_flag () {
 function parse_option () {
   local OPTIONS="$1"
   local VALUE_REF="$2"
+  local NAME=$(variable_color "\$$VALUE_REF")
   local HELP_TEXT="$3"
   local VALUE_DEFAULT="${4:-}"
   local VALIDATOR="${5:-"validate_string"}"
@@ -191,7 +182,7 @@ function parse_option () {
 
   __reactor_options=(
     "${__reactor_options[@]}"
-    "    $(printf %-30s "${OPTIONS//|/ } <value>") ${HELP_TEXT} (${VALUE_DEFAULT})"
+    "    $(printf %-35s "$(key_color "${OPTIONS//|/ }") <value>") [ ${NAME} ] ${HELP_TEXT} ($(value_color "${VALUE_DEFAULT}"))"
   )
   read -ra OPTION_ARRAY <<< "$OPTIONS"
 
@@ -199,7 +190,7 @@ function parse_option () {
   for PARAM in ${__normalized_params}; do
     if [ "$NEEDS_PROCESSING" ]; then
       if [[ $PARAM =~ ^- ]]; then
-        ERROR_MSG=`echo "Parameter [ $OPTIONS ] (empty): $ERROR_MSG"`
+        ERROR_MSG="$(render "Parameter [ $OPTIONS ] (empty): $ERROR_MSG")"
         error "$ERROR_MSG"
 
         IFS="$IFS_ORIG"
@@ -208,8 +199,7 @@ function parse_option () {
 
       if [[ ! "$arg_h" ]] && [[ "$VALIDATOR" ]]; then
         if ! $VALIDATOR "$PARAM"; then
-          ERROR_MSG=`echo "Parameter [ $OPTIONS ] ($PARAM): $ERROR_MSG"`
-          error "$ERROR_MSG"
+          error "Parameter [ $OPTIONS ] ($PARAM): $ERROR_MSG"
           __reactor_arg_errors="1"
         fi
       fi
@@ -233,8 +223,7 @@ function parse_option () {
   done
 
   if [[ ! "$arg_h" ]] && [[ "$OPTION_FOUND" ]] && [[ ! "$VALUE_FOUND" ]]; then
-    ERROR_MSG=`echo "Parameter [ $OPTIONS ] (empty): $ERROR_MSG"`
-    error "$ERROR_MSG"
+    error "Parameter [ $OPTIONS ] (empty): $ERROR_MSG"
 
     IFS="$IFS_ORIG"
     __reactor_arg_errors="1"
@@ -247,11 +236,12 @@ function parse_option () {
 }
 
 function parse_arg () {
-  local NAME="$1"
-  local VALUE_REF="$2"
-  local HELP_TEXT="$3"
-  local VALIDATOR="${4:-"validate_string"}"
-  local ERROR_MSG="${5:-"Argument ${NAME} ${VALIDATOR} failed"}"
+  local VALUE_REF="$1"
+  local NAME=$(key_color "$(lowercase ${VALUE_REF})")
+  local VARIABLE_NAME=$(variable_color "\$${VALUE_REF}")
+  local HELP_TEXT="$2"
+  local VALIDATOR="${3:-"validate_string"}"
+  local ERROR_MSG="${4:-"Argument ${NAME} ${VALIDATOR} failed"}"
 
   local ALT_PARAMS=''
   local IFS_ORIG="$IFS"
@@ -262,11 +252,11 @@ function parse_arg () {
 
   __reactor_args=(
     "${__reactor_args[@]}"
-    "<${NAME}>"
+    "$(lowercase "${VALUE_REF}")"
   )
   __reactor_arg_help=(
     "${__reactor_arg_help[@]}"
-    "    $(printf %-30s "${NAME}") ${HELP_TEXT} (REQUIRED)"
+    "    $(printf %-35s "${NAME}") [ ${VARIABLE_NAME} ] ${HELP_TEXT} $(alert_color "(REQUIRED)")"
   )
 
   IFS=$'\n'
@@ -274,8 +264,7 @@ function parse_arg () {
     if [[ $PARAM =~ ^[^-] ]] && [[ ! "$VALUE_FOUND" ]]; then
       if [[ ! "$arg_h" ]] && [[ "$VALIDATOR" ]]; then
         if ! $VALIDATOR "$PARAM"; then
-          ERROR_MSG=`echo "Parameter [ $NAME ] ($PARAM): $ERROR_MSG"`
-          error "$ERROR_MSG"
+          error "Parameter [ $NAME ] ($PARAM): $ERROR_MSG"
           __reactor_arg_errors="1"
         fi
       fi
@@ -289,8 +278,7 @@ function parse_arg () {
   done
 
   if [[ ! "$arg_h" ]] && [[ ! "$VALUE_FOUND" ]]; then
-    ERROR_MSG=`echo "Parameter [ $NAME ] (empty): $ERROR_MSG"`
-    error "$ERROR_MSG"
+    error "Parameter [ $NAME ] (empty): $ERROR_MSG"
 
     IFS="$IFS_ORIG"
     __reactor_arg_errors="1"
@@ -300,4 +288,71 @@ function parse_arg () {
   IFS="$IFS_ORIG"
 
   debug "> ${NAME}: ${!VALUE_REF}"
+}
+
+function parse_optional_args () {
+  local VALUE_REF="$1"
+  local NAME=$(key_color "$(lowercase ${VALUE_REF})")
+  local VARIABLE_NAME=$(variable_color "\${${VALUE_REF}[@]}")
+  local HELP_TEXT="$2"
+
+  local IFS_ORIG="$IFS"
+  local ARGS=()
+
+  __reactor_args=(
+    "${__reactor_args[@]}"
+    "[ $(lowercase "${VALUE_REF}") ... ]"
+  )
+  __reactor_arg_help=(
+    "${__reactor_arg_help[@]}"
+    "    $(printf %-35s "${NAME} ...") [ ${VARIABLE_NAME} ] ${HELP_TEXT} (OPTIONAL)"
+  )
+
+  IFS=$'\n'
+  for PARAM in ${__normalized_params}; do
+    ARGS=("${ARGS[@]}" "'$PARAM'")
+  done
+  IFS="$IFS_ORIG"
+
+  eval $VALUE_REF="'${ARGS[*]}'"
+
+  debug "> [ ${NAME} ... ]: ${!VALUE_REF}"
+}
+
+function parse_required_args () {
+  local VALUE_REF="$1"
+  local NAME=$(key_color "$(lowercase ${VALUE_REF})")
+  local VARIABLE_NAME=$(variable_color "\${${VALUE_REF}[@]}")
+  local HELP_TEXT="$2"
+
+  local IFS_ORIG="$IFS"
+  local ARGS=()
+
+  local VALUE_FOUND=''
+
+  __reactor_args=(
+    "${__reactor_args[@]}"
+    "$(lowercase "${VALUE_REF}") ..."
+  )
+  __reactor_arg_help=(
+    "${__reactor_arg_help[@]}"
+    "    $(printf %-35s "${NAME} ...") [ ${VARIABLE_NAME} ] ${HELP_TEXT} $(alert_color "(REQUIRED)")"
+  )
+
+  IFS=$'\n'
+  for PARAM in ${__normalized_params}; do
+    ARGS=("${ARGS[@]}" "'$PARAM'")
+    VALUE_FOUND='1'
+  done
+  IFS="$IFS_ORIG"
+
+  if [ ! "$VALUE_FOUND" ]; then
+    error "Parameters [ ${NAME} ... ] (empty)"
+
+    __reactor_arg_errors='1'
+  fi
+
+  eval $VALUE_REF="'${ARGS[*]}'"
+
+  debug "> [<${NAME}> ...]: ${!VALUE_REF}"
 }

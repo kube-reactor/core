@@ -4,13 +4,11 @@
 #
 
 function destroy_description () {
-  echo "Shut down and destroy Minikube development environment (DESTRUCTIVE)"
+  render "Shut down and destroy Minikube development environment (DESTRUCTIVE)"
 }
 
 function destroy_command_environment () {
-  parse_flag --force \
-    FORCE \
-    "Force execution without confirming"
+  force_option
 }
 
 function destroy_command () {
@@ -25,13 +23,13 @@ function destroy_command () {
   remove_dns_records
   clean_terraform
 
-  exec_hook destroy
+  run_hook destroy
 }
 
 function destroy_host_command () {
   destroy_host_minikube
   remove_host_dns_records
 
-  exec_hook destroy_host
+  run_hook destroy_host
   info "Minikube development environment has been destroyed"
 }

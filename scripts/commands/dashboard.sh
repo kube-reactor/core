@@ -4,7 +4,7 @@
 #
 
 function dashboard_description () {
-  echo "Launch the Kubernetes Dashboard for the Minikube cluster"
+  render "Launch the Kubernetes Dashboard for the Minikube cluster"
 }
 
 function dashboard_host_command () {

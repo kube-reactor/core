@@ -4,7 +4,7 @@
 #
 
 function status_description () {
-  echo "Check the status of a Minikube cluster"
+  render "Check the status of a Minikube cluster"
 }
 
 function validate_sort_type () {
@@ -19,10 +19,7 @@ function status_command_environment () {
     validate_sort_type \
     "Sort option must be either 'memory' or 'cpu'"
 
-  parse_option --namespace \
-    SERVICE_NAMESPACE \
-    "Kubernetes namespace" \
-    "all"
+  namespace_option "" all
 }
 
 function status_command () {
@@ -33,10 +30,10 @@ function status_command () {
   fi
 
   add_line "="
-  echo " Cluster Nodes"
+  render " Cluster Nodes"
   add_line "-"
-  "${__binary_dir}/kubectl" top node --show-capacity --sort-by="$TABLE_SORT"
-  echo ""
+  render "$(value_color "$("${__binary_dir}/kubectl" top node --show-capacity --sort-by="$TABLE_SORT" 2>&1)")"
+  add_space
 
   POD_COMMAND=("top" "pod" "--sum" "--sort-by" "$TABLE_SORT")
   SERVICE_COMMAND=("get" "services")
@@ -57,20 +54,20 @@ function status_command () {
   fi
 
   add_line "="
-  echo " Cluster Pods"
+  render " Cluster Pods"
   add_line "-"
-  "${__binary_dir}/kubectl" "${POD_COMMAND[@]}"
-  echo ""
+  render "$(value_color "$("${__binary_dir}/kubectl" "${POD_COMMAND[@]}" 2>&1)")"
+  add_space
 
   add_line "="
-  echo " Cluster Services"
+  render " Cluster Services"
   add_line "-"
-  "${__binary_dir}/kubectl" "${SERVICE_COMMAND[@]}"
-  echo ""
+  render "$(value_color "$("${__binary_dir}/kubectl" "${SERVICE_COMMAND[@]}" 2>&1)")"
+  add_space
 
   add_line "="
-  echo " Cluster Ingress"
+  render " Cluster Ingress"
   add_line "-"
-  "${__binary_dir}/kubectl" "${INGRESS_COMMAND[@]}"
-  echo ""
+  render "$(value_color "$("${__binary_dir}/kubectl" "${INGRESS_COMMAND[@]}" 2>&1)")"
+  add_space
 }

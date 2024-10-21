@@ -52,19 +52,19 @@ function display_certs () {
   cert_environment
 
   info "Application Certificate Authority key"
-  echo "${APP_CA_KEY}"
+  render "${APP_CA_KEY}"
 
   info ""
   info "Application Certificate Authority certificate"
-  echo "${APP_CA_CERT}"
+  render "${APP_CA_CERT}"
 
   info ""
   info "Application key"
-  echo "${APP_KEY}"
+  render "${APP_KEY}"
 
   info ""
   info "Application certificate"
-  echo "${APP_CERT}"
+  render "${APP_CERT}"
 }
 
 function generate_certs () {

@@ -4,7 +4,7 @@
 #
 
 function argocd_description () {
-  echo "Execute a ArgoCD operation within the reactor environment context"
+  render "Execute a ArgoCD operation within the reactor environment context"
   export PASSTHROUGH="1"
 }
 
@@ -12,5 +12,5 @@ function argocd_command () {
   helm_environment
   login_argocd
   "${__binary_dir}/argocd" "$@"
-  echo ""
+  add_space
 }

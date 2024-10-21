@@ -4,7 +4,7 @@
 #
 
 function create_description () {
-  echo "Create a new cluster project from a template"
+  render "Create a new cluster project from a template"
 }
 
 function create_command_environment () {
@@ -76,5 +76,5 @@ function create_command () {
   if [ ! -d "$PROJECT_DIRECTORY" ]; then
     rm -Rf "$PROJECT_TEMP_DIRECTORY"
   fi
-  exec_hook create
+  run_hook create
 }

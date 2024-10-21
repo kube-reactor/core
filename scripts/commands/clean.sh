@@ -4,13 +4,11 @@
 #
 
 function clean_description () {
-  echo "Cleanup and wipe project resources (VERY DESTRUCTIVE)"
+  render "Cleanup and wipe project resources (VERY DESTRUCTIVE)"
 }
 
 function clean_command_environment () {
-  parse_flag --force \
-    FORCE \
-    "Force execution without confirming"
+  force_option
 }
 
 function clean_command () {
@@ -28,13 +26,13 @@ function clean_command () {
   clean_certs
   clean_cache
 
-  exec_hook clean
+  run_hook clean
 }
 
 function clean_host_command () {
   destroy_host_minikube
   remove_host_dns_records
 
-  exec_hook clean_host
+  run_hook clean_host
   info "Reactor development environment has been cleaned"
 }

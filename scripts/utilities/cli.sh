@@ -7,6 +7,101 @@ export TERMINAL_COLUMNS="$(stty -a | grep -Po '(?<=columns )\d+')"
 export TERMINAL_ROWS="$(stty -a | grep -Po '(?<=rows )\d+')"
 
 
+function check_color () {
+  if [[ "$arg_n" ]] || { [[ "${TERM:-}" != "xterm"* ]] && [[ "${TERM:-}" != "screen"* ]]; } || [[ ! -t 2 ]]; then
+    return 1
+  fi
+  return 0
+}
+function debug_color () {
+  local text="${1:-}"
+  if check_color; then
+    echo -e "${__color_debug}${text}${__color_reset}"
+  else
+    echo "$text"
+  fi
+}
+function info_color () {
+  local text="${1:-}"
+  if check_color; then
+    echo -e "${__color_info}${text}${__color_reset}"
+  else
+    echo "$text"
+  fi
+}
+function notice_color () {
+  local text="${1:-}"
+  if check_color; then
+    echo -e "${__color_notice}${text}${__color_reset}"
+  else
+    echo "$text"
+  fi
+}
+function warning_color () {
+  local text="${1:-}"
+  if check_color; then
+    echo -e "${__color_warning}${text}${__color_reset}"
+  else
+    echo "$text"
+  fi
+}
+function error_color () {
+  local text="${1:-}"
+  if check_color; then
+    echo -e "${__color_error}${text}${__color_reset}"
+  else
+    echo "$text"
+  fi
+}
+function critical_color () {
+  local text="${1:-}"
+  if check_color; then
+    echo -e "${__color_critical}${text}${__color_reset}"
+  else
+    echo "$text"
+  fi
+}
+function alert_color () {
+  local text="${1:-}"
+  if check_color; then
+    echo -e "${__color_alert}${text}${__color_reset}"
+  else
+    echo "$text"
+  fi
+}
+function emergency_color () {
+  local text="${1:-}"
+  if check_color; then
+    echo -e "${__color_emergency}${text}${__color_reset}"
+  else
+    echo "$text"
+  fi
+}
+function variable_color () {
+  local text="${1:-}"
+  if check_color; then
+    echo -e "${__color_variable}${text}${__color_reset}"
+  else
+    echo "$text"
+  fi
+}
+function key_color () {
+  local text="${1:-}"
+  if check_color; then
+    echo -e "${__color_key}${text}${__color_reset}"
+  else
+    echo "$text"
+  fi
+}
+function value_color () {
+  local text="${1:-}"
+  if check_color; then
+    echo -e "${__color_value}${text}${__color_reset}"
+  else
+    echo "$text"
+  fi
+}
+
 function function_exists () {
   declare -F "$1" > /dev/null;
 }
@@ -22,34 +117,7 @@ function __log () {
   local log_level="${1}"
   shift
 
-  # shellcheck disable=SC2034
-  local color_debug="\\x1b[35m"
-  # shellcheck disable=SC2034
-  local color_info="\\x1b[32m"
-  # shellcheck disable=SC2034
-  local color_notice="\\x1b[34m"
-  # shellcheck disable=SC2034
-  local color_warning="\\x1b[33m"
-  # shellcheck disable=SC2034
-  local color_error="\\x1b[31m"
-  # shellcheck disable=SC2034
-  local color_critical="\\x1b[1;31m"
-  # shellcheck disable=SC2034
-  local color_alert="\\x1b[1;37;41m"
-  # shellcheck disable=SC2034
-  local color_emergency="\\x1b[1;4;5;37;41m"
-
-  local colorvar="color_${log_level}"
-
-  local color="${!colorvar:-${color_error}}"
-  local color_reset="\\x1b[0m"
-
-  if [[ "${NO_COLOR:-}" = "true" ]] || { [[ "${TERM:-}" != "xterm"* ]] && [[ "${TERM:-}" != "screen"* ]]; } || [[ ! -t 2 ]]; then
-    if [[ "${NO_COLOR:-}" != "false" ]]; then
-      # Don't use colors on pipes or non-recognized terminals
-      color=""; color_reset=""
-    fi
-  fi
+  local color_function="${log_level}_color"
 
   # all remaining arguments are to be printed
   local log_line=""
@@ -62,7 +130,9 @@ function __log () {
   fi
 
   while IFS=$'\n' read -r log_line; do
-    echo -e "${date_time} ${color}$(printf "[%s]%s" "${log_level}" "${local_indicator}")${color_reset} ${log_line}" 1>&2
+    local log_info="$($color_function "$(printf "[%s]%s" "${log_level}" "${local_indicator}")")"
+
+    echo -e "${date_time} ${log_info} ${log_line}" 1>&2
     echo "${date_time} [${log_level}] ${log_line}" >>"$(logfile)"
   done <<< "${@:-}"
 }
@@ -81,8 +151,18 @@ function confirm () {
   [[ $CONFIRM_INPUT =~ ^[Yy][Ee][Ss]$ ]] || exit 1
 }
 
+
 function check_admin () {
   sudo -v
+}
+
+
+function render () {
+  echo "$1"
+}
+
+function add_space () {
+  render ""
 }
 
 function add_line () {
@@ -93,5 +173,9 @@ function add_line () {
 function format_width () {
   local text="$1"
   local indent="${2:-0}"
-  echo "$(echo "$text" | fold -s -w $TERMINAL_COLUMNS | sed "2,\$s/^/$(printf ' %.0s' $(seq 1 $indent))/")"
+  render "$(echo "$text" | fold -s -w $TERMINAL_COLUMNS | sed "2,\$s/^/$(printf ' %.0s' $(seq 1 $indent))/")"
+}
+
+function lowercase () {
+  render "$1" | tr '[:upper:]' '[:lower:]'
 }

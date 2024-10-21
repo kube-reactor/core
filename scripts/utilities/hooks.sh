@@ -80,7 +80,7 @@ function source_hook () {
   fi
 }
 
-function exec_hook () {
+function run_hook () {
   hook_name="$1"
 
   # Execute dependency hook if it exists

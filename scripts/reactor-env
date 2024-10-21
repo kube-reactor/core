@@ -31,6 +31,19 @@ export __environment="${REACTOR_ENV:-local}"
 export __env_dir="${__project_dir}/env/${__environment}"
 export __init_file="${__env_dir}/.initialized"
 
+export __color_debug="\\x1b[1;35m"
+export __color_info="\\x1b[1;32m"
+export __color_notice="\\x1b[1;34m"
+export __color_warning="\\x1b[1;33m"
+export __color_error="\\x1b[1;31m"
+export __color_critical="\\x1b[1;31m"
+export __color_alert="\\x1b[1;37;41m"
+export __color_emergency="\\x1b[1;4;5;37;41m"
+export __color_variable="\\x1b[1;32m"
+export __color_key="\\x1b[1;33m"
+export __color_value="\\x1b[1;34m"
+export __color_reset="\\x1b[0m"
+
 if [ -f /REACTOR.txt ]; then
   REACTOR_LOCAL=0
 else
@@ -50,13 +63,13 @@ fi
 HOOK_UTILITIES="${__script_dir}/utilities/hooks.sh"
 source "$HOOK_UTILITIES"
 
-source "${__script_dir}/state/initialize.sh"
-
 CLI_UTILITIES="${__script_dir}/utilities/cli.sh"
 source "$CLI_UTILITIES"
 
 DISK_UTILITIES="${__script_dir}/utilities/disk.sh"
 source "$DISK_UTILITIES"
+
+source "${__script_dir}/state/initialize.sh"
 
 for file in "${__script_dir}/utilities"/*.sh; do
   if [[ "$file" != "$HOOK_UTILITIES" ]] \

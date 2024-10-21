@@ -4,7 +4,7 @@
 #
 
 function certs_description () {
-  echo "Display or generate self signed SSL certificates"
+  render "Display or generate self signed SSL certificates"
 }
 
 function certs_command_environment () {
@@ -12,26 +12,18 @@ function certs_command_environment () {
     GENERATE \
     "Generate certificates before displaying them"
 
-  parse_option --subject \
-    CERT_SUBJECT \
-    "Certificate subject (requires --generate)" \
-    "$DEFAULT_CERT_SUBJECT"
-
-  parse_option --days \
-    DAYS \
-    "Certificate lifespan (requires --generate)" \
-    "$DEFAULT_CERT_DAYS"
+  cert_options "(requires --generate)"
 }
 
 function certs_command () {
-  SUBJECT="${SUBJECT}/CN=*.${PRIMARY_DOMAIN}"
+  CERT_SUBJECT="${CERT_SUBJECT}/CN=*.${PRIMARY_DOMAIN}"
 
-  debug "> SUBJECT: ${SUBJECT}"
+  debug "> CERT_SUBJECT: ${CERT_SUBJECT}"
 
   if [ "$GENERATE" ]; then
-    generate_certs "$SUBJECT" $DAYS
+    generate_certs "$CERT_SUBJECT" $CERT_DAYS
   fi
   display_certs
 
-  exec_hook certs
+  run_hook certs
 }

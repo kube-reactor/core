@@ -12,7 +12,8 @@ function current_environment () {
       && [[ "$variable" != "PWD" ]] \
       && [[ "$variable" != "USER" ]] \
       && [[ "$variable" != "HOME" ]] \
-      && [[ "$variable" != "SHELL" ]]; then
+      && [[ "$variable" != "SHELL" ]] \
+      && [[ "$variable" != "__color_"* ]]; then
 
       ENVIRONMENT_VARS=("${ENVIRONMENT_VARS[@]}" "$variable")
     fi
@@ -21,6 +22,11 @@ function current_environment () {
   echo "${ENVIRONMENT_VARS[@]}"
 }
 
+function render_environment () {
+  for variable in $(current_environment); do
+    echo "${variable}: $(eval "echo \"\$${variable}\"" 2>/dev/null)"
+  done
+}
 
 function parse_environment () {
   local command="$1"

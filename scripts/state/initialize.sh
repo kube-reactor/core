@@ -7,14 +7,14 @@
 case "$OSTYPE" in
   darwin*) __os="darwin" ;;
   linux*) __os="linux" ;;
-  *) echo "Unsupported OS: $OSTYPE"; exit 1 ;;
+  *) render "Unsupported OS: $OSTYPE"; exit 1 ;;
 esac
 export __os
 
 case $(uname -m) in
     x86_64 | amd64) __architecture="amd64" ;;
     aarch64 | arm64) __architecture="arm64" ;;
-    *) echo "Unsupported CPU architecture: $(uname -m)"; exit 1 ;;
+    *) render "Unsupported CPU architecture: $(uname -m)"; exit 1 ;;
 esac
 export __architecture
 
@@ -42,7 +42,6 @@ export DEFAULT_PROJECT_TEMPLATE_REMOTE="${DEFAULT_REACTOR_TEMPLATE_REMOTE:-https
 export DEFAULT_PROJECT_TEMPLATE_REFERENCE="${DEFAULT_REACTOR_TEMPLATE_REFERENCE:-main}"
 
 export LOG_LEVEL="${LOG_LEVEL:-6}" # 7 = debug -> 0 = emergency
-export NO_COLOR="${NO_COLOR:-}"    # true = disable color. otherwise autodetected
 
 export APP_NAME="$(config short_name)"
 export APP_LABEL="$(config name)"

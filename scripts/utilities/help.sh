@@ -16,7 +16,7 @@ function usage () {
 
   Flags:
 
-$(IFS=$'\n'; echo "${__reactor_flags[*]}")
+$(IFS=$'\n'; render "${__reactor_flags[*]}")
 
 
   Commands:
@@ -33,10 +33,10 @@ EOF
       fi
     fi
   done
-  echo "" >&2
-  echo "" >&2
-  echo "  Use '${__script_name} <command> --help' for more information about a given command" >&2
-  echo "" >&2
+  add_space
+  add_space
+  render "  Use '${__script_name} <command> --help' for more information about a given command"
+  add_space
   exit 1
 }
 
@@ -44,7 +44,7 @@ EOF
 function command_usage_argument_help () {
   local arguments="$(IFS=$'\n'; echo "${__reactor_arg_help[*]}")"
   if [ "$arguments" ]; then
-    echo """
+    render """
 
   Arguments:
 
@@ -56,7 +56,7 @@ $arguments
 function command_usage_flag_help () {
   local flags="$(IFS=$'\n'; echo "${__reactor_flags[*]}")"
   if [ "$flags" ]; then
-    echo """
+    render """
 
   Flags:
 
@@ -68,7 +68,7 @@ $flags
 function command_usage_option_help () {
   local options="$(IFS=$'\n'; echo "${__reactor_options[*]}")"
   if [ "$options" ]; then
-    echo """
+    render """
 
   Options:
 
@@ -96,7 +96,7 @@ function command_usage () {
 
   Usage:
 
-    ${__script_name} ${command} [flags] [options] ${__reactor_args[@]}
+    ${__script_name} ${command} $(key_color "[flags] [options]") ${__reactor_args[@]}
 $(command_usage_argument_help) $(command_usage_flag_help) $(command_usage_option_help)
 
 EOF
