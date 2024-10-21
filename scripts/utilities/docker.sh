@@ -125,10 +125,3 @@ function delete_docker_environment () {
     source "$docker_vars_file"
   fi
 }
-
-# Initialize Docker registry
-if [[ $REACTOR_LOCAL -eq 0 ]] || [[ $SOURCED -eq 1 ]]; then
-  if kubernetes_status; then
-    add_docker_environment
-  fi
-fi

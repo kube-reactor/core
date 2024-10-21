@@ -79,6 +79,14 @@ for file in "${__script_dir}/utilities"/*.sh; do
     source "$file"
   fi
 done
+
+# Initialize Docker registry
+if [[ $REACTOR_LOCAL -eq 0 ]] || [[ $SOURCED -eq 1 ]]; then
+  if kubernetes_status; then
+    add_docker_environment
+  fi
+fi
+
 load_library utilities
 
 for file in "${__script_dir}/commands"/*.sh; do
