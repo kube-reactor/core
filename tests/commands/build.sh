@@ -5,4 +5,12 @@
 #
 set -e
 
-reactor build --no-cache --debug
+#
+# Build all projects from scratch
+#
+reactor build --debug --no-cache
+
+#
+# Build all projects using cache
+#
+reactor build --debug
