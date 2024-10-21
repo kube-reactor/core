@@ -31,20 +31,6 @@ function up_command () {
 
   info "Downloading local software dependencies ..."
   install_kubernetes
-
-  download_binary kubectl \
-    "https://dl.k8s.io/release/v${KUBECTL_VERSION}/bin/linux/${__architecture}/kubectl" \
-    "${__binary_dir}"
-
-  download_binary helm \
-    "https://get.helm.sh/helm-v${HELM_VERSION}-${__os}-${__architecture}.tar.gz" \
-    "${__binary_dir}" \
-    "${__os}-${__architecture}"
-
-  download_binary argocd \
-    "https://github.com/argoproj/argo-cd/releases/latest/download/argocd-${__os}-${__architecture}" \
-    "${__binary_dir}"
-
   run_hook up_install
 
   info "Generating ingress certificates ..."

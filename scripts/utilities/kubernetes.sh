@@ -43,6 +43,13 @@ function run_kube_function () {
 function install_kubernetes () {
   kubernetes_environment
   run_kube_function install_kubernetes
+
+  download_binary kubectl \
+    "https://dl.k8s.io/release/v${KUBECTL_VERSION}/bin/linux/${__architecture}/kubectl" \
+    "${__binary_dir}"
+
+  install_helm
+  install_argocd
 }
 
 

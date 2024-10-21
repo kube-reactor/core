@@ -3,6 +3,13 @@
 # ArgoCD Utilities
 #
 
+function install_argocd () {
+  download_binary argocd \
+    "https://github.com/argoproj/argo-cd/releases/latest/download/argocd-${__os}-${__architecture}" \
+    "${__binary_dir}"
+}
+
+
 function login_argocd () {
   if kubernetes_status; then
     info "Logging into ArgoCD via CLI ..."
@@ -16,6 +23,7 @@ function login_argocd () {
       --insecure --grpc-web 1>>"$(logfile)" 2>&1
   fi
 }
+
 
 function sync_argocd_charts () {
   update_helm_dependencies

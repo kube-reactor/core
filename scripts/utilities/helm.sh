@@ -5,6 +5,7 @@
 
 export DEFAULT_HELM_VERSION="3.15.4"
 
+
 function helm_environment () {
   debug "Setting Helm environment ..."
   export HELM_VERSION="${HELM_VERSION:-$DEFAULT_HELM_VERSION}"
@@ -12,6 +13,16 @@ function helm_environment () {
 
   debug "HELM_VERSION: ${HELM_VERSION}"
   debug "HELM_REPOSITORY_CACHE: ${HELM_REPOSITORY_CACHE}"
+}
+
+
+function install_helm () {
+  helm_environment
+
+  download_binary helm \
+    "https://get.helm.sh/helm-v${HELM_VERSION}-${__os}-${__architecture}.tar.gz" \
+    "${__binary_dir}" \
+    "${__os}-${__architecture}"
 }
 
 
