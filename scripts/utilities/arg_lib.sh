@@ -7,6 +7,16 @@ function force_option () {
     "Force execution without confirming ${help_suffix}"
 }
 
+function wait_option () {
+  local help_suffix="${1:-}"
+  local default="${2:-2}"
+
+  parse_option --wait \
+    WAIT \
+    "Amount of time to wait in seconds ${help_suffix}" \
+    "$default"
+}
+
 function namespace_option () {
   local help_suffix="${1:-}"
   local default="${2:-default}"
