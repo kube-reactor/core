@@ -52,7 +52,7 @@ function exec_command () {
 
   "${__binary_dir}/kubectl" run "${COMMAND_ARGS[@]}"
   sleep $WAIT
-  "${__binary_dir}/kubectl" logs "${LOG_ARGS[@]}"
+  render "$(terminal_color "$("${__binary_dir}/kubectl" logs "${LOG_ARGS[@]}")")"
   "${__binary_dir}/kubectl" delete pod "${DELETE_ARGS[@]}" 2>/dev/null
   add_space
 }

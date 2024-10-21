@@ -101,6 +101,14 @@ function value_color () {
     echo "$text"
   fi
 }
+function terminal_color () {
+  local text="${1:-}"
+  if check_color; then
+    echo -e "${__color_terminal}${text}${__color_reset}"
+  else
+    echo "$text"
+  fi
+}
 
 function function_exists () {
   declare -F "$1" > /dev/null;
