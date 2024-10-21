@@ -4,7 +4,7 @@
 #
 
 function update_description () {
-  render "Update the application stack in the Minikube environment"
+  render "Update the application stack in the Kubernetes environment"
 }
 
 function update_command_environment () {
@@ -46,5 +46,5 @@ function update_host_command () {
   fi
 
   run_hook update_host
-  info "Minikube development environment has been updated"
+  info "Kubernetes environment has been updated"
 }

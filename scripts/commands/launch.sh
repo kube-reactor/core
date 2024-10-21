@@ -4,7 +4,7 @@
 #
 
 function launch_description () {
-  render "Launch a service within the Minikube cluster"
+  render "Launch a service within the Kubernetes cluster"
 }
 
 function launch_command_environment () {
@@ -14,10 +14,10 @@ function launch_command_environment () {
 }
 
 function launch_command () {
-  minikube_environment
+  kubernetes_environment
 
-  if ! minikube_status; then
-    emergency "Minikube is not running"
+  if ! kubernetes_status; then
+    emergency "Kubernetes is not running"
   fi
 
   SERVICE_OPTIONS=(

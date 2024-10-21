@@ -4,7 +4,7 @@
 #
 
 function login_argocd () {
-  if minikube_status; then
+  if kubernetes_status; then
     info "Logging into ArgoCD via CLI ..."
     debug "PRIMARY_DOMAIN: ${PRIMARY_DOMAIN}"
     debug "ARGOCD_ADMIN_PASSWORD: ${ARGOCD_ADMIN_PASSWORD}"
@@ -20,7 +20,7 @@ function login_argocd () {
 function sync_argocd_charts () {
   update_helm_dependencies
 
-  if minikube_status; then
+  if kubernetes_status; then
     info "Syncing application charts into ArgoCD ..."
     login_argocd
 

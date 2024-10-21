@@ -15,10 +15,10 @@ function exec_command_environment () {
 }
 
 function exec_command () {
-  minikube_environment
+  kubernetes_environment
 
-  if ! minikube_status; then
-    emergency "Minikube is not running"
+  if ! kubernetes_status; then
+    emergency "Kubernetes is not running"
   fi
 
   POD_NAME="$(date +%Y%m%d%H%M%S)"

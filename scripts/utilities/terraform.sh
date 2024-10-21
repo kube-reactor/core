@@ -16,7 +16,7 @@ function terraform_environment () {
 
 
 function provision_terraform () {
-  if minikube_status; then
+  if kubernetes_status; then
     cert_environment
     terraform_environment
     helm_environment
@@ -29,7 +29,7 @@ function provision_terraform () {
     TERRAFORM_ARGS=(
       "--rm"
       "--network" "host"
-      "--volume" "${__project_dir}:${__project_dir}"  # Minikube host path -> Terraform container path
+      "--volume" "${__project_dir}:${__project_dir}"  # Kubernetes host path -> Terraform container path
       "--workdir" "${TERRAFORM_GATEWAY}"
       "--env" "TF_DATA_DIR=${__project_dir}/.terraform"
       "--env" "TF_VAR_project_path=${__project_dir}"
@@ -59,7 +59,7 @@ function provision_terraform () {
     info "Validating Terraform project ..."
     docker run "${TERRAFORM_ARGS[@]}" validate 1>>"$(logfile)" 2>&1
 
-    info "Deploying Minikube cluster ..."
+    info "Deploying Kubernetes cluster ..."
     docker run "${TERRAFORM_ARGS[@]}" apply -auto-approve -input=false 1>>"$(logfile)" 2>&1
   fi
 }

@@ -4,7 +4,7 @@
 #
 
 function status_description () {
-  render "Check the status of a Minikube cluster"
+  render "Check the status of a Kubernetes cluster"
 }
 
 function validate_sort_type () {
@@ -23,10 +23,10 @@ function status_command_environment () {
 }
 
 function status_command () {
-  minikube_environment
+  kubernetes_environment
 
-  if ! minikube_status; then
-    emergency "Minikube is not running"
+  if ! kubernetes_status; then
+    emergency "Kubernetes is not running"
   fi
 
   add_line "="

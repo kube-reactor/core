@@ -16,7 +16,7 @@ function clean_command () {
     confirm
   fi
 
-  destroy_minikube
+  destroy_kubernetes
 
   rm -f "${__init_file}"
 
@@ -30,7 +30,7 @@ function clean_command () {
 }
 
 function clean_host_command () {
-  destroy_host_minikube
+  destroy_host_kubernetes
   remove_host_dns_records
 
   run_hook clean_host

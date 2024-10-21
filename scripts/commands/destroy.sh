@@ -4,7 +4,7 @@
 #
 
 function destroy_description () {
-  render "Shut down and destroy Minikube development environment (DESTRUCTIVE)"
+  render "Shut down and destroy Kubernetes environment (DESTRUCTIVE)"
 }
 
 function destroy_command_environment () {
@@ -16,7 +16,7 @@ function destroy_command () {
     confirm
   fi
 
-  destroy_minikube
+  destroy_kubernetes
 
   rm -f "${__init_file}"
 
@@ -27,9 +27,9 @@ function destroy_command () {
 }
 
 function destroy_host_command () {
-  destroy_host_minikube
+  destroy_host_kubernetes
   remove_host_dns_records
 
   run_hook destroy_host
-  info "Minikube development environment has been destroyed"
+  info "Kubernetes environment has been destroyed"
 }

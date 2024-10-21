@@ -87,3 +87,48 @@ function wipe_docker () {
   info "Cleaning Docker build cache ..."
   docker system prune -a -f >/dev/null 2>&1
 }
+
+function add_docker_environment () {
+  docker_vars_file="${__log_dir}/docker.sh"
+
+  if [ ! -f "$docker_vars_file" ]; then
+    touch "$docker_vars_file"
+
+    if [ ! -z "${DOCKER_TLS_VERIFY:-}" ]; then
+      echo "DOCKER_TLS_VERIFY=${DOCKER_TLS_VERIFY}" >>"$docker_vars_file"
+    fi
+    if [ ! -z "${DOCKER_HOST:-}" ]; then
+      echo "DOCKER_HOST=${DOCKER_HOST}" >>"$docker_vars_file"
+    fi
+    if [ ! -z "${DOCKER_CERT_PATH:-}" ]; then
+      echo "DOCKER_CERT_PATH=${DOCKER_CERT_PATH}" >>"$docker_vars_file"
+    fi
+    if [ ! -z "${MINIKUBE_ACTIVE_DOCKERD:-}" ]; then
+      echo "MINIKUBE_ACTIVE_DOCKERD=${MINIKUBE_ACTIVE_DOCKERD}" >>"$docker_vars_file"
+    fi
+  fi
+
+  run_kube_function add_docker_environment
+}
+
+function delete_docker_environment () {
+  docker_vars_file="${__log_dir}/docker.sh"
+
+  unset DOCKER_TLS_VERIFY
+  unset DOCKER_HOST
+  unset DOCKER_CERT_PATH
+  unset MINIKUBE_ACTIVE_DOCKERD
+
+  run_kube_function delete_docker_environment
+
+  if [ -f "$docker_vars_file" ]; then
+    source "$docker_vars_file"
+  fi
+}
+
+# Initialize Docker registry
+if [[ $REACTOR_LOCAL -eq 0 ]] || [[ $SOURCED -eq 1 ]]; then
+  if kubernetes_status; then
+    add_docker_environment
+  fi
+fi

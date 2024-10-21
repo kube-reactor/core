@@ -4,7 +4,7 @@
 #
 
 function up_description () {
-  render "Initialize and ensure Minikube development environment is running"
+  render "Initialize and ensure Kubernetes environment is running"
 }
 
 function up_command_environment () {
@@ -26,13 +26,11 @@ function up_command_environment () {
 
 function up_command () {
   cert_environment
-  minikube_environment
+  kubernetes_environment
   helm_environment
 
   info "Downloading local software dependencies ..."
-  download_binary minikube \
-    "https://storage.googleapis.com/minikube/releases/latest/minikube-${__os}-${__architecture}" \
-    "${__binary_dir}"
+  install_kubernetes
 
   download_binary kubectl \
     "https://dl.k8s.io/release/v${KUBECTL_VERSION}/bin/linux/${__architecture}/kubectl" \
@@ -47,6 +45,8 @@ function up_command () {
     "https://github.com/argoproj/argo-cd/releases/latest/download/argocd-${__os}-${__architecture}" \
     "${__binary_dir}"
 
+  run_hook up_install
+
   info "Generating ingress certificates ..."
   generate_certs \
     "${CERT_SUBJECT}/CN=*.${PRIMARY_DOMAIN}" \
@@ -58,7 +58,7 @@ function up_command () {
     "${__argocd_apps_dir}" \
     "$ARGOCD_APPS_VERSION"
 
-  start_minikube
+  start_kubernetes
 
   if [[ "$BUILD" ]] || [[ ! -f "${__init_file}" ]]; then
     run_command build "${BUILD_ARGS[@]}"
@@ -69,7 +69,7 @@ function up_command () {
 }
 
 function up_host_command () {
-  launch_host_minikube_tunnel
+  launch_host_kubernetes_tunnel
 
   run_host_command update
   run_hook up_host

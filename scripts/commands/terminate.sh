@@ -4,7 +4,7 @@
 #
 
 function terminate_description () {
-  render "Terminate a service within the Minikube cluster"
+  render "Terminate a service within the Kubernetes cluster"
 }
 
 function terminate_command_environment () {
@@ -13,10 +13,10 @@ function terminate_command_environment () {
 }
 
 function terminate_command () {
-  minikube_environment
+  kubernetes_environment
 
-  if ! minikube_status; then
-    emergency "Minikube is not running"
+  if ! kubernetes_status; then
+    emergency "Kubernetes is not running"
   fi
   "${__binary_dir}/kubectl" delete pod \
     -n "$SERVICE_NAMESPACE" \

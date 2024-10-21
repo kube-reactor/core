@@ -43,7 +43,7 @@ function dns_records () {
 
 
 function create_host_dns_records () {
-  # Runs on host machine (must be run after minikube tunnel created)
+  # Runs on host machine (must be run after Kubernetes tunnel created)
   dns_environment
 
   info "Waiting on Nginx ingress to initialize ..."

@@ -4,12 +4,12 @@
 #
 
 function dashboard_description () {
-  render "Launch the Kubernetes Dashboard for the Minikube cluster"
+  render "Launch the Kubernetes Dashboard for the Kubernetes cluster"
 }
 
 function dashboard_host_command () {
-  if ! minikube_status; then
-    emergency "Minikube is not running"
+  if ! kubernetes_status; then
+    emergency "Kubernetes is not running"
   fi
-  launch_host_minikube_dashboard
+  launch_host_kubernetes_dashboard
 }

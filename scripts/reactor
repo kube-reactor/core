@@ -35,7 +35,7 @@ parse_flag '-h|--help' arg_h
 parse_flag '-v|--verbose' arg_v
 parse_flag '-d|--debug' arg_d
 
-delete_minikube_docker_environment
+delete_docker_environment
 #
 #=========================================================================================
 # Execution

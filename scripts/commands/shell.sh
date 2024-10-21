@@ -4,7 +4,7 @@
 #
 
 function shell_description () {
-  render "Open a terminal session to a running Minikube pod"
+  render "Open a terminal session to a running Kubernetes pod"
 }
 
 function shell_command_environment () {
@@ -14,10 +14,10 @@ function shell_command_environment () {
 }
 
 function shell_command () {
-  minikube_environment
+  kubernetes_environment
 
-  if ! minikube_status; then
-    emergency "Minikube is not running"
+  if ! kubernetes_status; then
+    emergency "Kubernetes is not running"
   fi
   "${__binary_dir}/kubectl" exec \
     -n "$SERVICE_NAMESPACE" \

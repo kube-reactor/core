@@ -9,10 +9,10 @@ function sys_description () {
 }
 
 function sys_command () {
-  minikube_environment
+  kubernetes_environment
 
-  if ! minikube_status; then
-    emergency "Minikube is not running"
+  if ! kubernetes_status; then
+    emergency "Kubernetes is not running"
   fi
   "${__binary_dir}/kubectl" "$@"
   add_space
