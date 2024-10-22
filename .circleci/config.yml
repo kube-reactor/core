@@ -16,7 +16,7 @@ bootstrap: &bootstrap
 
 session: &session
     name: Test Docker image
-    command: ./tests/run_session.sh
+    command: ./run/reactor-test
 
 session_env: &session_env
     REACTOR_PARENT_IMAGE: ubuntu:22.04

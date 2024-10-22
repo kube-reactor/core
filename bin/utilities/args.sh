@@ -2,6 +2,14 @@
 #=========================================================================================
 # Command Argument Utilities
 #
+source "${__utilities_dir}/cli.sh"
+source "${__utilities_dir}/validators.sh"
+source "${__utilities_dir}/arg_lib.sh"
+
+#
+#=========================================================================================
+# Argument Initialization
+#
 
 function reactor_args () {
   export __app_args=("$@")
@@ -53,30 +61,7 @@ function reactor_args () {
   debug "> Verbosity: ${arg_v}"
   debug "> Help: ${arg_h}"
   debug ""
-
-  debug "Script properties"
-  debug "======================================"
-  debug "> Local execution: ${REACTOR_LOCAL}"
-  debug "> OS type: ${OSTYPE}"
-  debug "> OS name: ${__os}"
-  debug "> CPU arch: ${__architecture}"
-  debug "> Invocation: ${__reactor_invocation}"
-  debug "> Reactor directory: ${__reactor_dir}"
-  debug "> Script directory: ${__script_dir}"
-  debug ""
-
-  debug "Project and development properties"
-  debug "======================================"
-  debug "> Project directory: ${__project_dir}"
-  debug "> Project manifest: ${__project_file}"
-  debug "> Certificate directory: ${__certs_dir}"
-  debug "> Executable directory: ${__binary_dir}"
-  debug "> Docker image project root directory: ${__docker_dir}"
-  debug "> Helm chart project root directory: ${__charts_dir}"
-  debug "> Terraform project root directory: ${__terraform_dir}"
-  debug ""
 }
-
 
 function normalize_params () {
   local PARAMS=''
@@ -115,6 +100,14 @@ function pop_arg_command () {
   __normalized_params=$ALT_PARAMS
   IFS="$IFS_ORIG"
 }
+
+#
+#=========================================================================================
+# Argument Parsing
+#
+
+#-----------------------------------------------------------------------------------------
+# Flags (Booleans)
 
 function parse_flag () {
   local FLAGS="$1"
@@ -159,6 +152,9 @@ function parse_flag () {
 
   debug "> ${FLAGS//|/ }: ${!FOUND_REF}"
 }
+
+#-----------------------------------------------------------------------------------------
+# Options (Optional Single Values)
 
 function parse_option () {
   local OPTIONS="$1"
@@ -235,6 +231,9 @@ function parse_option () {
   debug "> ${OPTIONS//|/ }: ${!VALUE_REF}"
 }
 
+#-----------------------------------------------------------------------------------------
+# Arguments (Required Single Values)
+
 function parse_arg () {
   local VALUE_REF="$1"
   local NAME=$(key_color "$(lowercase ${VALUE_REF})")
@@ -289,6 +288,9 @@ function parse_arg () {
 
   debug "> ${NAME}: ${!VALUE_REF}"
 }
+
+#-----------------------------------------------------------------------------------------
+# Arguments (Required or Optional Multi Values)
 
 function parse_optional_args () {
   local VALUE_REF="$1"

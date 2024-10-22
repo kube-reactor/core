@@ -1,0 +1,317 @@
+#!/usr/bin/env bash
+#
+#=========================================================================================
+# Setup
+#
+set -e
+
+# Initialize top level directories and load bootstrap functions
+SCRIPT_PATH="${BASH_SOURCE[0]}" # bash
+if [[ -z "$SCRIPT_PATH" ]]; then
+  SCRIPT_PATH="${(%):-%N}" # zsh
+fi
+
+export __environment="${REACTOR_ENV:-local}"
+export __script_name="$(basename "${SCRIPT_PATH//-/ }")"
+export __script_dir="$(cd "$(dirname "${SCRIPT_PATH}")" && pwd)"
+
+export PATH="${__script_dir}:${PATH}"
+source "${__script_dir}/state/load.sh"
+
+#=========================================================================================
+# Parameter processing
+#
+HELP="Test a complete project lifecycle"
+DEFAULT_DIRECTORY=""
+
+#
+# Project Directory Preference (higher overrides lower):
+#
+# 1. CLI --directory option or --remote option
+# 2. $PROJECT_DIRECTORY variable
+# 3. $PROJECT_TEMPLATE_DIRECTORY variable (Legacy)
+# 4. Active Project (__project_dir)
+# 5. CLI --remote default
+#
+
+if [ -d "${__project_dir}" ]; then
+  DEFAULT_DIRECTORY="${__project_dir}"
+fi
+if [ "${PROJECT_TEMPLATE_DIRECTORY:-}" ]; then
+  # Depreciated - Legacy Usage (CI/CD)
+  DEFAULT_DIRECTORY="$PROJECT_TEMPLATE_DIRECTORY"
+fi
+if [ "${PROJECT_DIRECTORY:-}" ]; then
+  DEFAULT_DIRECTORY="$PROJECT_DIRECTORY"
+fi
+
+function test_params () {
+  parse_flag --no-up \
+    NO_UP \
+    "Skip running reactor up before running and later phases"
+
+  parse_flag --no-down \
+    NO_DOWN \
+    "Skip running reactor down, destroy, and clean after running and previous phases"
+
+  parse_option --name \
+    PROJECT_NAME \
+    "Test project name" \
+    "$(config short_name test)"
+
+  parse_option --directory \
+    PROJECT_DIRECTORY \
+    "Test project or template directory" \
+    "$DEFAULT_DIRECTORY"
+
+  parse_option --remote \
+    PROJECT_TEMPLATE_REMOTE \
+    "Test project Git remote repository" \
+    "https://github.com/kube-reactor/cluster-base.git"
+
+  parse_option --reference \
+    PROJECT_TEMPLATE_REFERENCE \
+    "Test project Git branch or commit reference" \
+    "main"
+
+  parse_option --phases \
+    PROJECT_PHASES \
+    "Comma separated list of test project phases to test of options: startup, running, shutdown, and exit"
+
+  if [ "$PROJECT_PHASES" ]; then
+    IFS=',' read -r -a PROJECT_PHASES <<< "$PROJECT_PHASES"
+  else
+    PROJECT_PHASES=(startup running shutdown exit)
+  fi
+  export PROJECT_PHASES
+
+  parse_option --tags \
+    USER_TEST_TAGS \
+    "Comma separated list of test tags to run"
+
+  if [ "$USER_TEST_TAGS" ]; then
+    IFS=',' read -r -a USER_TEST_TAGS <<< "$USER_TEST_TAGS"
+  else
+    USER_TEST_TAGS=()
+  fi
+  export USER_TEST_TAGS
+}
+parse_cli test_params "$@"
+
+debug "Test directory: ${__test_dir}"
+debug "Reactor directory: ${__reactor_dir}"
+debug "Script directory: ${__script_dir}"
+debug "Projects directory: ${__projects_dir}"
+debug "Project phases: ${PROJECT_PHASES[@]}"
+debug "User test tags: ${USER_TEST_TAGS[@]}"
+
+#=========================================================================================
+# Project testing
+#
+
+#
+# Test Phases
+#
+# 1. Project Setup *
+# 2. <startup>
+# 3. Cluster Startup / Build *
+# 4. <running>
+# 5. Cluster Shutdown *
+# 6. <shutdown>
+# 7. Project Cleanup *
+# 8. <exit>
+#
+if [[ "$PROJECT_DIRECTORY" ]] && [[ -d "$PROJECT_DIRECTORY" ]]; then
+  #
+  # Local project testing
+  #
+  __project_dir="$PROJECT_DIRECTORY"
+
+  if [ -f "${__project_dir}/cookiecutter.json" ]; then
+    #
+    # Local template project testing
+    #
+    reactor create --defaults \
+      --project="${__project_dir}" \
+      --directory="${__projects_dir}" \
+      --name="$PROJECT_NAME"
+
+    __project_dir="${__projects_dir}/${PROJECT_NAME}"
+  fi
+else
+  #
+  # Remote template project testing
+  #
+  reactor create --defaults \
+    --directory="${__projects_dir}" \
+    --remote="$PROJECT_TEMPLATE_REMOTE" \
+    --reference="$PROJECT_TEMPLATE_REFERENCE" \
+    --name="$PROJECT_NAME"
+
+  __project_dir="${__projects_dir}/${PROJECT_NAME}"
+fi
+export __project_dir
+export __project_test_dir="${__project_dir}/reactor/tests"
+
+cd "${__project_dir}"
+
+debug "Project directory: ${__project_dir}"
+debug "Project test directory: ${__project_test_dir}"
+info ""
+info "Sourcing development environment"
+source reactor
+render_environment
+
+#
+# Project test initialization
+#
+if [[ " ${PROJECT_PHASES[*]} " =~ [[:space:]]startup[[:space:]] ]]; then
+  start_test phase
+  test_phase startup
+  verify_test
+fi
+
+#=========================================================================================
+# Development Session
+#
+#
+# Starting Up
+#
+if [ ! "$NO_UP" ]; then
+  echo ""
+  echo "==========================================================================="
+  echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+  echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+  echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+  echo "==========================================================================="
+  echo " Running Reactor startup"
+  echo ""
+
+  function test_up () {
+    run reactor up --debug
+
+    verify_dir ./cache
+    verify_dir ./certs
+    verify_dir ./docker
+    verify_dir ./charts
+    verify_dir ./.minikube
+    verify_file ./env/local/.kubeconfig
+    verify_file ./logs/tunnel.kpid
+    verify_dir ./.terraform
+    verify_file ./terraform/argocd-apps/gateway/.terraform.lock.hcl
+    verify_file ./terraform/argocd-apps/gateway/terraform.tfstate
+    verify_file ./logs/hosts.txt
+    verify_host argocd.test.local
+  }
+
+  start_test lifecycle start build
+  run_test test_up
+  verify_test
+fi
+
+#
+# Development project sanity checking and diagnostic output
+#
+echo ""
+echo "> docker ps -a"
+docker ps -a
+echo ""
+echo "> docker images"
+docker images
+
+echo ""
+echo "> minikube status"
+minikube status
+echo ""
+echo "> kubectl get pods -A"
+kubectl get pods -A
+echo ""
+echo "> kubectl get services -A"
+kubectl get services -A
+echo ""
+echo "> kubectl get ingress -A"
+kubectl get ingress -A
+
+#
+# Running tests...
+#
+if [[ " ${PROJECT_PHASES[*]} " =~ [[:space:]]running[[:space:]] ]]; then
+  start_test phase
+  test_phase running
+  verify_test
+fi
+
+#
+# Shutting Down
+#
+if [ ! "$NO_DOWN" ]; then
+  echo ""
+  echo "==========================================================================="
+  echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+  echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+  echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+  echo "==========================================================================="
+  echo " Running Reactor shutdown"
+  echo ""
+
+  function test_down () {
+    run reactor down --debug
+
+    verify_no_file ./env/local/.kubeconfig
+    verify_no_file ./logs/tunnel.kpid
+    verify_no_file ./logs/dashboard.kpid
+    verify_no_file ./logs/hosts.txt
+    verify_no_host argocd.test.local
+  }
+
+  start_test lifecycle clean
+  run_test test_down
+  verify_test
+fi
+
+if [[ " ${PROJECT_PHASES[*]} " =~ [[:space:]]shutdown[[:space:]] ]]; then
+  start_test phase clean
+  test_phase shutdown
+  verify_test
+fi
+
+#
+# Cleaning Up
+#
+if [ ! "$NO_DOWN" ]; then
+  echo ""
+  echo "==========================================================================="
+  echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+  echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+  echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+  echo "==========================================================================="
+  echo " Running Reactor cleanup"
+  echo ""
+
+  function test_destroy () {
+    run reactor destroy --force --debug
+
+    verify_no_dir ./.minikube
+    verify_no_dir ./.terraform
+    verify_no_file ./terraform/argocd-apps/gateway/.terraform.lock.hcl
+    verify_no_file ./terraform/argocd-apps/gateway/terraform.tfstate
+  }
+
+  function test_clean () {
+    run reactor clean --force --debug
+
+    verify_no_dir ./cache
+    verify_no_dir ./certs
+  }
+
+  start_test lifecycle clean
+  run_test test_destroy
+  run_test test_clean
+  verify_test
+fi
+
+if [[ " ${PROJECT_PHASES[*]} " =~ [[:space:]]exit[[:space:]] ]]; then
+  start_test phase clean
+  test_phase exit
+  verify_test
+fi

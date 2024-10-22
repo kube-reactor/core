@@ -5,6 +5,7 @@
 
 export DEFAULT_TERRAFORM_VERSION="1.9.5"
 
+
 function terraform_environment () {
   debug "Setting Terraform environment ..."
   export TERRAFORM_VERSION="${TERRAFORM_VERSION:-$DEFAULT_TERRAFORM_VERSION}"

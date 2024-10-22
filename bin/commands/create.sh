@@ -7,6 +7,10 @@ function create_description () {
   render "Create a new cluster project from a template"
 }
 
+function create_check_project () {
+  return 0
+}
+
 function create_command_environment () {
   parse_flag --defaults \
     USE_DEFAULTS \

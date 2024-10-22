@@ -2,13 +2,33 @@
 #=========================================================================================
 # CLI Utilities
 #
+source "${__utilities_dir}/disk.sh"
+
 
 export TERMINAL_COLUMNS="$(stty -a | grep -Po '(?<=columns )\d+')"
 export TERMINAL_ROWS="$(stty -a | grep -Po '(?<=rows )\d+')"
 
+export COLOR_DEBUG="${COLOR_DEBUG:-"\\x1b[1;35m"}"
+export COLOR_INFO="${COLOR_INFO:-"\\x1b[1;32m"}"
+export COLOR_NOTICE="${COLOR_NOTICE:-"\\x1b[1;34m"}"
+export COLOR_WARNING="${COLOR_WARNING:-"\\x1b[1;33m"}"
+export COLOR_ERROR="${COLOR_ERROR:-"\\x1b[1;31m"}"
+export COLOR_CRITICAL="${COLOR_CRITICAL:-"\\x1b[1;31m"}"
+export COLOR_ALERT="${COLOR_ALERT:-"\\x1b[1;37;41m"}"
+export COLOR_EMERGENCY="${COLOR_EMERGENCY:-"\\x1b[1;4;5;37;41m"}"
+export COLOR_VARIABLE="${COLOR_VARIABLE:-"\\x1b[1;32m"}"
+export COLOR_KEY="${COLOR_KEY:-"\\x1b[1;33m"}"
+export COLOR_VALUE="${COLOR_VALUE:-"\\x1b[1;34m"}"
+export COLOR_TERMINAL="${COLOR_TERMINAL:-"\\x1b[1;32;40m"}"
+export COLOR_RESET="\\x1b[0m"
+
+#
+#=========================================================================================
+# Color Utilities
+#
 
 function check_color () {
-  if [[ "$arg_n" ]] || { [[ "${TERM:-}" != "xterm"* ]] && [[ "${TERM:-}" != "screen"* ]]; } || [[ ! -t 2 ]]; then
+  if [[ "$arg_n" ]] || [[ ! -t 2 ]]; then
     return 1
   fi
   return 0
@@ -16,7 +36,7 @@ function check_color () {
 function debug_color () {
   local text="${1:-}"
   if check_color; then
-    echo -e "${__color_debug}${text}${__color_reset}"
+    echo -e "${COLOR_DEBUG}${text}${COLOR_RESET}"
   else
     echo "$text"
   fi
@@ -24,7 +44,7 @@ function debug_color () {
 function info_color () {
   local text="${1:-}"
   if check_color; then
-    echo -e "${__color_info}${text}${__color_reset}"
+    echo -e "${COLOR_INFO}${text}${COLOR_RESET}"
   else
     echo "$text"
   fi
@@ -32,7 +52,7 @@ function info_color () {
 function notice_color () {
   local text="${1:-}"
   if check_color; then
-    echo -e "${__color_notice}${text}${__color_reset}"
+    echo -e "${COLOR_NOTICE}${text}${COLOR_RESET}"
   else
     echo "$text"
   fi
@@ -40,7 +60,7 @@ function notice_color () {
 function warning_color () {
   local text="${1:-}"
   if check_color; then
-    echo -e "${__color_warning}${text}${__color_reset}"
+    echo -e "${COLOR_WARNING}${text}${COLOR_RESET}"
   else
     echo "$text"
   fi
@@ -48,7 +68,7 @@ function warning_color () {
 function error_color () {
   local text="${1:-}"
   if check_color; then
-    echo -e "${__color_error}${text}${__color_reset}"
+    echo -e "${COLOR_ERROR}${text}${COLOR_RESET}"
   else
     echo "$text"
   fi
@@ -56,7 +76,7 @@ function error_color () {
 function critical_color () {
   local text="${1:-}"
   if check_color; then
-    echo -e "${__color_critical}${text}${__color_reset}"
+    echo -e "${COLOR_CRITICAL}${text}${COLOR_RESET}"
   else
     echo "$text"
   fi
@@ -64,7 +84,7 @@ function critical_color () {
 function alert_color () {
   local text="${1:-}"
   if check_color; then
-    echo -e "${__color_alert}${text}${__color_reset}"
+    echo -e "${COLOR_ALERT}${text}${COLOR_RESET}"
   else
     echo "$text"
   fi
@@ -72,7 +92,7 @@ function alert_color () {
 function emergency_color () {
   local text="${1:-}"
   if check_color; then
-    echo -e "${__color_emergency}${text}${__color_reset}"
+    echo -e "${COLOR_EMERGENCY}${text}${COLOR_RESET}"
   else
     echo "$text"
   fi
@@ -80,7 +100,7 @@ function emergency_color () {
 function variable_color () {
   local text="${1:-}"
   if check_color; then
-    echo -e "${__color_variable}${text}${__color_reset}"
+    echo -e "${COLOR_VARIABLE}${text}${COLOR_RESET}"
   else
     echo "$text"
   fi
@@ -88,7 +108,7 @@ function variable_color () {
 function key_color () {
   local text="${1:-}"
   if check_color; then
-    echo -e "${__color_key}${text}${__color_reset}"
+    echo -e "${COLOR_KEY}${text}${COLOR_RESET}"
   else
     echo "$text"
   fi
@@ -96,7 +116,7 @@ function key_color () {
 function value_color () {
   local text="${1:-}"
   if check_color; then
-    echo -e "${__color_value}${text}${__color_reset}"
+    echo -e "${COLOR_VALUE}${text}${COLOR_RESET}"
   else
     echo "$text"
   fi
@@ -104,12 +124,16 @@ function value_color () {
 function terminal_color () {
   local text="${1:-}"
   if check_color; then
-    echo -e "${__color_terminal}${text}${__color_reset}"
+    echo -e "${COLOR_TERMINAL}${text}${COLOR_RESET}"
   else
     echo "$text"
   fi
 }
 
+#
+#=========================================================================================
+# Logging Utilities
+#
 
 # requires `set -o errtrace`
 function __err_report() {
@@ -128,7 +152,7 @@ function __log () {
   local log_line=""
   local date_time="$(date -u +"%Y-%m-%d %H:%M:%S UTC")"
 
-  if [ $REACTOR_LOCAL -ne 0 ]; then
+  if [ ${REACTOR_LOCAL:-0} -ne 0 ]; then
     local local_indicator="*"
   else
     local local_indicator=""
@@ -151,16 +175,29 @@ function notice ()    { [[ "${LOG_LEVEL:-0}" -ge 5 ]] && __log notice "${@}"; tr
 function info ()      { [[ "${LOG_LEVEL:-0}" -ge 6 ]] && __log info "${@}"; true; }
 function debug ()     { [[ "${LOG_LEVEL:-0}" -ge 7 ]] && __log debug "${@}"; true; }
 
+#
+#=========================================================================================
+# Prompting Utilities
+#
+
 function confirm () {
   read -p "This is a destructive operation! Type YES to continue?: " CONFIRM_INPUT
   [[ $CONFIRM_INPUT =~ ^[Yy][Ee][Ss]$ ]] || exit 1
 }
 
+#
+#=========================================================================================
+# Administrative Utilities
+#
 
 function check_admin () {
   sudo -v
 }
 
+#
+#=========================================================================================
+# Display Rendering Utilities
+#
 
 function render () {
   echo "$1"
@@ -180,6 +217,11 @@ function format_width () {
   local indent="${2:-0}"
   render "$(echo "$text" | fold -s -w $TERMINAL_COLUMNS | sed "2,\$s/^/$(printf ' %.0s' $(seq 1 $indent))/")"
 }
+
+#
+#=========================================================================================
+# Text Conversion Utilities
+#
 
 function lowercase () {
   render "$1" | tr '[:upper:]' '[:lower:]'

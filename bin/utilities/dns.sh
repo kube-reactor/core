@@ -12,7 +12,7 @@ fi
 function dns_environment () {
   debug "Setting DNS environment ..."
   export HOSTS_FILE="${HOSTS_FILE:-"$DEFAULT_HOSTS_FILE"}"
-  export HOSTS_MANIFEST_FILE="${__log_dir}/hosts.txt"
+  export HOSTS_MANIFEST_FILE="$(logdir)/hosts.txt"
 
   debug "HOSTS_FILE: ${HOSTS_FILE}"
   debug "HOSTS_MANIFEST_FILE: ${HOSTS_MANIFEST_FILE}"

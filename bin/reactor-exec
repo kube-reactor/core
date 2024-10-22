@@ -43,7 +43,7 @@ if [[ "$arg_h" ]] || [[ ${#__app_args[@]} -eq 0 ]]; then
       fi
     fi
   else
-    usage
+    gateway_usage
   fi
 fi
 
@@ -54,7 +54,7 @@ COMMAND_HOST_FUNCTION="${COMMAND}_host_command"
 
 if [ "$COMMAND" == "help" ]; then
   if [[ ${#COMMAND_ARGS[@]} -eq 0 ]]; then
-    usage
+    gateway_usage
   else
     generate_command_help "${COMMAND_ARGS[0]}"
   fi
@@ -82,5 +82,5 @@ if function_exists $COMMAND_FUNCTION; then
 
 elif ! function_exists $COMMAND_HOST_FUNCTION; then
   error "Unknown command: ${COMMAND}"
-  usage
+  gateway_usage
 fi

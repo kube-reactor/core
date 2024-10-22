@@ -88,7 +88,7 @@ function delete_kubernetes_storage_minikube () {
 
 function launch_host_kubernetes_tunnel_minikube () {
   # Runs on host machine
-  PID_FILE="${__log_dir}/tunnel.kpid"
+  PID_FILE="$(logdir)/tunnel.kpid"
 
   info "Launching Minikube tunnel (requires sudo) ..."
   check_admin
@@ -98,7 +98,7 @@ function launch_host_kubernetes_tunnel_minikube () {
 
 function terminate_host_kubernetes_tunnel_minikube () {
   # Runs on host machine
-  PID_FILE="${__log_dir}/tunnel.kpid"
+  PID_FILE="$(logdir)/tunnel.kpid"
 
   if [ -f "$PID_FILE" ]; then
     if kill -s 0 "$(cat "$PID_FILE")" >/dev/null 2>&1; then
@@ -111,7 +111,7 @@ function terminate_host_kubernetes_tunnel_minikube () {
 
 function launch_host_kubernetes_dashboard_minikube () {
   # Runs on host machine
-  PID_FILE="${__log_dir}/dashboard.kpid"
+  PID_FILE="$(logdir)/dashboard.kpid"
 
   info "Launching Kubernetes Dashboard ..."
   "${__binary_dir}/minikube" dashboard 1>>"$(logfile)" 2>&1 &
@@ -120,7 +120,7 @@ function launch_host_kubernetes_dashboard_minikube () {
 
 function terminate_host_kubernetes_dashboard_minikube () {
   # Runs on host machine
-  PID_FILE="${__log_dir}/dashboard.kpid"
+  PID_FILE="$(logdir)/dashboard.kpid"
 
   if [ -f "$PID_FILE" ]; then
     if kill -s 0 "$(cat "$PID_FILE")" >/dev/null 2>&1; then

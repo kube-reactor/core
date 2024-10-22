@@ -24,6 +24,8 @@ function kubernetes_environment () {
 
 
 function run_kube_function () {
+  kubernetes_environment
+
   local base_name="$1"
   shift
 
@@ -91,7 +93,7 @@ function destroy_kubernetes () {
   delete_kubernetes_storage
   delete_docker_environment
 
-  rm -f "${__log_dir}/docker.sh"
+  rm -f "$(logdir)/docker.sh"
 }
 
 function destroy_host_kubernetes () {

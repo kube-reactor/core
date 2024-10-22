@@ -38,12 +38,6 @@ function up_command () {
     "${CERT_SUBJECT}/CN=*.${PRIMARY_DOMAIN}" \
     "$CERT_DAYS"
 
-  info "Initializing ArgoCD application repository ..."
-  download_git_repo \
-    https://github.com/kube-reactor/argocd-apps.git \
-    "${__argocd_apps_dir}" \
-    "$ARGOCD_APPS_VERSION"
-
   start_kubernetes
 
   if [[ "$BUILD" ]] || [[ ! -f "${__init_file}" ]]; then

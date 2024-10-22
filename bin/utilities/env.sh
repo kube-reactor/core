@@ -2,6 +2,35 @@
 #=========================================================================================
 # Command Environment Utilities
 #
+source "${__utilities_dir}/hooks.sh"
+
+
+function render_overview () {
+  debug ""
+  debug "Script properties"
+  debug "======================================"
+  debug "> Local execution: ${REACTOR_LOCAL:-0}"
+  debug "> OS type: ${OSTYPE:-}"
+  debug "> OS name: ${__os:-}"
+  debug "> CPU arch: ${__architecture:-}"
+  debug "> Invocation: ${__reactor_invocation:-}"
+  debug "> Reactor directory: ${__reactor_dir:-}"
+  debug "> Script directory: ${__script_dir:-}"
+  debug ""
+
+  debug "Project and development properties"
+  debug "======================================"
+  debug "> Project directory: ${__project_dir:-}"
+  debug "> Project manifest: ${__project_file:-}"
+  debug "> Certificate directory: ${__certs_dir:-}"
+  debug "> Executable directory: ${__binary_dir:-}"
+  debug "> Docker image project root directory: ${__docker_dir:-}"
+  debug "> Helm chart project root directory: ${__charts_dir:-}"
+  debug "> Terraform project root directory: ${__terraform_dir:-}"
+  debug ""
+
+  run_hook render_overview
+}
 
 function current_environment () {
   ENVIRONMENT_VARS=()
@@ -12,8 +41,7 @@ function current_environment () {
       && [[ "$variable" != "PWD" ]] \
       && [[ "$variable" != "USER" ]] \
       && [[ "$variable" != "HOME" ]] \
-      && [[ "$variable" != "SHELL" ]] \
-      && [[ "$variable" != "__color_"* ]]; then
+      && [[ "$variable" != "SHELL" ]]; then
 
       ENVIRONMENT_VARS=("${ENVIRONMENT_VARS[@]}" "$variable")
     fi
@@ -24,7 +52,9 @@ function current_environment () {
 
 function render_environment () {
   for variable in $(current_environment); do
-    echo "${variable}: $(eval "echo \"\$${variable}\"" 2>/dev/null)"
+    if [[ "$variable" != "COLOR_"* ]]; then
+      echo "${variable}: $(eval "echo \"\$${variable}\"" 2>/dev/null)"
+    fi
   done
 }
 
@@ -37,6 +67,8 @@ function parse_environment () {
   fi
   if [ "${__reactor_arg_errors}" ]; then
     command_usage "$command"
+    render_overview
     exit 1
   fi
+  render_overview
 }

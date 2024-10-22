@@ -3,10 +3,19 @@
 # ArgoCD Utilities
 #
 
+export ARGOCD_APPS_VERSION="${ARGOCD_APPS_VERSION:-main}"
+
+
 function install_argocd () {
   download_binary argocd \
     "https://github.com/argoproj/argo-cd/releases/latest/download/argocd-${__os}-${__architecture}" \
     "${__binary_dir}"
+
+  info "Initializing ArgoCD application repository ..."
+  download_git_repo \
+    https://github.com/kube-reactor/argocd-apps.git \
+    "${__argocd_apps_dir}" \
+    "$ARGOCD_APPS_VERSION"
 }
 
 

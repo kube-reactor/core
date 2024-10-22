@@ -4,7 +4,7 @@
 #
 
 function add_docker_environment () {
-  docker_vars_file="${__log_dir}/docker.sh"
+  docker_vars_file="$(logdir)/docker.sh"
 
   if [ ! -f "$docker_vars_file" ]; then
     touch "$docker_vars_file"
@@ -27,7 +27,7 @@ function add_docker_environment () {
 }
 
 function delete_docker_environment () {
-  docker_vars_file="${__log_dir}/docker.sh"
+  docker_vars_file="$(logdir)/docker.sh"
 
   unset DOCKER_TLS_VERIFY
   unset DOCKER_HOST

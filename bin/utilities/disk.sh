@@ -1,15 +1,34 @@
 #
 #=========================================================================================
-# File Handling Utilities
+# Disk Utilities
 #
 
-function logfile () {
-    if [ -d "${__log_dir}" ]; then
-      echo "${__log_dir}/${__log_file}.log"
-    else
-      echo "/dev/null"
-    fi
+export __log_dir="${LOG_DIR:-logs}"
+export __log_file="${LOG_FILE:-reactor}"
+
+#
+#=========================================================================================
+# Logging Utilities
+#
+
+function logdir () {
+  if [[ "${__project_dir:-}" ]] && [[ -d "${__project_dir}" ]]; then
+    local log_dir="${__project_dir}/${__log_dir}"
+    mkdir -p "${log_dir}"
+    echo "${log_dir}"
+  else
+    echo "/tmp"
+  fi
 }
+
+function logfile () {
+    echo "$(logdir)/${__log_file}.log"
+}
+
+#
+#=========================================================================================
+# Installation and Execution Utilities
+#
 
 function check_binary () {
   if ! command -v "$1" > /dev/null; then
@@ -35,6 +54,11 @@ function download_binary () {
   fi
 }
 
+#
+#=========================================================================================
+# Folder and File Utilities
+#
+
 function create_folder () {
   if ! [ -d "$1" ]; then
     debug "Create folder \"$1\""
@@ -55,6 +79,15 @@ function remove_file () {
     rm -f "$1" 1>>"$(logfile)" 2>&1
   fi
 }
+
+function clean_cache () {
+  sudo rm -Rf "${__cache_dir}"
+}
+
+#
+#=========================================================================================
+# Git Utilities
+#
 
 function exec_git ()
 {
@@ -78,8 +111,4 @@ function download_git_repo () {
   fi
   exec_git "$DIRECTORY" fetch origin --tags
   exec_git "$DIRECTORY" checkout "$REFERENCE" --
-}
-
-function clean_cache () {
-  sudo rm -Rf "${__cache_dir}"
 }
