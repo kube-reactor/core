@@ -28,7 +28,7 @@ export COLOR_RESET="\\x1b[0m"
 #
 
 function check_color () {
-  if [[ "$arg_n" ]] || [[ ! -t 2 ]]; then
+  if [[ "${arg_n:-}" ]] || [[ ! -t 2 ]]; then
     return 1
   fi
   return 0

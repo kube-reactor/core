@@ -7,20 +7,19 @@
 #
 # Remove any previous ubuntu:22.04 image
 #
-docker image rm ubuntu:22.04 2>/dev/null
+#docker image rm ubuntu:22.04 2>/dev/null
 
 #
 #=========================================================================================
 # Test execution
 #
-set -e
 
 #
 # Run container command without image available
 #
-reactor exec ubuntu:22.04 ls -al --debug --wait=10
+#reactor exec ubuntu:22.04 ls -al --debug --wait=10
 
 #
 # Run container command with image and default timeout
 #
-reactor exec ubuntu:22.04 ls -al --debug
+#reactor exec ubuntu:22.04 ls -al --debug

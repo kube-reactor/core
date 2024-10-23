@@ -8,8 +8,8 @@ function test_description () {
   export PASSTHROUGH="1"
 }
 
-function test_check_project () {
-  return 0
+function test_requires_project () {
+  return 1
 }
 
 function test_host_command () {

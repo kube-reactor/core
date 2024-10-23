@@ -3,22 +3,17 @@
 # Command Execution Utilities
 #
 
-function check_project () {
+function requires_project () {
   local command="$1"
-  local check_function="${command}_check_project"
+  local check_function="${command}_requires_project"
 
   if function_exists "$check_function"; then
     # Farm it off to a command level processor (create and test ...)
     "$check_function"
     return $?
   else
-    if [[ ! "${__project_file}" ]]; then
-      # Project does not exist
-      return 1
-    else
-      # Project exists
-      return 0
-    fi
+    # All commands by default run in containers before host execution
+    return 0
   fi
 }
 

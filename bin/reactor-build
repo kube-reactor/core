@@ -19,7 +19,7 @@ export __script_dir="$(cd "$(dirname "${SCRIPT_PATH}")" && pwd)"
 export __reactor_dir="$(dirname "${__script_dir}")"
 export __reactor_docker_dir="${__reactor_dir}/docker"
 
-source "${__script_dir}/reactor-env"
+source "${__script_dir}/reactor-env" $SOURCED
 
 if [[ $SOURCED -eq 1 ]]; then
   # script is being sourced

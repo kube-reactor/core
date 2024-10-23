@@ -26,90 +26,120 @@ function test_phase () {
   #
   if [ -d "${__test_dir}/${TEST_PHASE}" ]; then
     for file in "${__test_dir}/${TEST_PHASE}"/*.sh; do
-      echo ""
-      echo "==========================================================================="
-      echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-      echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-      echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-      echo "==========================================================================="
-      echo " Running reactor test collection: ${file}"
-      echo ""
+      if [[ "$arg_d" ]] || [[ "$arg_v" ]]; then
+        add_space
+        render "==========================================================================="
+        render "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+        render "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+        render "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+        render "==========================================================================="
+      fi
+      render " * Running reactor test collection: ${file}"
+      if [[ "$arg_d" ]] || [[ "$arg_v" ]]; then
+        add_space
+      fi
       export TEST_FILE="${file}"
       "$file"
     done
   fi
   if [ -d "${__test_dir}/${TEST_PHASE}/commands" ]; then
     for file in "${__test_dir}/${TEST_PHASE}/commands"/*.sh; do
-      echo ""
-      echo "==========================================================================="
-      echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-      echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-      echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-      echo "==========================================================================="
-      echo " Running reactor command test: ${file}"
-      echo ""
+      if [[ "$arg_d" ]] || [[ "$arg_v" ]]; then
+        add_space
+        render "==========================================================================="
+        render "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+        render "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+        render "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+        render "==========================================================================="
+      fi
+      render " * Running reactor command test: ${file}"
+      if [[ "$arg_d" ]] || [[ "$arg_v" ]]; then
+        add_space
+      fi
+
       export TEST_FILE="${file}"
       "$file"
     done
   fi
   if [ -d "${__test_dir}/${TEST_PHASE}/utilities" ]; then
     for file in "${__test_dir}/${TEST_PHASE}/utilities"/*.sh; do
-      echo ""
-      echo "==========================================================================="
-      echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-      echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-      echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-      echo "==========================================================================="
-      echo " Running reactor utility test: ${file}"
-      echo ""
+      if [[ "$arg_d" ]] || [[ "$arg_v" ]]; then
+        add_space
+        render "==========================================================================="
+        render "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+        render "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+        render "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+        render "==========================================================================="
+      fi
+      render " * Running reactor utility test: ${file}"
+      if [[ "$arg_d" ]] || [[ "$arg_v" ]]; then
+        add_space
+      fi
+
       export TEST_FILE="${file}"
       "$file"
     done
   fi
-  #
-  # Running Project Command Tests
-  #
-  if [ -d "${__project_test_dir}/${TEST_PHASE}" ]; then
-    for file in "${__project_test_dir}/${TEST_PHASE}"/*.sh; do
-      echo ""
-      echo "==========================================================================="
-      echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-      echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-      echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-      echo "==========================================================================="
-      echo " Running reactor test collection: ${file}"
-      echo ""
-      export TEST_FILE="${file}"
-      "$file"
-    done
-  fi
-  if [ -d "${__project_test_dir}/${TEST_PHASE}/commands" ]; then
-    for file in "${__project_test_dir}/${TEST_PHASE}/commands"/*.sh; do
-      echo ""
-      echo "==========================================================================="
-      echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-      echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-      echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-      echo "==========================================================================="
-      echo " Running reactor command test: ${file}"
-      echo ""
-      export TEST_FILE="${file}"
-      "$file"
-    done
-  fi
-  if [ -d "${__project_test_dir}/${TEST_PHASE}/utilities" ]; then
-    for file in "${__project_test_dir}/${TEST_PHASE}/utilities"/*.sh; do
-      echo ""
-      echo "==========================================================================="
-      echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-      echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-      echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-      echo "==========================================================================="
-      echo " Running reactor utility test: ${file}"
-      echo ""
-      export TEST_FILE="${file}"
-      "$file"
-    done
+  if check_project; then
+    #
+    # Running Project Command Tests
+    #
+    if [ -d "${__project_test_dir}/${TEST_PHASE}" ]; then
+      for file in "${__project_test_dir}/${TEST_PHASE}"/*.sh; do
+        if [[ "$arg_d" ]] || [[ "$arg_v" ]]; then
+          add_space
+          render "==========================================================================="
+          render "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+          render "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+          render "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+          render "==========================================================================="
+        fi
+        render " * Running reactor test collection: ${file}"
+        if [[ "$arg_d" ]] || [[ "$arg_v" ]]; then
+          add_space
+        fi
+
+        export TEST_FILE="${file}"
+        "$file"
+      done
+    fi
+    if [ -d "${__project_test_dir}/${TEST_PHASE}/commands" ]; then
+      for file in "${__project_test_dir}/${TEST_PHASE}/commands"/*.sh; do
+        if [[ "$arg_d" ]] || [[ "$arg_v" ]]; then
+          add_space
+          render "==========================================================================="
+          render "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+          render "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+          render "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+          render "==========================================================================="
+        fi
+        render " * Running reactor command test: ${file}"
+        if [[ "$arg_d" ]] || [[ "$arg_v" ]]; then
+          add_space
+        fi
+
+        export TEST_FILE="${file}"
+        "$file"
+      done
+    fi
+    if [ -d "${__project_test_dir}/${TEST_PHASE}/utilities" ]; then
+      for file in "${__project_test_dir}/${TEST_PHASE}/utilities"/*.sh; do
+        if [[ "$arg_d" ]] || [[ "$arg_v" ]]; then
+          add_space
+          render "==========================================================================="
+          render "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+          render "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+          render "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+          render "==========================================================================="
+        fi
+        render " * Running reactor utility test: ${file}"
+        if [[ "$arg_d" ]] || [[ "$arg_v" ]]; then
+          add_space
+        fi
+        export TEST_FILE="${file}"
+        "$file"
+      done
+    fi
   fi
 }
 
@@ -121,16 +151,34 @@ function start_test () {
 }
 
 function fail () {
-  local message="[ ${TEST_PHASE} > ${TEST_FILE:-} > ${TEST_NAME:-} > ${TEST_COMMAND:-} ]: $1"
-  export TEST_ERRORS=("${TEST_ERRORS[@]}" "$message")
+  local info="$(error_color "${TEST_PHASE:-}>${TEST_FILE:-}>${TEST_NAME:-}>${TEST_COMMAND:-} ]")"
+  export TEST_ERRORS=("${TEST_ERRORS[@]}" "[ $info ]: $1")
 }
 
 function run () {
   local test_command="$1"
+  local log_file="$(logdir)/$(echo "$*" | tr -d ' ').log"
   shift
 
   export TEST_COMMAND="${test_command} ${@}"
-  export TEST_OUTPUT="$($test_command "$@" | tee /dev/tty)"
+
+  debug ""
+  debug "Running:"
+  debug ""
+  debug "Command: ${TEST_COMMAND}"
+  debug "Log File: ${log_file}"
+
+  "$test_command" "$@" 1>"$log_file" 2>&1
+  export TEST_STATUS=$?
+  export TEST_OUTPUT="$(cat "$log_file")"
+
+  debug "Output: ${TEST_OUTPUT}"
+  debug "Status:  ${TEST_STATUS}"
+  debug ""
+
+  if [ $TEST_STATUS -ne 0 ]; then
+    fail "Command failed: ${test_command} ${@} [ ${log_file} ]"
+  fi
 }
 
 function tag () {
@@ -161,11 +209,14 @@ function run_test () {
   fi
 
   if [ $run_test -eq 1 ]; then
-    if declare -F "$1" >/dev/null; then
+
+    if declare -F "$test_function" >/dev/null; then
+      render "Executing test function: ${test_function}"
       export TEST_NAME="$test_function"
       "$test_function" "$@"
     else
-      echo "[ ${TEST_PHASE} > ${TEST_FILE:-} ]: Function $1 does not exist" 1>&2
+      local info="$(error_color "${TEST_PHASE:-}>${TEST_FILE:-}")"
+      render "[ ${info} ]: Function ${test_function} does not exist" 1>&2
       exit 1
     fi
   fi
@@ -173,7 +224,7 @@ function run_test () {
 
 function verify_test () {
   if [ ${#TEST_ERRORS[@]} -gt 0 ]; then
-    for message in ${TEST_ERRORS[@]}; do
+    for message in "${TEST_ERRORS[@]}"; do
       echo "$message" 1>&2
     done
     exit 1
@@ -183,8 +234,10 @@ function verify_test () {
 
 source "${__utilities_dir}/verifiers.sh"
 
-if [ -d "${__project_test_dir}/utilities" ]; then
-  for file in "${__project_test_dir}/utilities"/*.sh; do
-    source "$file"
-  done
+if check_project; then
+  if [ -d "${__project_test_dir}/utilities" ]; then
+    for file in "${__project_test_dir}/utilities"/*.sh; do
+      source "$file"
+    done
+  fi
 fi

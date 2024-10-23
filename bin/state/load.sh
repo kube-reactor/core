@@ -3,13 +3,20 @@
 # Script Loader
 #
 
+# Error handling
+set -o errtrace
+set -o nounset
+set -o pipefail
+
+
 export LOG_LEVEL="${LOG_LEVEL:-6}" # 7 = debug -> 0 = emergency
 
 if [ -f /REACTOR.txt ]; then
-  export REACTOR_LOCAL=0
+  REACTOR_LOCAL=0
 else
-  export REACTOR_LOCAL=1
+  REACTOR_LOCAL=1
 fi
+export REACTOR_LOCAL
 
 # Set OS and system architecture variables.
 case "$OSTYPE" in
@@ -26,6 +33,14 @@ case $(uname -m) in
 esac
 export __architecture
 
+export __user_id="$(id -u)"
+export __user_name="$(id -nu)"
+export __group_id="$(id -g)"
+export __group_name="$(id -ng)"
+export __docker_group_id="$(cut -d: -f3 < <(getent group docker))"
+export __home_dir="/home/${__user_name}"
+export HOME="${__home_dir}"
+
 export __environment="${REACTOR_ENV:-local}"
 export __reactor_dir="$(dirname "${__script_dir}")"
 export __reactor_version="$(cat -s "${__reactor_dir}/VERSION")"
@@ -39,6 +54,7 @@ export __utilities_dir="${__script_dir}/utilities"
 export __test_dir="${__reactor_dir}/tests"
 export __projects_dir="${__reactor_dir}/projects"
 export __project_file="$(project_file "$(pwd)")"
+export __project_dir=""
 
 if [ "${__project_file}" ]; then
   export __project_dir="$(dirname "${__project_file}")"
@@ -46,6 +62,7 @@ if [ "${__project_file}" ]; then
   export __init_file="${__env_dir}/.initialized"
 
   export __project_reactor_dir="${__project_dir}/reactor"
+  export __project_test_dir="${__project_dir}/reactor/tests"
 
   export __app_dir="${__project_dir}/projects"
   export __certs_dir="${__project_dir}/certs"
@@ -66,6 +83,19 @@ if [ "${__project_file}" ]; then
   fi
 fi
 
+export APP_NAME="$(config short_name)"
+export APP_LABEL="$(config name)"
+
+export PRIMARY_DOMAIN="$(echo "$APP_NAME" | tr '_' '-').local"
+
+
+function check_project () {
+  if [ ! "${__project_file}" ]; then
+    return 1
+  else
+    return 0
+  fi
+}
 
 function load_utilities () {
   if [ $# -gt 0 ]; then

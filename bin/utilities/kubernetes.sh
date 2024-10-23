@@ -2,9 +2,6 @@
 #=========================================================================================
 # Kubernetes Utilities
 #
-
-export KUBECONFIG="${__env_dir}/.kubeconfig"
-
 export DEFAULT_KUBERNETES_PROVIDER="minikube"
 export DEFAULT_KUBERNETES_VERSION="1.31.0"
 export DEFAULT_KUBECTL_VERSION="1.31.0"
@@ -15,7 +12,11 @@ function kubernetes_environment () {
   export KUBERNETES_PROVIDER="${KUBERNETES_PROVIDER:-$DEFAULT_KUBERNETES_PROVIDER}"
   export KUBERNETES_VERSION="${KUBERNETES_VERSION:-$DEFAULT_KUBERNETES_VERSION}"
   export KUBECTL_VERSION="${KUBECTL_VERSION:-$DEFAULT_KUBECTL_VERSION}"
+  export KUBECONFIG=""
 
+  if check_project; then
+    export KUBECONFIG="${__env_dir}/.kubeconfig"
+  fi
   debug "KUBECONFIG: ${KUBECONFIG}"
   debug "KUBERNETES_PROVIDER: ${KUBERNETES_PROVIDER}"
   debug "KUBERNETES_VERSION: ${KUBERNETES_VERSION}"

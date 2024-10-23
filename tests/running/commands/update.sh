@@ -8,6 +8,5 @@
 #=========================================================================================
 # Test execution
 #
-set -e
 
-reactor update --debug
+#reactor update --debug

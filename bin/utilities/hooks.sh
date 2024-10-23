@@ -2,11 +2,13 @@
 #=========================================================================================
 # Execution Hook Utilities
 #
+source "${__utilities_dir}/exec.sh"
+
 
 function load_library () {
   library_type="$1"
 
-  if [ "${__project_file}" ]; then
+  if check_project; then
     for project in $(config docker); do
       project_dir="${__docker_dir}/$(config docker.$project.project $project)"
       library_dir="${project_dir}/reactor/${library_type}"
@@ -34,18 +36,18 @@ function load_library () {
         done
       fi
     done
-  fi
-  if compgen -G "${__project_reactor_dir}/${library_type}"/*.sh >/dev/null; then
-    for file in "${__project_reactor_dir}/${library_type}"/*.sh; do
-      source "$file"
-    done
+    if compgen -G "${__project_reactor_dir}/${library_type}"/*.sh >/dev/null; then
+      for file in "${__project_reactor_dir}/${library_type}"/*.sh; do
+        source "$file"
+      done
+    fi
   fi
 }
 
 function source_hook () {
   hook_name="$1"
 
-  if [ "${__project_file}" ]; then
+  if check_project; then
     # Include dependency hook if it exists
     for project in $(config docker); do
       project_dir="${__docker_dir}/$(config docker.$project.project $project)"
@@ -76,18 +78,17 @@ function source_hook () {
         source "$hook_script" "$extension" "$extension_dir"
       fi
     done
-  fi
-
-  # Include project hook if it exists
-  if [ -f "${__project_reactor_dir}/${hook_name}.sh" ]; then
-    source "${__project_reactor_dir}/${hook_name}.sh"
+    # Include project hook if it exists
+    if [ -f "${__project_reactor_dir}/${hook_name}.sh" ]; then
+      source "${__project_reactor_dir}/${hook_name}.sh"
+    fi
   fi
 }
 
 function run_hook () {
   hook_name="$1"
 
-  if [ "${__project_file}" ]; then
+  if check_project; then
     # Execute dependency hook if it exists
     for project in $(config docker); do
       project_dir="${__docker_dir}/$(config docker.$project.project $project)"

@@ -7,8 +7,8 @@ function create_description () {
   render "Create a new cluster project from a template"
 }
 
-function create_check_project () {
-  return 0
+function create_requires_project () {
+  return 1
 }
 
 function create_command_environment () {

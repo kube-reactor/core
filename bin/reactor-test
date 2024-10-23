@@ -3,7 +3,6 @@
 #=========================================================================================
 # Setup
 #
-set -e
 
 # Initialize top level directories and load bootstrap functions
 SCRIPT_PATH="${BASH_SOURCE[0]}" # bash
@@ -11,11 +10,9 @@ if [[ -z "$SCRIPT_PATH" ]]; then
   SCRIPT_PATH="${(%):-%N}" # zsh
 fi
 
-export __environment="${REACTOR_ENV:-local}"
 export __script_name="$(basename "${SCRIPT_PATH//-/ }")"
 export __script_dir="$(cd "$(dirname "${SCRIPT_PATH}")" && pwd)"
 
-export PATH="${__script_dir}:${PATH}"
 source "${__script_dir}/state/load.sh"
 
 #=========================================================================================
@@ -27,14 +24,13 @@ DEFAULT_DIRECTORY=""
 #
 # Project Directory Preference (higher overrides lower):
 #
-# 1. CLI --directory option or --remote option
+# 1. CLI --directory option
 # 2. $PROJECT_DIRECTORY variable
 # 3. $PROJECT_TEMPLATE_DIRECTORY variable (Legacy)
 # 4. Active Project (__project_dir)
 # 5. CLI --remote default
 #
-
-if [ -d "${__project_dir}" ]; then
+if check_project; then
   DEFAULT_DIRECTORY="${__project_dir}"
 fi
 if [ "${PROJECT_TEMPLATE_DIRECTORY:-}" ]; then
@@ -46,6 +42,10 @@ if [ "${PROJECT_DIRECTORY:-}" ]; then
 fi
 
 function test_params () {
+  parse_flag --running \
+    ENSURE_RUNNING \
+    "Create new or use an existing cluster for testing purposes"
+
   parse_flag --no-up \
     NO_UP \
     "Skip running reactor up before running and later phases"
@@ -56,8 +56,8 @@ function test_params () {
 
   parse_option --name \
     PROJECT_NAME \
-    "Test project name" \
-    "$(config short_name test)"
+    "Test project name (if none given then projected created with test name)" \
+    "$(config short_name)"
 
   parse_option --directory \
     PROJECT_DIRECTORY \
@@ -95,6 +95,15 @@ function test_params () {
     USER_TEST_TAGS=()
   fi
   export USER_TEST_TAGS
+
+  if [ "$PROJECT_NAME" ]; then
+    project_directory="${__projects_dir}/${PROJECT_NAME}"
+    if [ -d "$project_directory" ]; then
+      export PROJECT_DIRECTORY="$project_directory"
+    fi
+  else
+    export PROJECT_NAME=test
+  fi
 }
 parse_cli test_params "$@"
 
@@ -102,8 +111,19 @@ debug "Test directory: ${__test_dir}"
 debug "Reactor directory: ${__reactor_dir}"
 debug "Script directory: ${__script_dir}"
 debug "Projects directory: ${__projects_dir}"
+debug "Project name: ${PROJECT_NAME}"
+debug "Project directory: ${PROJECT_DIRECTORY}"
 debug "Project phases: ${PROJECT_PHASES[@]}"
 debug "User test tags: ${USER_TEST_TAGS[@]}"
+
+render "Reactor testing requires sudo access to run host commands"
+add_space
+render " -> this includes commands for: tunneling and local DNS"
+add_space
+check_admin
+
+export __cookiecutter_dir="$(dirname "$(sudo find ~ -name cookiecutter 2>/dev/null | grep -m 1 bin)")"
+export PATH="${__script_dir}:${__cookiecutter_dir}:${PATH}"
 
 #=========================================================================================
 # Project testing
@@ -151,24 +171,26 @@ else
   __project_dir="${__projects_dir}/${PROJECT_NAME}"
 fi
 export __project_dir
-export __project_test_dir="${__project_dir}/reactor/tests"
-
 cd "${__project_dir}"
 
 debug "Project directory: ${__project_dir}"
-debug "Project test directory: ${__project_test_dir}"
-info ""
-info "Sourcing development environment"
+add_space
+render " * Sourcing development environment"
 source reactor
-render_environment
+
+if [ "$arg_d" ]; then
+  render_environment
+fi
 
 #
 # Project test initialization
 #
-if [[ " ${PROJECT_PHASES[*]} " =~ [[:space:]]startup[[:space:]] ]]; then
-  start_test phase
-  test_phase startup
-  verify_test
+if [ ! "$ENSURE_RUNNING" ]; then
+  if [[ " ${PROJECT_PHASES[*]} " =~ [[:space:]]startup[[:space:]] ]]; then
+    start_test phase
+    test_phase startup
+    verify_test
+  fi
 fi
 
 #=========================================================================================
@@ -178,30 +200,34 @@ fi
 # Starting Up
 #
 if [ ! "$NO_UP" ]; then
-  echo ""
-  echo "==========================================================================="
-  echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-  echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-  echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-  echo "==========================================================================="
-  echo " Running Reactor startup"
-  echo ""
+  if [[ "$arg_d" ]] || [[ "$arg_v" ]]; then
+    add_space
+    render "==========================================================================="
+    render "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+    render "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+    render "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+    render "==========================================================================="
+  fi
+  render " * Running Reactor startup"
+  if [[ "$arg_d" ]] || [[ "$arg_v" ]]; then
+    add_space
+  fi
 
   function test_up () {
     run reactor up --debug
 
-    verify_dir ./cache
-    verify_dir ./certs
-    verify_dir ./docker
-    verify_dir ./charts
-    verify_dir ./.minikube
-    verify_file ./env/local/.kubeconfig
-    verify_file ./logs/tunnel.kpid
-    verify_dir ./.terraform
-    verify_file ./terraform/argocd-apps/gateway/.terraform.lock.hcl
-    verify_file ./terraform/argocd-apps/gateway/terraform.tfstate
-    verify_file ./logs/hosts.txt
-    verify_host argocd.test.local
+    verify_dir "${__project_dir}/cache"
+    verify_dir "${__project_dir}/certs"
+    verify_dir "${__project_dir}/docker"
+    verify_dir "${__project_dir}/charts"
+    verify_dir "${__project_dir}/.minikube"
+    verify_file "${__project_dir}/env/local/.kubeconfig"
+    verify_file "${__project_dir}/logs/tunnel.kpid"
+    verify_dir "${__project_dir}/.terraform"
+    verify_file "${__project_dir}/terraform/argocd-apps/gateway/.terraform.lock.hcl"
+    verify_file "${__project_dir}/terraform/argocd-apps/gateway/terraform.tfstate"
+    verify_file "${__project_dir}/logs/hosts.txt"
+    verify_host "argocd.${APP_NAME}.local"
   }
 
   start_test lifecycle start build
@@ -212,25 +238,31 @@ fi
 #
 # Development project sanity checking and diagnostic output
 #
-echo ""
-echo "> docker ps -a"
-docker ps -a
-echo ""
-echo "> docker images"
-docker images
+if [[ "$arg_d" ]] || [[ "$arg_v" ]]; then
+  add_space
+  render "> docker ps -a"
+  docker ps -a
 
-echo ""
-echo "> minikube status"
-minikube status
-echo ""
-echo "> kubectl get pods -A"
-kubectl get pods -A
-echo ""
-echo "> kubectl get services -A"
-kubectl get services -A
-echo ""
-echo "> kubectl get ingress -A"
-kubectl get ingress -A
+  add_space
+  render "> docker images"
+  docker images
+
+  add_space
+  render "> minikube status"
+  minikube status
+
+  add_space
+  render "> kubectl get pods -A"
+  kubectl get pods -A
+
+  add_space
+  render "> kubectl get services -A"
+  kubectl get services -A
+
+  add_space
+  render "> kubectl get ingress -A"
+  kubectl get ingress -A
+fi
 
 #
 # Running tests...
@@ -244,74 +276,82 @@ fi
 #
 # Shutting Down
 #
-if [ ! "$NO_DOWN" ]; then
-  echo ""
-  echo "==========================================================================="
-  echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-  echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-  echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-  echo "==========================================================================="
-  echo " Running Reactor shutdown"
-  echo ""
+if [[ ! "$NO_DOWN" ]] && [[ ! "$ENSURE_RUNNING" ]]; then
+  if [[ "$arg_d" ]] || [[ "$arg_v" ]]; then
+    add_space
+    render "==========================================================================="
+    render "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+    render "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+    render "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+    render "==========================================================================="
+  fi
+  render " * Running Reactor shutdown"
+  if [[ "$arg_d" ]] || [[ "$arg_v" ]]; then
+    add_space
+  fi
 
   function test_down () {
     run reactor down --debug
 
-    verify_no_file ./env/local/.kubeconfig
-    verify_no_file ./logs/tunnel.kpid
-    verify_no_file ./logs/dashboard.kpid
-    verify_no_file ./logs/hosts.txt
-    verify_no_host argocd.test.local
+    verify_no_file "${__project_dir}/env/local/.kubeconfig"
+    verify_no_file "${__project_dir}/logs/tunnel.kpid"
+    verify_no_file "${__project_dir}/logs/dashboard.kpid"
+    verify_no_file "${__project_dir}/logs/hosts.txt"
+    verify_no_host "argocd.${APP_NAME}.local"
   }
 
   start_test lifecycle clean
   run_test test_down
   verify_test
-fi
 
-if [[ " ${PROJECT_PHASES[*]} " =~ [[:space:]]shutdown[[:space:]] ]]; then
-  start_test phase clean
-  test_phase shutdown
-  verify_test
+  if [[ " ${PROJECT_PHASES[*]} " =~ [[:space:]]shutdown[[:space:]] ]]; then
+    start_test phase clean
+    test_phase shutdown
+    verify_test
+  fi
 fi
 
 #
 # Cleaning Up
 #
-if [ ! "$NO_DOWN" ]; then
-  echo ""
-  echo "==========================================================================="
-  echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-  echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-  echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-  echo "==========================================================================="
-  echo " Running Reactor cleanup"
-  echo ""
+if [[ ! "$NO_DOWN" ]] && [[ ! "$ENSURE_RUNNING" ]]; then
+  if [[ "$arg_d" ]] || [[ "$arg_v" ]]; then
+    add_space
+    render "==========================================================================="
+    render "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+    render "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+    render "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+    render "==========================================================================="
+  fi
+  render " * Running Reactor cleanup"
+  if [[ "$arg_d" ]] || [[ "$arg_v" ]]; then
+    add_space
+  fi
 
   function test_destroy () {
     run reactor destroy --force --debug
 
-    verify_no_dir ./.minikube
-    verify_no_dir ./.terraform
-    verify_no_file ./terraform/argocd-apps/gateway/.terraform.lock.hcl
-    verify_no_file ./terraform/argocd-apps/gateway/terraform.tfstate
+    verify_no_dir "${__project_dir}/.minikube"
+    verify_no_dir "${__project_dir}/.terraform"
+    verify_no_file "${__project_dir}/terraform/argocd-apps/gateway/.terraform.lock.hcl"
+    verify_no_file "${__project_dir}/terraform/argocd-apps/gateway/terraform.tfstate"
   }
 
   function test_clean () {
     run reactor clean --force --debug
 
-    verify_no_dir ./cache
-    verify_no_dir ./certs
+    verify_no_dir "${__project_dir}/cache"
+    verify_no_dir "${__project_dir}/certs"
   }
 
   start_test lifecycle clean
   run_test test_destroy
   run_test test_clean
   verify_test
-fi
 
-if [[ " ${PROJECT_PHASES[*]} " =~ [[:space:]]exit[[:space:]] ]]; then
-  start_test phase clean
-  test_phase exit
-  verify_test
+  if [[ " ${PROJECT_PHASES[*]} " =~ [[:space:]]exit[[:space:]] ]]; then
+    start_test phase clean
+    test_phase exit
+    verify_test
+  fi
 fi

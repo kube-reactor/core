@@ -25,12 +25,6 @@ function reactor_args () {
   parse_flag '-v|--verbose' arg_v "Enable verbose mode, print script as it is executed"
   parse_flag '-d|--debug' arg_d "Enables debug mode"
 
-  # Error handling
-  set -o errexit
-  set -o errtrace
-  set -o nounset
-  set -o pipefail
-
   # Log check
   [[ "${LOG_LEVEL:-6}" ]] || emergency "Cannot continue without LOG_LEVEL"
 
@@ -112,7 +106,7 @@ function pop_arg_command () {
 function parse_flag () {
   local FLAGS="$1"
   local FOUND_REF="$2"
-  local HELP_TEXT="$3"
+  local HELP_TEXT="${3:-}"
 
   local LOCAL_FOUND=''
 

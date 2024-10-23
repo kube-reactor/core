@@ -12,7 +12,7 @@ export __log_file="${LOG_FILE:-reactor}"
 #
 
 function logdir () {
-  if [[ "${__project_dir:-}" ]] && [[ -d "${__project_dir}" ]]; then
+  if check_project; then
     local log_dir="${__project_dir}/${__log_dir}"
     mkdir -p "${log_dir}"
     echo "${log_dir}"
