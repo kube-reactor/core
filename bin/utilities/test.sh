@@ -38,8 +38,7 @@ function test_phase () {
       if [[ "$arg_d" ]] || [[ "$arg_v" ]]; then
         add_space
       fi
-      export TEST_FILE="${file}"
-      "$file"
+      run_test_sequence "$file"
     done
   fi
   if [[ -d "${__test_dir}/${TEST_PHASE}/commands" ]] \
@@ -57,9 +56,7 @@ function test_phase () {
       if [[ "$arg_d" ]] || [[ "$arg_v" ]]; then
         add_space
       fi
-
-      export TEST_FILE="${file}"
-      "$file"
+      run_test_sequence "$file"
     done
   fi
   if [[ -d "${__test_dir}/${TEST_PHASE}/utilities" ]] \
@@ -77,9 +74,7 @@ function test_phase () {
       if [[ "$arg_d" ]] || [[ "$arg_v" ]]; then
         add_space
       fi
-
-      export TEST_FILE="${file}"
-      "$file"
+      run_test_sequence "$file"
     done
   fi
   if check_project; then
@@ -101,9 +96,7 @@ function test_phase () {
         if [[ "$arg_d" ]] || [[ "$arg_v" ]]; then
           add_space
         fi
-
-        export TEST_FILE="${file}"
-        "$file"
+        run_test_sequence "$file"
       done
     fi
     if [[ -d "${__project_test_dir}/${TEST_PHASE}/commands" ]] \
@@ -121,9 +114,7 @@ function test_phase () {
         if [[ "$arg_d" ]] || [[ "$arg_v" ]]; then
           add_space
         fi
-
-        export TEST_FILE="${file}"
-        "$file"
+        run_test_sequence "$file"
       done
     fi
     if [[ -d "${__project_test_dir}/${TEST_PHASE}/utilities" ]] \
@@ -141,11 +132,12 @@ function test_phase () {
         if [[ "$arg_d" ]] || [[ "$arg_v" ]]; then
           add_space
         fi
-        export TEST_FILE="${file}"
-        "$file"
+        run_test_sequence "$file"
       done
     fi
   fi
+  export TEST_PHASE=""
+  export TEST_FILE=""
 }
 
 
@@ -156,7 +148,22 @@ function start_test () {
 }
 
 function fail () {
-  local info="$(error_color "${TEST_PHASE:-}>${TEST_FILE:-}>${TEST_NAME:-}>${TEST_COMMAND:-} ]")"
+  INFO_DATA=()
+  if [ "${TEST_PHASE:-}" ]; then
+    INFO_DATA=("${INFO_DATA[@]}" "$(alert_color "$TEST_PHASE")")
+  fi
+  if [ "${TEST_FILE:-}" ]; then
+    INFO_DATA=("${INFO_DATA[@]}" "$(warning_color "$TEST_FILE")")
+  fi
+  if [ "${TEST_NAME:-}" ]; then
+    INFO_DATA=("${INFO_DATA[@]}" "$(value_color "$TEST_NAME")")
+  fi
+
+  local info_string="${INFO_DATA[*]}"
+  local info="$(error_color "${info_string// / > }") ${TEST_COMMAND}"
+  local message="$(notice_color "$1")"
+
+  render " *** ${message}"
   export TEST_ERRORS=("${TEST_ERRORS[@]}" "[ $info ]: $1")
 }
 
@@ -218,16 +225,39 @@ function run_test () {
       render " ** Executing test function: $(value_color ${test_function})"
       export TEST_NAME="$test_function"
       "$test_function" "$@"
+      export TEST_NAME=""
     else
-      local info="$(error_color "${TEST_PHASE:-}>${TEST_FILE:-}")"
+      INFO_DATA=()
+      if [ "${TEST_PHASE:-}" ]; then
+        INFO_DATA=("${INFO_DATA[@]}" "$TEST_PHASE")
+      fi
+      if [ "${TEST_FILE:-}" ]; then
+        INFO_DATA=("${INFO_DATA[@]}" "$(warning_color "$TEST_FILE")")
+      fi
+      local info_string="${INFO_DATA[*]}"
+      local info="$(error_color "${info_string// / > }")"
       render "[ ${info} ]: Function $(value_color ${test_function}) does not exist" 1>&2
       exit 1
     fi
   fi
 }
 
+function run_test_sequence () {
+  export TEST_FILE="$1"
+
+  unset -f test_seq
+  source "$1"
+
+  if function_exists test_seq; then
+    test_seq "$1"
+  else
+    fail "Test sequence (test_seq) function does not exist"
+  fi
+}
+
 function verify_test () {
   if [ ${#TEST_ERRORS[@]} -gt 0 ]; then
+    add_space
     for message in "${TEST_ERRORS[@]}"; do
       echo "$message" 1>&2
     done

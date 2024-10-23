@@ -1,11 +1,6 @@
 #!/usr/bin/env bash
 #
 #=========================================================================================
-# Test preparation
-#
-
-#
-#=========================================================================================
 # Test execution
 #
 
@@ -15,8 +10,11 @@
 function test_argocd () {
   run reactor argocd app list
 
-  verify_output argocd/nginx
-  verify_output argocd/reloader
+  verify_output "^argocd/nginx.+Synced.+Healthy"
+  verify_output "^argocd/reloader.+Synced.+Healthy"
 }
-tag argocd app
-run_test test_argocd
+
+function test_seq () {
+  tag argocd app
+  run_test test_argocd
+}

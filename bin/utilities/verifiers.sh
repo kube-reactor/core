@@ -24,13 +24,13 @@
 #
 
 function verify_output () {
-  if ! echo "${TEST_OUTPUT:-}" | grep "$1" 1>/dev/null 2>/dev/null; then
+  if ! echo "${TEST_OUTPUT:-}" | grep -P "$1" 1>/dev/null 2>&1; then
     fail "Searched value ${1} was not found in command output"
   fi
 }
 
 function verify_no_output () {
-  if echo "${TEST_OUTPUT:-}" | grep "$1" 1>/dev/null 2>/dev/null; then
+  if echo "${TEST_OUTPUT:-}" | grep -P "$1" 1>/dev/null 2>&1; then
     fail "Searched value ${1} was found in command output"
   fi
 }
