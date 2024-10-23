@@ -20,11 +20,11 @@ source "${__utilities_dir}/cli.sh"
 function test_phase () {
   export TEST_PHASE="$1"
   export TEST_FILE=""
-
   #
   # Running Reactor Command Tests
   #
-  if [ -d "${__test_dir}/${TEST_PHASE}" ]; then
+  if [[ -d "${__test_dir}/${TEST_PHASE}" ]] \
+    && compgen -G "${__test_dir}/${TEST_PHASE}"/*.sh > /dev/null; then
     for file in "${__test_dir}/${TEST_PHASE}"/*.sh; do
       if [[ "$arg_d" ]] || [[ "$arg_v" ]]; then
         add_space
@@ -34,7 +34,7 @@ function test_phase () {
         render "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
         render "==========================================================================="
       fi
-      render " * Running reactor test collection: ${file}"
+      render " * Running reactor test collection: $(key_color "${file}")"
       if [[ "$arg_d" ]] || [[ "$arg_v" ]]; then
         add_space
       fi
@@ -42,7 +42,8 @@ function test_phase () {
       "$file"
     done
   fi
-  if [ -d "${__test_dir}/${TEST_PHASE}/commands" ]; then
+  if [[ -d "${__test_dir}/${TEST_PHASE}/commands" ]] \
+    && compgen -G "${__test_dir}/${TEST_PHASE}/commands"/*.sh > /dev/null; then
     for file in "${__test_dir}/${TEST_PHASE}/commands"/*.sh; do
       if [[ "$arg_d" ]] || [[ "$arg_v" ]]; then
         add_space
@@ -52,7 +53,7 @@ function test_phase () {
         render "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
         render "==========================================================================="
       fi
-      render " * Running reactor command test: ${file}"
+      render " * Running reactor command test: $(key_color "${file}")"
       if [[ "$arg_d" ]] || [[ "$arg_v" ]]; then
         add_space
       fi
@@ -61,7 +62,8 @@ function test_phase () {
       "$file"
     done
   fi
-  if [ -d "${__test_dir}/${TEST_PHASE}/utilities" ]; then
+  if [[ -d "${__test_dir}/${TEST_PHASE}/utilities" ]] \
+    && compgen -G "${__test_dir}/${TEST_PHASE}/utilities"/*.sh > /dev/null; then
     for file in "${__test_dir}/${TEST_PHASE}/utilities"/*.sh; do
       if [[ "$arg_d" ]] || [[ "$arg_v" ]]; then
         add_space
@@ -71,7 +73,7 @@ function test_phase () {
         render "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
         render "==========================================================================="
       fi
-      render " * Running reactor utility test: ${file}"
+      render " * Running reactor utility test: $(key_color "${file}")"
       if [[ "$arg_d" ]] || [[ "$arg_v" ]]; then
         add_space
       fi
@@ -84,7 +86,8 @@ function test_phase () {
     #
     # Running Project Command Tests
     #
-    if [ -d "${__project_test_dir}/${TEST_PHASE}" ]; then
+    if [[ -d "${__project_test_dir}/${TEST_PHASE}" ]] \
+      && compgen -G "${__project_test_dir}/${TEST_PHASE}"/*.sh > /dev/null; then
       for file in "${__project_test_dir}/${TEST_PHASE}"/*.sh; do
         if [[ "$arg_d" ]] || [[ "$arg_v" ]]; then
           add_space
@@ -94,7 +97,7 @@ function test_phase () {
           render "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
           render "==========================================================================="
         fi
-        render " * Running reactor test collection: ${file}"
+        render " * Running reactor test collection: $(key_color "${file}")"
         if [[ "$arg_d" ]] || [[ "$arg_v" ]]; then
           add_space
         fi
@@ -103,7 +106,8 @@ function test_phase () {
         "$file"
       done
     fi
-    if [ -d "${__project_test_dir}/${TEST_PHASE}/commands" ]; then
+    if [[ -d "${__project_test_dir}/${TEST_PHASE}/commands" ]] \
+      && compgen -G "${__project_test_dir}/${TEST_PHASE}/commands"/*.sh > /dev/null; then
       for file in "${__project_test_dir}/${TEST_PHASE}/commands"/*.sh; do
         if [[ "$arg_d" ]] || [[ "$arg_v" ]]; then
           add_space
@@ -113,7 +117,7 @@ function test_phase () {
           render "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
           render "==========================================================================="
         fi
-        render " * Running reactor command test: ${file}"
+        render " * Running reactor command test: $(key_color "${file}")"
         if [[ "$arg_d" ]] || [[ "$arg_v" ]]; then
           add_space
         fi
@@ -122,7 +126,8 @@ function test_phase () {
         "$file"
       done
     fi
-    if [ -d "${__project_test_dir}/${TEST_PHASE}/utilities" ]; then
+    if [[ -d "${__project_test_dir}/${TEST_PHASE}/utilities" ]] \
+      && compgen -G "${__project_test_dir}/${TEST_PHASE}/utilities"/*.sh > /dev/null; then
       for file in "${__project_test_dir}/${TEST_PHASE}/utilities"/*.sh; do
         if [[ "$arg_d" ]] || [[ "$arg_v" ]]; then
           add_space
@@ -132,7 +137,7 @@ function test_phase () {
           render "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
           render "==========================================================================="
         fi
-        render " * Running reactor utility test: ${file}"
+        render " * Running reactor utility test: $(key_color "${file}")"
         if [[ "$arg_d" ]] || [[ "$arg_v" ]]; then
           add_space
         fi
@@ -209,14 +214,13 @@ function run_test () {
   fi
 
   if [ $run_test -eq 1 ]; then
-
     if declare -F "$test_function" >/dev/null; then
-      render "Executing test function: ${test_function}"
+      render " ** Executing test function: $(value_color ${test_function})"
       export TEST_NAME="$test_function"
       "$test_function" "$@"
     else
       local info="$(error_color "${TEST_PHASE:-}>${TEST_FILE:-}")"
-      render "[ ${info} ]: Function ${test_function} does not exist" 1>&2
+      render "[ ${info} ]: Function $(value_color ${test_function}) does not exist" 1>&2
       exit 1
     fi
   fi

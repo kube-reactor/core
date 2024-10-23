@@ -32,3 +32,5 @@ for file in "${__script_dir}/commands"/*.sh; do
 done
 load_library commands
 run_hook initialize_commands
+
+export_functions
