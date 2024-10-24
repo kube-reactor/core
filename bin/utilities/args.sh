@@ -11,7 +11,7 @@ source "${__utilities_dir}/arg_lib.sh"
 # Argument Initialization
 #
 
-function reactor_args () {
+function reactor_arg_init () {
   export __app_args=("$@")
   export __normalized_params="$(normalize_params "$@")"
   export __reactor_flags=()
@@ -19,6 +19,10 @@ function reactor_args () {
   export __reactor_args=()
   export __reactor_arg_help=()
   export __reactor_arg_errors=""
+}
+
+function reactor_args () {
+  reactor_arg_init "$@"
 
   parse_flag '-n|--no-color' arg_n "Disable color output"
   parse_flag '-h|--help' arg_h "Display help message"
@@ -154,7 +158,7 @@ function parse_option () {
   local OPTIONS="$1"
   local VALUE_REF="$2"
   local NAME=$(variable_color "\$$VALUE_REF")
-  local HELP_TEXT="$3"
+  local HELP_TEXT="${3:-}"
   local VALUE_DEFAULT="${4:-}"
   local VALIDATOR="${5:-"validate_string"}"
   local ERROR_MSG="${6:-"Option ${OPTIONS//|/ } ${VALIDATOR} failed"}"
@@ -232,7 +236,7 @@ function parse_arg () {
   local VALUE_REF="$1"
   local NAME=$(key_color "$(lowercase ${VALUE_REF})")
   local VARIABLE_NAME=$(variable_color "\$${VALUE_REF}")
-  local HELP_TEXT="$2"
+  local HELP_TEXT="${2:-}"
   local VALIDATOR="${3:-"validate_string"}"
   local ERROR_MSG="${4:-"Argument ${NAME} ${VALIDATOR} failed"}"
 
@@ -290,7 +294,7 @@ function parse_optional_args () {
   local VALUE_REF="$1"
   local NAME=$(key_color "$(lowercase ${VALUE_REF})")
   local VARIABLE_NAME=$(variable_color "\${${VALUE_REF}[@]}")
-  local HELP_TEXT="$2"
+  local HELP_TEXT="${2:-}"
 
   local IFS_ORIG="$IFS"
   local ARGS=()
@@ -319,7 +323,7 @@ function parse_required_args () {
   local VALUE_REF="$1"
   local NAME=$(key_color "$(lowercase ${VALUE_REF})")
   local VARIABLE_NAME=$(variable_color "\${${VALUE_REF}[@]}")
-  local HELP_TEXT="$2"
+  local HELP_TEXT="${2:-}"
 
   local IFS_ORIG="$IFS"
   local ARGS=()

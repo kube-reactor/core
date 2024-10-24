@@ -12,7 +12,6 @@ fi
 
 export __script_name="$(basename "${SCRIPT_PATH//-/ }")"
 export __script_dir="$(cd "$(dirname "${SCRIPT_PATH}")" && pwd)"
-
 source "${__script_dir}/state/load.sh"
 
 #=========================================================================================

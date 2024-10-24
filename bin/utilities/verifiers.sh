@@ -62,13 +62,13 @@ function verify_no_file () {
 
 
 function verify_host () {
-  if ! cat /etc/hosts | grep "$1" 1>/dev/null 2>/dev/null; then
+  if ! cat /etc/hosts | grep "$1" 1>/dev/null 2>&1; then
     fail "Reactor host ${1} does not exist"
   fi
 }
 
 function verify_no_host () {
-  if cat /etc/hosts | grep "$1" 1>/dev/null 2>/dev/null; then
+  if cat /etc/hosts | grep "$1" 1>/dev/null 2>&1; then
     fail "Reactor host ${1} exists"
   fi
 }

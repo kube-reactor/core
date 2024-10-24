@@ -41,16 +41,16 @@ function up_command () {
   start_kubernetes
 
   if [[ "$BUILD" ]] || [[ ! -f "${__init_file}" ]]; then
-    run_command build "${BUILD_ARGS[@]}"
+    run_subcommand build "${BUILD_ARGS[@]}"
   fi
   touch "${__init_file}"
-  run_command update
+  run_subcommand update
   run_hook up
 }
 
 function up_host_command () {
   launch_host_kubernetes_tunnel
 
-  run_host_command update
+  run_host_subcommand update
   run_hook up_host
 }

@@ -1,13 +1,8 @@
-#!/usr/bin/env bash
-#
-#=========================================================================================
+#=================
 # Test execution
-#
+#=================
 
-#
-# Test running an ArgoCD command after logging in
-#
-function test_argocd () {
+function test_argocd_apps () {
   run reactor argocd app list
 
   verify_output "^argocd/nginx.+Synced.+Healthy"
@@ -15,6 +10,8 @@ function test_argocd () {
 }
 
 function test_seq () {
-  tag argocd app
-  run_test test_argocd
+  tag passthrough argocd
+
+  add_tag app
+  run_test test_argocd_apps
 }

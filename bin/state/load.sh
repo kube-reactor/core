@@ -44,6 +44,10 @@ export HOME="${__home_dir}"
 export __environment="${REACTOR_ENV:-local}"
 export __reactor_dir="$(dirname "${__script_dir}")"
 export __reactor_version="$(cat -s "${__reactor_dir}/VERSION")"
+export __reactor_command_functions=(
+  command
+  host_command
+)
 
 export __state_dir="${__script_dir}/state"
 source "${__state_dir}/bootstrap.sh"

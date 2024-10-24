@@ -49,6 +49,7 @@ if [[ "$arg_h" ]] || [[ ${#__app_args[@]} -eq 0 ]]; then
     if function_exists "${__app_args[0]}_description"; then
       "${__app_args[0]}_description" >/dev/null 2>&1
       if [ -z "${PASSTHROUGH:-}" ]; then
+        echo "generating command help"
         generate_command_help "${__app_args[0]}"
       fi
     fi
@@ -59,8 +60,6 @@ fi
 
 COMMAND="${__app_args[0]}"
 COMMAND_ARGS=("${__app_args[@]:1}")
-COMMAND_FUNCTION="${COMMAND}_command"
-COMMAND_HOST_FUNCTION="${COMMAND}_host_command"
 
 if [ "$COMMAND" == "help" ]; then
   if [[ ${#COMMAND_ARGS[@]} -eq 0 ]]; then
@@ -70,27 +69,5 @@ if [ "$COMMAND" == "help" ]; then
   fi
 fi
 
-if function_exists $COMMAND_FUNCTION; then
-  pop_arg_command
-  parse_environment "$COMMAND"
-
-  COMMAND_INIT_FUNCTION="${COMMAND_FUNCTION}_init"
-  COMMAND_EXIT_FUNCTION="${COMMAND_FUNCTION}_exit"
-
-  if function_exists $COMMAND_INIT_FUNCTION; then
-    $COMMAND_INIT_FUNCTION "${COMMAND_ARGS[@]:-}"
-  fi
-
-  $COMMAND_FUNCTION "${COMMAND_ARGS[@]:-}"
-
-  if function_exists $COMMAND_EXIT_FUNCTION; then
-    $COMMAND_EXIT_FUNCTION "${COMMAND_ARGS[@]:-}"
-  fi
-
-  # Source finalization scripts
-  run_hook finalize
-
-elif ! function_exists $COMMAND_HOST_FUNCTION; then
-  error "Unknown command: ${COMMAND}"
-  gateway_usage
-fi
+pop_arg_command
+run_command "$COMMAND" command "${COMMAND_ARGS[@]}"

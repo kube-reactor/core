@@ -143,7 +143,7 @@ function test_phase () {
 
 function start_test () {
   export TEST_ERRORS=()
-  export BASE_TEST_TAGS="$@"
+  export BASE_TEST_TAGS=("$@")
   export TEST_TAGS=()
 }
 
@@ -160,7 +160,7 @@ function fail () {
   fi
 
   local info_string="${INFO_DATA[*]}"
-  local info="$(error_color "${info_string// / > }") ${TEST_COMMAND}"
+  local info="$(error_color "${info_string// / > }") ${TEST_COMMAND:-}"
   local message="$(notice_color "$1")"
 
   render " *** ${message}"
@@ -194,7 +194,12 @@ function run () {
 }
 
 function tag () {
-  export TEST_TAGS="$@"
+  export SECTION_TEST_TAGS=("$@")
+  export TEST_TAGS=()
+}
+
+function add_tag () {
+  export TEST_TAGS=("$@")
 }
 
 function run_test () {
@@ -208,9 +213,13 @@ function run_test () {
   else
     local test_tags=(
       "${BASE_TEST_TAGS[@]}"
+      "${SECTION_TEST_TAGS[@]}"
       "${TEST_TAGS[@]}"
       "$test_function"
     )
+    if [ "${TEST_PHASE:-}" ]; then
+      test_tags=("${test_tags[@]}" "$TEST_PHASE")
+    fi
     for user_tag in "${USER_TEST_TAGS[@]}"; do
       if echo "${test_tags[@]}" | grep -qw "$user_tag"; then
         # Proceed because we have a matching tag
