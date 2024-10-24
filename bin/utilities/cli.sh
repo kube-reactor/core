@@ -28,7 +28,7 @@ export COLOR_RESET="\\x1b[0m"
 #
 
 function check_color () {
-  if [[ "${arg_n:-}" ]] || [[ ! -t 2 ]]; then
+  if ! is_initialized || [[ "${arg_n:-}" ]] || [[ ! -t 2 ]]; then
     return 1
   fi
   return 0
@@ -166,7 +166,7 @@ function __log () {
   done <<< "${@:-}"
 }
 
-function emergency () {                               __log emergency "${@}"; exit 1; }
+function emergency () { __log emergency "${@}"; exit 1; }
 function alert ()     { [[ "${LOG_LEVEL:-0}" -ge 1 ]] && __log alert "${@}"; true; }
 function critical ()  { [[ "${LOG_LEVEL:-0}" -ge 2 ]] && __log critical "${@}"; true; }
 function error ()     { [[ "${LOG_LEVEL:-0}" -ge 3 ]] && __log error "${@}"; true; }

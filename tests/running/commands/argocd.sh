@@ -1,12 +1,14 @@
-#=================
-# Test execution
-#=================
+#===================
+# ArgoCD execution
+#===================
 
 function test_argocd_apps () {
-  run reactor argocd app list
-
-  verify_output "^argocd/nginx.+Synced.+Healthy"
-  verify_output "^argocd/reloader.+Synced.+Healthy"
+  function verify_core_apps () {
+    verify_argocd_healthy \
+      "argocd/nginx" \
+      "argocd/reloader"
+  }
+  wait verify_core_apps 30
 }
 
 function test_seq () {

@@ -24,6 +24,7 @@ function reactor_arg_init () {
 function reactor_args () {
   reactor_arg_init "$@"
 
+  unset arg_n # Reset color flag now that we are to processing top level flags
   parse_flag '-n|--no-color' arg_n "Disable color output"
   parse_flag '-h|--help' arg_h "Display help message"
   parse_flag '-v|--verbose' arg_v "Enable verbose mode, print script as it is executed"

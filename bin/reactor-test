@@ -41,6 +41,8 @@ if [ "${PROJECT_DIRECTORY:-}" ]; then
 fi
 
 function test_params () {
+  force_option
+
   parse_flag --running \
     ENSURE_RUNNING \
     "Create new or use an existing cluster for testing purposes"
@@ -53,9 +55,17 @@ function test_params () {
     NO_DOWN \
     "Skip running reactor down, destroy, and clean after running and previous phases"
 
+  parse_flag --no-wait \
+    TEST_NO_WAIT \
+    "Disable verification retries (useful for debugging)"
+
+  parse_flag --clean \
+    CLEAN_PROJECT \
+    "Ensure project is shutdown and completely cleaned before beginning tests"
+
   parse_option --name \
     PROJECT_NAME \
-    "Test project name (if none given then projected created with test name)" \
+    "Test project name (if none given then project created with test name)" \
     "$(config short_name)"
 
   parse_option --directory \
@@ -121,6 +131,11 @@ render " -> this includes commands for: tunneling and local DNS"
 add_space
 check_admin
 
+if [[ "$CLEAN_PROJECT" ]] && [[ ! "$FORCE" ]]; then
+  render "The --clean option will completely destroy and cleanup all project files before testing"
+  confirm
+fi
+
 export __cookiecutter_dir="$(dirname "$(sudo find ~ -name cookiecutter 2>/dev/null | grep -m 1 bin)")"
 export PATH="${__script_dir}:${__cookiecutter_dir}:${PATH}"
 
@@ -181,6 +196,10 @@ if [ "$arg_d" ]; then
   render_environment
 fi
 
+if [ "$CLEAN_PROJECT" ]; then
+  reactor clean --force
+fi
+
 #
 # Project test initialization
 #
@@ -238,14 +257,6 @@ fi
 # Development project sanity checking and diagnostic output
 #
 if [[ "$arg_d" ]] || [[ "$arg_v" ]]; then
-  add_space
-  render "> docker ps -a"
-  docker ps -a
-
-  add_space
-  render "> docker images"
-  docker images
-
   add_space
   render "> minikube status"
   minikube status

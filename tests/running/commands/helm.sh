@@ -1,20 +1,17 @@
-#!/usr/bin/env bash
-#
-#=========================================================================================
-# Test preparation
-#
+#=================
+# Helm execution
+#=================
 
-#
-#=========================================================================================
-# Test execution
-#
+function test_helm_charts () {
+  function verify_core_charts () {
+    verify_helm_deployed argocd argocd
+  }
+  wait verify_core_charts 30
+}
 
-#
-# Return a list of charts in the ArgoCD namespace
-#
-#reactor helm list -n argocd --debug
+function test_seq () {
+  tag passthrough helm
 
-#
-# Return information about the ArgoCD chart in the ArgoCD namespace
-#
-#reactor helm get all argocd -n argocd --debug
+  add_tag chart
+  run_test test_helm_charts
+}

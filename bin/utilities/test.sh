@@ -142,7 +142,9 @@ function test_phase () {
 
 
 function start_test () {
+  export TEST_SILENCED=0
   export TEST_ERRORS=()
+  export TEST_MESSAGES=()
   export BASE_TEST_TAGS=("$@")
   export TEST_TAGS=()
 }
@@ -161,10 +163,13 @@ function fail () {
 
   local info_string="${INFO_DATA[*]}"
   local info="$(error_color "${info_string// / > }") ${TEST_COMMAND:-}"
-  local message="$(notice_color "$1")"
+  local message="$(error_color "$1")"
 
-  render " *** ${message}"
+  if [ $TEST_SILENCED -eq 0 ]; then
+    render " *** ${message}"
+  fi
   export TEST_ERRORS=("${TEST_ERRORS[@]}" "[ $info ]: $1")
+  export TEST_MESSAGES=("${TEST_MESSAGES[@]}" " *** ${message}")
 }
 
 function run () {
@@ -191,6 +196,41 @@ function run () {
   if [ $TEST_STATUS -ne 0 ]; then
     fail "Command failed: ${test_command} ${@} [ ${log_file} ]"
   fi
+}
+
+function render_output () {
+  render "${TEST_OUTPUT:-}"
+}
+
+function wait () {
+  local test_function="$1"
+  local max_tries="${2:-10}"
+  local wait_secs="${3:-1}"
+
+  if [ "${TEST_NO_WAIT:-}" ]; then
+    max_tries=1
+  fi
+  local ORIG_ERRORS=("${TEST_ERRORS[@]}")
+
+  for iteration in $(seq 1 $max_tries); do
+    export TEST_ERRORS=()
+    export TEST_MESSAGES=()
+    export TEST_SILENCED=1
+
+    $test_function
+
+    if [ ${#TEST_ERRORS[@]} -eq 0 ]; then
+      export TEST_ERRORS=("${ORIG_ERRORS[@]}")
+      break
+    else
+      export TEST_ERRORS=("${ORIG_ERRORS[@]}" "${TEST_ERRORS[@]}")
+      for message in "${TEST_MESSAGES[@]}"; do
+        render "$message" 1>&2
+      done
+    fi
+    sleep $wait_secs
+  done
+  export TEST_SILENCED=0
 }
 
 function tag () {
@@ -235,6 +275,7 @@ function run_test () {
       export TEST_NAME="$test_function"
       "$test_function" "$@"
       export TEST_NAME=""
+      export TEST_COMMAND=""
     else
       INFO_DATA=()
       if [ "${TEST_PHASE:-}" ]; then
@@ -268,7 +309,7 @@ function verify_test () {
   if [ ${#TEST_ERRORS[@]} -gt 0 ]; then
     add_space
     for message in "${TEST_ERRORS[@]}"; do
-      echo "$message" 1>&2
+      render "$message" 1>&2
     done
     exit 1
   fi

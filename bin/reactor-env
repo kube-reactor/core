@@ -10,7 +10,7 @@
 #=========================================================================================
 # Initialization
 #
-export SOURCED=$1
+export SOURCED="$1"
 
 source "${__script_dir}/state/load.sh"
 
@@ -33,4 +33,4 @@ done
 load_library commands
 run_hook initialize_commands
 
-export_functions
+set_initialized

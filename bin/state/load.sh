@@ -8,7 +8,7 @@ set -o errtrace
 set -o nounset
 set -o pipefail
 
-
+export INITIALIZED=""
 export LOG_LEVEL="${LOG_LEVEL:-6}" # 7 = debug -> 0 = emergency
 
 if [ -f /REACTOR.txt ]; then
@@ -93,6 +93,19 @@ export APP_LABEL="$(config name)"
 export PRIMARY_DOMAIN="$(echo "$APP_NAME" | tr '_' '-').local"
 
 
+function set_initialized () {
+  export INITIALIZED="1"
+}
+
+function is_initialized () {
+  if [ "$INITIALIZED" ]; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+
 function check_project () {
   if [ ! "${__project_file}" ]; then
     return 1
@@ -118,6 +131,8 @@ function parse_cli () {
   shift
 
   load_utilities help
+
+  set_initialized
   reactor_args "$@"
 
   "$param_function"

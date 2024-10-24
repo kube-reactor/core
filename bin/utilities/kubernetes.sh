@@ -31,12 +31,9 @@ function run_kube_function () {
   shift
 
   local provider_name="${base_name}_${KUBERNETES_PROVIDER}"
-
   debug "Running Kubernetes function: ${provider_name}"
-  kubernetes_environment
 
   if function_exists "$provider_name"; then
-    debug "Kubernetes function found"
     "$provider_name" "$@"
   fi
   return $?
