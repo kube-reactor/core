@@ -9,12 +9,12 @@
 #
 # * __test_dir
 # * __reactor_dir
-# * __script_dir
+# * __bin_dir
 # * __projects_dir
 # * __project_dir
 # * __project_test_dir
 #
-source "${__utilities_dir}/cli.sh"
+load_utilities cli verifiers
 
 
 function test_phase () {
@@ -314,14 +314,3 @@ function verify_test () {
     exit 1
   fi
 }
-
-
-source "${__utilities_dir}/verifiers.sh"
-
-if check_project; then
-  if [ -d "${__project_test_dir}/utilities" ]; then
-    for file in "${__project_test_dir}/utilities"/*.sh; do
-      source "$file"
-    done
-  fi
-fi

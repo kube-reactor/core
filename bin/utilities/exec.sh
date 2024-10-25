@@ -2,6 +2,8 @@
 #=========================================================================================
 # Command Execution Utilities
 #
+load_utilities env hooks args
+
 
 function export_functions () {
   # Export all functions so they are available in child scripts.
@@ -27,7 +29,7 @@ function requires_project () {
 
 function check_command () {
   local command="$1"
-  shift
+
   for function_suffix in ${__reactor_command_functions[@]}; do
     local function="${command}_${function_suffix}"
     if function_exists "$function"; then

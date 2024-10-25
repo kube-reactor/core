@@ -1,7 +1,11 @@
 #!/usr/bin/env bash
 #
+# Usage:
+#
+#  "${__bin_dir}/core/test" [flags] <command> [args] [flags/options]
+#
 #=========================================================================================
-# Setup
+# Initialization
 #
 
 # Initialize top level directories and load bootstrap functions
@@ -11,8 +15,10 @@ if [[ -z "$SCRIPT_PATH" ]]; then
 fi
 
 export __script_name="$(basename "${SCRIPT_PATH//-/ }")"
-export __script_dir="$(cd "$(dirname "${SCRIPT_PATH}")" && pwd)"
-source "${__script_dir}/state/load.sh"
+export __core_dir="$(cd "$(dirname "${SCRIPT_PATH}")" && pwd)"
+export __bin_dir="$(dirname "${__core_dir}")"
+source "${__core_dir}/loader"
+load_utilities test
 
 #=========================================================================================
 # Parameter processing
@@ -118,7 +124,7 @@ parse_cli test_params "$@"
 
 debug "Test directory: ${__test_dir}"
 debug "Reactor directory: ${__reactor_dir}"
-debug "Script directory: ${__script_dir}"
+debug "Script directory: ${__bin_dir}"
 debug "Projects directory: ${__projects_dir}"
 debug "Project name: ${PROJECT_NAME}"
 debug "Project directory: ${PROJECT_DIRECTORY}"
@@ -137,7 +143,7 @@ if [[ "$CLEAN_PROJECT" ]] && [[ ! "$FORCE" ]]; then
 fi
 
 export __cookiecutter_dir="$(dirname "$(sudo find ~ -name cookiecutter 2>/dev/null | grep -m 1 bin)")"
-export PATH="${__script_dir}:${__cookiecutter_dir}:${PATH}"
+export PATH="${__bin_dir}:${__cookiecutter_dir}:${PATH}"
 
 #=========================================================================================
 # Project testing
@@ -195,7 +201,6 @@ source reactor
 if [ "$arg_d" ]; then
   render_environment
 fi
-
 if [ "$CLEAN_PROJECT" ]; then
   reactor clean --force
 fi
@@ -253,30 +258,6 @@ if [ ! "$NO_UP" ]; then
   verify_test
 fi
 
-#
-# Development project sanity checking and diagnostic output
-#
-if [[ "$arg_d" ]] || [[ "$arg_v" ]]; then
-  add_space
-  render "> minikube status"
-  minikube status
-
-  add_space
-  render "> kubectl get pods -A"
-  kubectl get pods -A
-
-  add_space
-  render "> kubectl get services -A"
-  kubectl get services -A
-
-  add_space
-  render "> kubectl get ingress -A"
-  kubectl get ingress -A
-fi
-
-#
-# Running tests...
-#
 if [[ " ${PROJECT_PHASES[*]} " =~ [[:space:]]running[[:space:]] ]]; then
   start_test phase
   test_phase running

@@ -4,7 +4,7 @@
 #
 
 function run_local () {
-  reactor-exec "${__app_args[@]}"
+  "${__bin_dir}/core/exec" "${__app_args[@]}"
 }
 
 function run_docker () {
@@ -47,7 +47,7 @@ function run_docker () {
 
   if ! docker inspect "$REACTOR_RUNTIME_IMAGE" >/dev/null 2>&1; then
     debug "Building local virtualization container"
-    "${__script_dir}/reactor-build"
+    "${__bin_dir}/reactor-build"
     REACTOR_RUNTIME_IMAGE="${APP_NAME}:${__reactor_version}"
   fi
   REACTOR_ARGS=(
@@ -94,11 +94,11 @@ function project_file () {
 }
 
 function config () {
-  "${__script_dir}/utilities/locator.py" "$1" "${2-}"
+  "${__bin_dir}/utilities/locator.py" "$1" "${2-}"
 }
 
 function env_json () {
-  "${__script_dir}/utilities/env_json.py"
+  "${__bin_dir}/utilities/env_json.py"
 }
 
 function function_exists () {

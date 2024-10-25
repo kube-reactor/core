@@ -29,7 +29,7 @@ function minikube_environment () {
 }
 
 function add_docker_environment_minikube () {
-  eval $("${__binary_dir}/minikube" docker-env)
+  eval $("${__bin_dir}/minikube" docker-env)
 
   debug "DOCKER_TLS_VERIFY=${DOCKER_TLS_VERIFY}"
   debug "DOCKER_HOST=${DOCKER_HOST}"
@@ -43,18 +43,18 @@ function install_kubernetes_minikube () {
 
   download_binary minikube \
     "https://storage.googleapis.com/minikube/releases/latest/minikube-${__os}-${__architecture}" \
-    "${__binary_dir}"
+    "${__bin_dir}"
 }
 
 
 function kubernetes_status_minikube () {
-  "${__binary_dir}/minikube" status 1>/dev/null 2>&1
+  "${__bin_dir}/minikube" status 1>/dev/null 2>&1
   return $?
 }
 
 function start_kubernetes_minikube () {
   minikube_environment
-  "${__binary_dir}/minikube" start \
+  "${__bin_dir}/minikube" start \
     --driver=${MINIKUBE_DRIVER} \
     --nodes=${MINIKUBE_NODES} \
     --cpus=${MINIKUBE_CPUS} \
@@ -67,15 +67,15 @@ function start_kubernetes_minikube () {
     --embed-certs \
     --dns-domain="${PRIMARY_DOMAIN}" 1>>"$(logfile)" 2>&1
 
-  "${__binary_dir}/minikube" update-context 1>>"$(logfile)" 2>&1
+  "${__bin_dir}/minikube" update-context 1>>"$(logfile)" 2>&1
 }
 
 function stop_kubernetes_minikube () {
-  "${__binary_dir}/minikube" stop 1>>"$(logfile)" 2>&1
+  "${__bin_dir}/minikube" stop 1>>"$(logfile)" 2>&1
 }
 
 function destroy_kubernetes_minikube () {
-  "${__binary_dir}/minikube" delete --purge 1>>"$(logfile)" 2>&1
+  "${__bin_dir}/minikube" delete --purge 1>>"$(logfile)" 2>&1
 }
 
 function delete_kubernetes_storage_minikube () {
@@ -92,7 +92,7 @@ function launch_host_kubernetes_tunnel_minikube () {
 
   info "Launching Minikube tunnel (requires sudo) ..."
   check_admin
-  "${__binary_dir}/minikube" tunnel 1>>"$(logfile)" 2>&1 &
+  "${__bin_dir}/minikube" tunnel 1>>"$(logfile)" 2>&1 &
   echo "$!" >"$PID_FILE"
 }
 
@@ -114,7 +114,7 @@ function launch_host_kubernetes_dashboard_minikube () {
   PID_FILE="$(logdir)/dashboard.kpid"
 
   info "Launching Kubernetes Dashboard ..."
-  "${__binary_dir}/minikube" dashboard 1>>"$(logfile)" 2>&1 &
+  "${__bin_dir}/minikube" dashboard 1>>"$(logfile)" 2>&1 &
   echo "$!" >"$PID_FILE"
 }
 

@@ -17,6 +17,6 @@ function pods_command () {
   if ! kubernetes_status; then
     emergency "Kubernetes is not running"
   fi
-  "${__binary_dir}/kubectl" get pods -n "$SERVICE_NAMESPACE"
+  "${__bin_dir}/kubectl" get pods -n "$SERVICE_NAMESPACE"
   add_space
 }

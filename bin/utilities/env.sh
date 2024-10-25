@@ -2,7 +2,7 @@
 #=========================================================================================
 # Command Environment Utilities
 #
-source "${__utilities_dir}/hooks.sh"
+load_utilities hooks
 
 
 function render_overview () {
@@ -15,7 +15,7 @@ function render_overview () {
   debug "> CPU arch: ${__architecture:-}"
   debug "> Invocation: ${__reactor_invocation:-}"
   debug "> Reactor directory: ${__reactor_dir:-}"
-  debug "> Script directory: ${__script_dir:-}"
+  debug "> Script directory: ${__bin_dir:-}"
   debug ""
 
   debug "Project and development properties"
@@ -23,7 +23,7 @@ function render_overview () {
   debug "> Project directory: ${__project_dir:-}"
   debug "> Project manifest: ${__project_file:-}"
   debug "> Certificate directory: ${__certs_dir:-}"
-  debug "> Executable directory: ${__binary_dir:-}"
+  debug "> Executable directory: ${__bin_dir:-}"
   debug "> Docker image project root directory: ${__docker_dir:-}"
   debug "> Helm chart project root directory: ${__charts_dir:-}"
   debug "> Terraform project root directory: ${__terraform_dir:-}"

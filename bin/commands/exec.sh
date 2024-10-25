@@ -50,9 +50,9 @@ function exec_command () {
   debug "> LOG_ARGS: ${LOG_ARGS[@]}"
   debug "> DELETE_ARGS: ${DELETE_ARGS[@]}"
 
-  "${__binary_dir}/kubectl" run "${COMMAND_ARGS[@]}"
+  "${__bin_dir}/kubectl" run "${COMMAND_ARGS[@]}"
   sleep $WAIT
-  render "$(terminal_color "$("${__binary_dir}/kubectl" logs "${LOG_ARGS[@]}")")"
-  "${__binary_dir}/kubectl" delete pod "${DELETE_ARGS[@]}" 2>/dev/null
+  render "$(terminal_color "$("${__bin_dir}/kubectl" logs "${LOG_ARGS[@]}")")"
+  "${__bin_dir}/kubectl" delete pod "${DELETE_ARGS[@]}" 2>/dev/null
   add_space
 }

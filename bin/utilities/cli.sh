@@ -2,7 +2,7 @@
 #=========================================================================================
 # CLI Utilities
 #
-source "${__utilities_dir}/disk.sh"
+load_utilities disk
 
 
 export TERMINAL_COLUMNS="$(stty -a | grep -Po '(?<=columns )\d+')"

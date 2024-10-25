@@ -32,7 +32,7 @@ function status_command () {
   add_line "="
   render " Cluster Nodes"
   add_line "-"
-  render "$(value_color "$("${__binary_dir}/kubectl" top node --show-capacity --sort-by="$TABLE_SORT" 2>&1)")"
+  render "$(value_color "$("${__bin_dir}/kubectl" top node --show-capacity --sort-by="$TABLE_SORT" 2>&1)")"
   add_space
 
   POD_COMMAND=("top" "pod" "--sum" "--sort-by" "$TABLE_SORT")
@@ -56,18 +56,18 @@ function status_command () {
   add_line "="
   render " Cluster Pods"
   add_line "-"
-  render "$(value_color "$("${__binary_dir}/kubectl" "${POD_COMMAND[@]}" 2>&1)")"
+  render "$(value_color "$("${__bin_dir}/kubectl" "${POD_COMMAND[@]}" 2>&1)")"
   add_space
 
   add_line "="
   render " Cluster Services"
   add_line "-"
-  render "$(value_color "$("${__binary_dir}/kubectl" "${SERVICE_COMMAND[@]}" 2>&1)")"
+  render "$(value_color "$("${__bin_dir}/kubectl" "${SERVICE_COMMAND[@]}" 2>&1)")"
   add_space
 
   add_line "="
   render " Cluster Ingress"
   add_line "-"
-  render "$(value_color "$("${__binary_dir}/kubectl" "${INGRESS_COMMAND[@]}" 2>&1)")"
+  render "$(value_color "$("${__bin_dir}/kubectl" "${INGRESS_COMMAND[@]}" 2>&1)")"
   add_space
 }

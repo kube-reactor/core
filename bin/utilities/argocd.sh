@@ -9,7 +9,7 @@ export ARGOCD_APPS_VERSION="${ARGOCD_APPS_VERSION:-main}"
 function install_argocd () {
   download_binary argocd \
     "https://github.com/argoproj/argo-cd/releases/latest/download/argocd-${__os}-${__architecture}" \
-    "${__binary_dir}"
+    "${__bin_dir}"
 
   info "Initializing ArgoCD application repository ..."
   download_git_repo \
@@ -25,7 +25,7 @@ function login_argocd () {
     debug "PRIMARY_DOMAIN: ${PRIMARY_DOMAIN}"
     debug "ARGOCD_ADMIN_PASSWORD: ${ARGOCD_ADMIN_PASSWORD}"
 
-    "${__binary_dir}/argocd" login \
+    "${__bin_dir}/argocd" login \
       "argocd.${PRIMARY_DOMAIN}" \
       --username admin --password \
       "$ARGOCD_ADMIN_PASSWORD" \
@@ -46,10 +46,10 @@ function sync_argocd_charts () {
 
       debug "app_name: ${app_name}"
 
-      if "${__binary_dir}/argocd" app get "$app_name" >/dev/null 2>&1; then
+      if "${__bin_dir}/argocd" app get "$app_name" >/dev/null 2>&1; then
         info "Syncing ${app_name} chart into ArgoCD ..."
-        "${__binary_dir}/argocd" app set "$app_name" --grpc-web --sync-policy none 1>>"$(logfile)" 2>&1
-        "${__binary_dir}/argocd" app sync "$app_name" --prune --grpc-web \
+        "${__bin_dir}/argocd" app set "$app_name" --grpc-web --sync-policy none 1>>"$(logfile)" 2>&1
+        "${__bin_dir}/argocd" app sync "$app_name" --prune --grpc-web \
           --local "${__charts_dir}/${chart}/$(config charts.$chart.chart_dir "charts/${chart}")" 1>>"$(logfile)" 2>&1
       fi
     done

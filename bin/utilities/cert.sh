@@ -6,6 +6,7 @@
 export DEFAULT_CERT_SUBJECT="/C=US/ST=NY/L=New York/O=$(config name)"
 export DEFAULT_CERT_DAYS=3650
 
+
 function cert_environment () {
   debug "Setting certificate environment ..."
   export CERT_SUBJECT="${CERT_SUBJECT:-$DEFAULT_CERT_SUBJECT}"

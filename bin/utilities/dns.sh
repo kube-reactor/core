@@ -20,11 +20,11 @@ function dns_environment () {
 
 
 function dns_ip () {
-  echo "$("${__binary_dir}/kubectl" get service nginx-nginx-ingress-controller -n nginx -o jsonpath='{.status.loadBalancer.ingress[*].ip}' 2>/dev/null)"
+  echo "$("${__bin_dir}/kubectl" get service nginx-nginx-ingress-controller -n nginx -o jsonpath='{.status.loadBalancer.ingress[*].ip}' 2>/dev/null)"
 }
 
 function dns_hosts () {
-  echo "$("${__binary_dir}/kubectl" get ingress -A -o jsonpath='{.items[*].spec.rules[*].host}' 2>/dev/null)"
+  echo "$("${__bin_dir}/kubectl" get ingress -A -o jsonpath='{.items[*].spec.rules[*].host}' 2>/dev/null)"
 }
 
 function dns_records () {

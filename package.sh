@@ -8,9 +8,9 @@ export __reactor_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 export __package_dir="${__reactor_dir}/package"
 export __package_files_dir="${__package_dir}/files"
 
-export __command_dir="${__package_files_dir}/commands"
-export __state_dir="${__package_files_dir}/state"
+export __core_dir="${__package_files_dir}/core"
 export __utility_dir="${__package_files_dir}/utilities"
+export __command_dir="${__package_files_dir}/commands"
 #
 # Prepare package directory
 #
@@ -19,18 +19,18 @@ mkdir -p "${__package_files_dir}"
 #
 # Create tar release from package files
 #
-mkdir "${__command_dir}"
-mkdir "${__state_dir}"
+mkdir "${__core_dir}"
 mkdir "${__utility_dir}"
+mkdir "${__command_dir}"
 
 cp "${__reactor_dir}/VERSION" "${__package_files_dir}"
 cp "${__reactor_dir}/LICENSE" "${__package_files_dir}"
 cp "${__reactor_dir}"/*.* "${__package_files_dir}"
 
 cp "${__reactor_dir}/bin"/*reactor* "${__package_files_dir}"
-cp "${__reactor_dir}/bin/commands"/*.sh "${__command_dir}"
-cp "${__reactor_dir}/bin/state"/*.sh "${__state_dir}"
+cp "${__reactor_dir}/bin/core"/*.sh "${__core_dir}"
 cp "${__reactor_dir}/bin/utilities"/*.sh "${__utility_dir}"
+cp "${__reactor_dir}/bin/commands"/*.sh "${__command_dir}"
 
 cd "${__package_files_dir}"
 tar -cvzf "${__package_dir}/reactor.tar.gz" *

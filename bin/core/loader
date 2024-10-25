@@ -1,8 +1,14 @@
+#!/usr/bin/env bash
+#
+# Usage:
+#
+#  source "${__bin_dir}/core/loader"
+#
+#  > Requires: ${__bin_dir}
 #
 #=========================================================================================
-# Script Loader
+# Initialization
 #
-
 # Error handling
 set -o errtrace
 set -o nounset
@@ -42,19 +48,19 @@ export __home_dir="/home/${__user_name}"
 export HOME="${__home_dir}"
 
 export __environment="${REACTOR_ENV:-local}"
-export __reactor_dir="$(dirname "${__script_dir}")"
+export __reactor_dir="$(dirname "${__bin_dir}")"
 export __reactor_version="$(cat -s "${__reactor_dir}/VERSION")"
 export __reactor_command_functions=(
   command
   host_command
 )
 
-export __state_dir="${__script_dir}/state"
-source "${__state_dir}/bootstrap.sh"
+export __core_dir="${__bin_dir}/core"
+export __core_lib_dir="${__core_dir}/lib"
+source "${__core_lib_dir}/bootstrap.sh"
 
-export __binary_dir="${__script_dir}"
-export __commands_dir="${__script_dir}/commands"
-export __utilities_dir="${__script_dir}/utilities"
+export __commands_dir="${__bin_dir}/commands"
+export __utilities_dir="${__bin_dir}/utilities"
 export __test_dir="${__reactor_dir}/tests"
 export __projects_dir="${__reactor_dir}/projects"
 export __project_file="$(project_file "$(pwd)")"
@@ -66,7 +72,8 @@ if [ "${__project_file}" ]; then
   export __init_file="${__env_dir}/.initialized"
 
   export __project_reactor_dir="${__project_dir}/reactor"
-  export __project_test_dir="${__project_dir}/reactor/tests"
+  export __project_utilities_dir="${__project_reactor_dir}/utilities"
+  export __project_test_dir="${__project_reactor_dir}/tests"
 
   export __app_dir="${__project_dir}/projects"
   export __certs_dir="${__project_dir}/certs"
@@ -75,6 +82,9 @@ if [ "${__project_file}" ]; then
   export __docker_dir="${__project_dir}/docker"
   export __charts_dir="${__project_dir}/charts"
   export __extension_dir="${__project_dir}/extensions"
+
+  export __terraform_dir="${__project_dir}/terraform"
+  export __argocd_apps_dir="${__terraform_dir}/argocd-apps"
 
   export __reactor_invocation="$(printf %q "${__project_file}")$( (($#)) && printf ' %q' "$@" || true)"
 
@@ -91,6 +101,20 @@ export APP_NAME="$(config short_name)"
 export APP_LABEL="$(config name)"
 
 export PRIMARY_DOMAIN="$(echo "$APP_NAME" | tr '_' '-').local"
+
+export DEFAULT_PROJECT_TEMPLATE_REMOTE="${DEFAULT_REACTOR_TEMPLATE_REMOTE:-https://github.com/kube-reactor/cluster-base.git}"
+export DEFAULT_PROJECT_TEMPLATE_REFERENCE="${DEFAULT_REACTOR_TEMPLATE_REFERENCE:-main}"
+
+
+if [ -z "${HOME_SHARES:-}" ]; then
+  export HOME_SHARES=(
+    ".bashrc"
+    ".bash_profile"
+    ".profile"
+    ".ssh"
+    ".git"
+  )
+fi
 
 
 function set_initialized () {
@@ -114,17 +138,65 @@ function check_project () {
   fi
 }
 
+
+function init_loader () {
+  export CORE_INDEX=()
+  export COMMAND_INDEX=()
+  export UTILITY_INDEX=()
+
+  load_utilities cli hooks
+}
+
+function load_hook () {
+  local lib_name="$1"
+  if [[ ! " ${CORE_INDEX[*]} " =~ [[:space:]]${lib_name}[[:space:]] ]]; then
+    local lib_script="${__core_lib_dir}/${lib_name}.sh"
+    if [ -f "$lib_script" ]; then
+      source "$lib_script"
+    fi
+    source_hook "$lib_name"
+    export CORE_INDEX=("${CORE_INDEX[@]}" "$lib_name")
+  fi
+}
+
+function load_utility () {
+  local utility_name="$1"
+  if [[ ! " ${UTILITY_INDEX[*]} " =~ [[:space:]]${utility_name}[[:space:]] ]]; then
+    source_utility "$utility_name"
+    export UTILITY_INDEX=("${UTILITY_INDEX[@]}" "$utility_name")
+  fi
+}
+
+function load_command () {
+  local command_name="$1"
+  if [[ ! " ${COMMAND_INDEX[*]} " =~ [[:space:]]${command_name}[[:space:]] ]]; then
+    source "${__commands_dir}/${command_name}.sh"
+    export COMMAND_INDEX=("${COMMAND_INDEX[@]}" "$command_name")
+  fi
+}
+
+function load_commands () {
+  if [ $# -gt 0 ]; then
+    for command in $@; do
+      load_command "$command"
+    done
+  else
+    load_library commands
+    run_hook initialize_commands
+  fi
+}
+
 function load_utilities () {
   if [ $# -gt 0 ]; then
     for library in $@; do
-      source "${__utilities_dir}/${library}.sh"
+      load_utility "$library"
     done
   else
-    for file in "${__utilities_dir}"/*.sh; do
-      source "$file"
-    done
+    load_library utilities
+    run_hook initialize_utilities
   fi
 }
+
 
 function parse_cli () {
   local param_function="$1"
@@ -143,3 +215,6 @@ function parse_cli () {
     render_overview
   fi
 }
+
+# Initialize the command and utility file indexes
+init_loader

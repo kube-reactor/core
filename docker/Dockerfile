@@ -28,6 +28,14 @@ ENV LANG=C.UTF-8
 ENV PYTHONUNBUFFERED=1
 ENV REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
 #
+# Application environment variables
+#
+ENV REACTOR_DIR="/reactor"
+ENV SCRIPT_DIR="${REACTOR_DIR}/bin"
+ENV SHARE_DIR="${REACTOR_DIR}/share"
+
+ENV PATH="${SCRIPT_DIR}:${PATH}"
+#
 # Shell environment
 #
 SHELL ["/bin/bash", "--login", "-c"]
@@ -71,19 +79,12 @@ RUN groupmod --gid ${REACTOR_DOCKER_GID} docker \
   --groups sudo,docker \
   ${REACTOR_USER_NAME} \
   && echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers \
-  && echo 'alias reactor="reactor-exec"' >> /etc/bash.bashrc
+  && echo 'alias reactor="${SCRIPT_DIR}/core/exec"' >> /etc/bash.bashrc
 #
 #====================================================================
 # Application configuration
 #
-#
-# Application environment variables
-#
-ENV REACTOR_DIR="/reactor"
-ENV SCRIPT_DIR="${REACTOR_DIR}/bin"
-ENV SHARE_DIR="${REACTOR_DIR}/share"
 
-ENV PATH="${SCRIPT_DIR}:${PATH}"
 #
 # Reactor directory
 #
@@ -104,4 +105,4 @@ RUN test ! -x ${SHARE_DIR}/install.sh \
 #
 USER ${REACTOR_USER_NAME}
 WORKDIR ${HOME_DIR}
-ENTRYPOINT ["reactor-exec"]
+ENTRYPOINT ["${SCRIPT_DIR}/core/exec"]

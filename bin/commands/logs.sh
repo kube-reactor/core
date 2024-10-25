@@ -14,6 +14,6 @@ function logs_command () {
   if ! kubernetes_status; then
     emergency "Kubernetes is not running"
   fi
-  "${__binary_dir}/kubectl" logs --timestamps "$@"
+  "${__bin_dir}/kubectl" logs --timestamps "$@"
   add_space
 }

@@ -37,7 +37,7 @@ function provision_terraform () {
       "--env" "TF_VAR_kube_config=${__env_dir}/.kubeconfig"
       "--env" "TF_VAR_domain=${PRIMARY_DOMAIN}"
       "--env" "TF_VAR_environment=${__environment}"
-      "--env" "TF_VAR_argocd_admin_password=$("${__binary_dir}/argocd" account bcrypt --password "${ARGOCD_ADMIN_PASSWORD:-admin}")"
+      "--env" "TF_VAR_argocd_admin_password=$("${__bin_dir}/argocd" account bcrypt --password "${ARGOCD_ADMIN_PASSWORD:-admin}")"
       "--env" "TF_VAR_variables"
     )
     if [ ! -z "${ARGOCD_PROJECT_SEQUENCE}" ]; then

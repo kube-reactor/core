@@ -21,7 +21,7 @@ function install_helm () {
 
   download_binary helm \
     "https://get.helm.sh/helm-v${HELM_VERSION}-${__os}-${__architecture}.tar.gz" \
-    "${__binary_dir}" \
+    "${__bin_dir}" \
     "${__os}-${__architecture}"
 }
 
@@ -32,6 +32,6 @@ function update_helm_dependencies () {
     chart_dir="${__charts_dir}/${chart}/$(config charts.$chart.chart_dir "charts/${chart}")"
 
     info "Updating ${chart} Helm chart dependencies"
-    "${__binary_dir}/helm" dependency update "$chart_dir" 1>>"$(logfile)" 2>&1
+    "${__bin_dir}/helm" dependency update "$chart_dir" 1>>"$(logfile)" 2>&1
   done
 }

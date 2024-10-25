@@ -2,9 +2,7 @@
 #=========================================================================================
 # Command Argument Utilities
 #
-source "${__utilities_dir}/cli.sh"
-source "${__utilities_dir}/validators.sh"
-source "${__utilities_dir}/arg_lib.sh"
+load_utilities cli validators arg_lib
 
 #
 #=========================================================================================

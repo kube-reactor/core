@@ -19,7 +19,7 @@ function shell_command () {
   if ! kubernetes_status; then
     emergency "Kubernetes is not running"
   fi
-  "${__binary_dir}/kubectl" exec \
+  "${__bin_dir}/kubectl" exec \
     -n "$SERVICE_NAMESPACE" \
     -ti "$SERVICE_POD_NAME" \
     -- "$SERVICE_COMMAND"

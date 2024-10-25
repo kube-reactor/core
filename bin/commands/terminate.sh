@@ -18,7 +18,7 @@ function terminate_command () {
   if ! kubernetes_status; then
     emergency "Kubernetes is not running"
   fi
-  "${__binary_dir}/kubectl" delete pod \
+  "${__bin_dir}/kubectl" delete pod \
     -n "$SERVICE_NAMESPACE" \
     "$SERVICE_POD_NAME"
   add_space

@@ -46,7 +46,7 @@ function install_kubernetes () {
 
   download_binary kubectl \
     "https://dl.k8s.io/release/v${KUBECTL_VERSION}/bin/linux/${__architecture}/kubectl" \
-    "${__binary_dir}"
+    "${__bin_dir}"
 
   install_helm
   install_argocd
@@ -142,6 +142,21 @@ function terminate_host_kubernetes_dashboard () {
   run_kube_function terminate_host_kubernetes_dashboard
 }
 
+
+function get_config_value () {
+  local namespace="$1"
+  local name="$2"
+  local property="$3"
+  echo -n "$(kubectl get cm "$name" -n "$namespace" -o jsonpath="{.data.${property//./\\.}}")"
+}
+
+function get_secret_value () {
+  local namespace="$1"
+  local name="$2"
+  local property="$3"
+  echo "$(kubectl view-secret -n "$namespace"  "$name" "$property")"
+  #echo -n "$(kubectl get secret "$name" -n "$namespace" -o jsonpath="{.data.${property//./\\.}}" | base64 --decode)"
+}
 
 function get_pods () {
   namespace="$1"

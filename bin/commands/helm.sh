@@ -10,6 +10,6 @@ function helm_description () {
 
 function helm_command () {
   helm_environment
-  "${__binary_dir}/helm" "$@"
+  "${__bin_dir}/helm" "$@"
   add_space
 }

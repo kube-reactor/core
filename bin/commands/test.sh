@@ -13,6 +13,6 @@ function test_requires_project () {
 }
 
 function test_host_command () {
-  env -i "${__binary_dir}/reactor-test" "$@"
+  env -i "${__core_dir}/test" "$@"
   exit $?
 }

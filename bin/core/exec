@@ -2,7 +2,7 @@
 #
 # Usage:
 #
-#  reactor-exec [flags] <command> [args] [flags/options]
+#  "${__bin_dir}/core/exec" [flags] <command> [args] [flags/options]
 #
 #=========================================================================================
 # Initialization
@@ -17,16 +17,11 @@ if [[ -z "$SCRIPT_PATH" ]]; then
   SCRIPT_PATH="${(%):-%N}" # zsh
 fi
 
-((return 0 2>/dev/null) || [[ $ZSH_EVAL_CONTEXT =~ :file$ ]]) && SOURCED=1 || SOURCED=0
-
 export __script_name="${__script_name:-$(basename "${SCRIPT_PATH//-/ }")}"
-export __script_dir="$(cd "$(dirname "${SCRIPT_PATH}")" && pwd)"
-source "${__script_dir}/reactor-env" $SOURCED
+export __core_dir="$(cd "$(dirname "${SCRIPT_PATH}")" && pwd)"
+export __bin_dir="$(dirname "${__core_dir}")"
 
-if [[ $SOURCED -eq 1 ]]; then
-  # script is being sourced
-  return
-fi
+source "${__core_dir}/env"
 reactor_args "$@"
 
 echo "" >"$(logfile)"

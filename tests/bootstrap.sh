@@ -9,7 +9,7 @@ SCRIPT_PATH="${BASH_SOURCE[0]}"
 export __test_dir="$(cd "$(dirname "${SCRIPT_PATH}")" && pwd)"
 export __project_dir="${__test_dir}/project"
 export __reactor_dir="$(dirname "${__test_dir}")"
-export __script_dir="${__reactor_dir}/bin"
+export __bin_dir="${__reactor_dir}/bin"
 
 # Set OS and system architecture variables.
 case "$OSTYPE" in
@@ -29,7 +29,7 @@ export __architecture
 echo "Test directory: ${__test_dir}"
 echo "Project directory: ${__project_dir}"
 echo "Reactor directory: ${__reactor_dir}"
-echo "Script directory: ${__script_dir}"
+echo "Script directory: ${__bin_dir}"
 echo "Operating System: ${__os}"
 echo "Computing Architecture: ${__architecture}"
 

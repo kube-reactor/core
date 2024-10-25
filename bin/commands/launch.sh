@@ -24,7 +24,7 @@ function launch_command () {
     "-n" "$SERVICE_NAMESPACE"
     "--image" "$SERVICE_IMAGE"
   )
-  "${__binary_dir}/kubectl" run \
+  "${__bin_dir}/kubectl" run \
     "${SERVICE_OPTIONS[@]}" \
     "$SERVICE_POD_NAME"
   add_space

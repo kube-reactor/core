@@ -11,6 +11,6 @@ function argocd_description () {
 function argocd_command () {
   helm_environment
   login_argocd
-  "${__binary_dir}/argocd" "$@"
+  "${__bin_dir}/argocd" "$@"
   add_space
 }
