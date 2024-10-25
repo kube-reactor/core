@@ -1,5 +1,8 @@
 # CI/CD files
 .circleci
 
+# Git files
+.git
+
 # Temporary folders
 tmp
