@@ -102,5 +102,6 @@ function env_json () {
 }
 
 function function_exists () {
+  debug "Checking function: ${1}"
   declare -F "$1" > /dev/null;
 }

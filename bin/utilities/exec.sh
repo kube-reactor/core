@@ -2,7 +2,7 @@
 #=========================================================================================
 # Command Execution Utilities
 #
-load_utilities env hooks args
+load_utilities env args
 
 
 function export_functions () {
@@ -10,20 +10,6 @@ function export_functions () {
   for function_name in $(compgen -A function); do
     export -f "$function_name"
   done
-}
-
-function requires_project () {
-  local command="$1"
-  local check_function="${command}_requires_project"
-
-  if function_exists "$check_function"; then
-    # Farm it off to a command level processor (create and test ...)
-    "$check_function"
-    return $?
-  else
-    # All commands by default run in containers before host execution
-    return 0
-  fi
 }
 
 

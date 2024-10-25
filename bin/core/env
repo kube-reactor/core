@@ -10,7 +10,7 @@
 #=========================================================================================
 # Initialization
 #
-export SOURCED="${1:-0}"
+export SOURCED="$1"
 
 source "${__bin_dir}/core/loader"
 load_hook initialize

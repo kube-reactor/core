@@ -39,7 +39,6 @@ function test_kubernetes_config () {
 
 function test_kubernetes_secrets () {
   function verify_core_secrets () {
-    echo "$ARGOCD_ADMIN_PASSWORD"
     local password="$(argocd account bcrypt --password "$ARGOCD_ADMIN_PASSWORD")"
 
     cert_environment

@@ -2,8 +2,6 @@
 #=========================================================================================
 # Execution Hook Utilities
 #
-load_utilities exec
-
 
 function load_hooks () {
   local hooks_script_name="hooks"
@@ -46,11 +44,11 @@ function load_library () {
       source "$file"
     done
   fi
-
   if check_project; then
     for project in $(config docker); do
       project_dir="${__docker_dir}/$(config docker.$project.project $project)"
       library_dir="${project_dir}/reactor/${library_type}"
+
       if [[ -d "$library_dir" ]] \
         && compgen -G "${library_dir}"/*.sh >/dev/null; then
         for file in "${library_dir}"/*.sh; do
@@ -61,6 +59,7 @@ function load_library () {
     for chart in $(config charts); do
       chart_dir="${__charts_dir}/$(config charts.$chart.project $chart)"
       library_dir="${chart_dir}/reactor/${library_type}"
+
       if [[ -d "$library_dir" ]] \
         && compgen -G "${library_dir}"/*.sh >/dev/null; then
         for file in "${library_dir}"/*.sh; do
@@ -71,6 +70,7 @@ function load_library () {
     for extension in $(config extensions); do
       extension_dir="${__extension_dir}/${extension}"
       library_dir="${extension_dir}/reactor/${library_type}"
+
       if [[ -d "$library_dir" ]] \
         && compgen -G "${library_dir}"/*.sh >/dev/null; then
         for file in "${library_dir}"/*.sh; do
@@ -196,7 +196,7 @@ function run_hook_function () {
     if function_exists "$hook_name"; then
       "$hook_name" "$@"
     else
-      warning "Hook function (${hook_name}) does not exist in ${project_dir}"
+      debug "Hook function (${hook_name}) does not exist in ${project_dir}"
     fi
   fi
 }
@@ -204,6 +204,8 @@ function run_hook_function () {
 function run_hook () {
   hook_name="$1"
   shift
+
+  debug "Running hook: ${hook_name} ${@}"
 
   if check_project; then
     for docker in $(config docker); do

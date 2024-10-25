@@ -14,7 +14,7 @@ if [[ -z "$SCRIPT_PATH" ]]; then
   SCRIPT_PATH="${(%):-%N}" # zsh
 fi
 
-export __script_name="$(basename "${SCRIPT_PATH//-/ }")"
+export __script_name="reactor test"
 export __core_dir="$(cd "$(dirname "${SCRIPT_PATH}")" && pwd)"
 export __bin_dir="$(dirname "${__core_dir}")"
 source "${__core_dir}/loader"

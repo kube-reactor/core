@@ -54,20 +54,14 @@ if [ ${#__app_args[@]} -eq 0 ]; then
   arg_h="1"
 fi
 
-if ! check_project && requires_project "${__command_name}"; then
-  # Display error message (no project)
-  add_space
-  error "Project directory with a 'reactor.yml' file does not exist in current or parent directories"
-  add_space
-fi
+warn_no_project "${__command_name}"
 
-if [[ "$arg_h" ]] \
-  || [[ "${__command_name}" == "help" ]] \
-  || ! requires_project "${__command_name}"; then
+if [[ "$arg_h" ]] || [[ "${__command_name}" == "help" ]]; then
+  run_local
+elif ! requires_project "${__command_name}"; then
   # Local execution (use sparingly)
   run_local
-
-elif ! check_project && requires_project "${__command_name}"; then
+elif ! check_project; then
   debug "Exiting due to no project and no help option specified"
   exit 1
 else

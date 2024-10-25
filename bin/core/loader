@@ -138,13 +138,46 @@ function check_project () {
   fi
 }
 
+function requires_project () {
+  local command="$1"
+  local check_function="${command}_requires_project"
+
+  if [[ "$command" =~ ^- ]]; then
+    # No valid command specifed so pass back to parent as normal
+    return 0
+  fi
+
+  if function_exists "$check_function"; then
+    # Farm it off to a command level processor (create and test ...)
+    "$check_function"
+    return $?
+  else
+    # All commands by default run in containers before host execution
+    return 0
+  fi
+}
+
+function warn_no_project () {
+  local command="${1:--}"
+
+  if ! check_project && requires_project "$command"; then
+    # Display error message (no project)
+    add_space
+    error "Project directory with a 'reactor.yml' file does not exist in current or parent directories"
+    add_space
+fi
+}
+
 
 function init_loader () {
+  source "${__utilities_dir}/env.sh"
+  source "${__utilities_dir}/hooks.sh"
+
   export CORE_INDEX=()
   export COMMAND_INDEX=()
   export UTILITY_INDEX=()
 
-  load_utilities cli hooks
+  load_utilities cli
 }
 
 function load_hook () {
@@ -203,7 +236,6 @@ function parse_cli () {
   shift
 
   load_utilities help
-
   set_initialized
   reactor_args "$@"
 

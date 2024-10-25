@@ -2,8 +2,6 @@
 #=========================================================================================
 # Command Environment Utilities
 #
-load_utilities hooks
-
 
 function render_overview () {
   debug ""
