@@ -3,6 +3,37 @@
 # <Create> Command
 #
 
+#
+# Development Modes
+#
+#  * Core Development
+#
+#    -> When File Exists: ./reactor.template.yaml
+#
+#    *> git clone https://github.com/kube-reactor/core.git {core_directory}
+#    *> cd {core_directory}
+#    *> reactor create --name {project_name} --remote {project_remote} # ./projects/{project_name}
+#    *> reactor test --name {project_name}                             # ./projects/{project_name}
+#
+#  * Project Development
+#
+#    -> When Check project
+#
+#    *> git clone {project_git_url} {project_directory}
+#    *> cd {project_directory}
+#    *> reactor test                                                   # ./
+#    *> reactor template --name {template_name}                        # ./
+#
+#  * Template Development
+#
+#    -> When File Exists: ./cookiecutter.json
+#
+#    *> git clone {template_git_url} {template_directory}
+#    *> cd {template_directory}
+#    *> reactor create --name {project_name}                           # ./{project_name}
+#    *> reactor test --name {project_name}                             # ./{project_name}
+#
+
 function create_description () {
   render "Create a new cluster project from a template"
 }
