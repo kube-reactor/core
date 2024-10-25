@@ -14,6 +14,9 @@ set -o errtrace
 set -o nounset
 set -o pipefail
 
+shopt -s globstar
+
+
 export INITIALIZED=""
 export LOG_LEVEL="${LOG_LEVEL:-6}" # 7 = debug -> 0 = emergency
 
@@ -62,6 +65,7 @@ source "${__core_lib_dir}/bootstrap.sh"
 export __commands_dir="${__bin_dir}/commands"
 export __utilities_dir="${__bin_dir}/utilities"
 export __test_dir="${__reactor_dir}/tests"
+export __test_lib_dir="${__test_dir}/lib"
 export __projects_dir="${__reactor_dir}/projects"
 export __project_file="$(project_file "$(pwd)")"
 export __project_dir=""
@@ -166,6 +170,45 @@ function warn_no_project () {
     error "Project directory with a 'reactor.yml' file does not exist in current or parent directories"
     add_space
 fi
+}
+
+
+function get_run_mode () {
+  local current_directory="$(pwd)"
+
+  if [ -f "${current_directory}/reactor.template.yaml" ]; then
+    echo "core"
+  elif check_project; then
+    echo "project"
+  elif [ -f "${current_directory}/cookiecutter.json" ]; then
+    echo "template"
+  else
+    emergency "Reactor run mode not supported (needs core, template, or project)"
+  fi
+}
+
+function core_run_mode () {
+  if [ "$(get_run_mode)" == "core" ]; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+function template_run_mode () {
+  if [ "$(get_run_mode)" == "template" ]; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+function project_run_mode () {
+  if [ "$(get_run_mode)" == "project" ]; then
+    return 0
+  else
+    return 1
+  fi
 }
 
 

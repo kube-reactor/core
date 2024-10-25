@@ -23,9 +23,9 @@ function test_phase () {
   #
   # Running Reactor Command Tests
   #
-  if [[ -d "${__test_dir}/${TEST_PHASE}" ]] \
-    && compgen -G "${__test_dir}/${TEST_PHASE}"/*.sh > /dev/null; then
-    for file in "${__test_dir}/${TEST_PHASE}"/*.sh; do
+  if [[ -d "${__test_lib_dir}" ]] \
+    && compgen -G "${__test_lib_dir}"/**/*.sh > /dev/null; then
+    for file in "${__test_lib_dir}"/**/*.sh; do
       if [[ "$arg_d" ]] || [[ "$arg_v" ]]; then
         add_space
         render "==========================================================================="
@@ -38,52 +38,16 @@ function test_phase () {
       if [[ "$arg_d" ]] || [[ "$arg_v" ]]; then
         add_space
       fi
-      run_test_sequence "$file"
-    done
-  fi
-  if [[ -d "${__test_dir}/${TEST_PHASE}/commands" ]] \
-    && compgen -G "${__test_dir}/${TEST_PHASE}/commands"/*.sh > /dev/null; then
-    for file in "${__test_dir}/${TEST_PHASE}/commands"/*.sh; do
-      if [[ "$arg_d" ]] || [[ "$arg_v" ]]; then
-        add_space
-        render "==========================================================================="
-        render "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-        render "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-        render "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-        render "==========================================================================="
-      fi
-      render " * Running reactor command test: $(key_color "${file}")"
-      if [[ "$arg_d" ]] || [[ "$arg_v" ]]; then
-        add_space
-      fi
-      run_test_sequence "$file"
-    done
-  fi
-  if [[ -d "${__test_dir}/${TEST_PHASE}/utilities" ]] \
-    && compgen -G "${__test_dir}/${TEST_PHASE}/utilities"/*.sh > /dev/null; then
-    for file in "${__test_dir}/${TEST_PHASE}/utilities"/*.sh; do
-      if [[ "$arg_d" ]] || [[ "$arg_v" ]]; then
-        add_space
-        render "==========================================================================="
-        render "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-        render "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-        render "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-        render "==========================================================================="
-      fi
-      render " * Running reactor utility test: $(key_color "${file}")"
-      if [[ "$arg_d" ]] || [[ "$arg_v" ]]; then
-        add_space
-      fi
-      run_test_sequence "$file"
+      run_test_sequence "$TEST_PHASE" "$file"
     done
   fi
   if check_project; then
     #
     # Running Project Command Tests
     #
-    if [[ -d "${__project_test_dir}/${TEST_PHASE}" ]] \
-      && compgen -G "${__project_test_dir}/${TEST_PHASE}"/*.sh > /dev/null; then
-      for file in "${__project_test_dir}/${TEST_PHASE}"/*.sh; do
+    if [[ -d "${__project_test_dir}" ]] \
+      && compgen -G "${__project_test_dir}"/**/*.sh > /dev/null; then
+      for file in "${__project_test_dir}"/**/*.sh; do
         if [[ "$arg_d" ]] || [[ "$arg_v" ]]; then
           add_space
           render "==========================================================================="
@@ -96,43 +60,7 @@ function test_phase () {
         if [[ "$arg_d" ]] || [[ "$arg_v" ]]; then
           add_space
         fi
-        run_test_sequence "$file"
-      done
-    fi
-    if [[ -d "${__project_test_dir}/${TEST_PHASE}/commands" ]] \
-      && compgen -G "${__project_test_dir}/${TEST_PHASE}/commands"/*.sh > /dev/null; then
-      for file in "${__project_test_dir}/${TEST_PHASE}/commands"/*.sh; do
-        if [[ "$arg_d" ]] || [[ "$arg_v" ]]; then
-          add_space
-          render "==========================================================================="
-          render "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-          render "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-          render "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-          render "==========================================================================="
-        fi
-        render " * Running reactor command test: $(key_color "${file}")"
-        if [[ "$arg_d" ]] || [[ "$arg_v" ]]; then
-          add_space
-        fi
-        run_test_sequence "$file"
-      done
-    fi
-    if [[ -d "${__project_test_dir}/${TEST_PHASE}/utilities" ]] \
-      && compgen -G "${__project_test_dir}/${TEST_PHASE}/utilities"/*.sh > /dev/null; then
-      for file in "${__project_test_dir}/${TEST_PHASE}/utilities"/*.sh; do
-        if [[ "$arg_d" ]] || [[ "$arg_v" ]]; then
-          add_space
-          render "==========================================================================="
-          render "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-          render "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-          render "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-          render "==========================================================================="
-        fi
-        render " * Running reactor utility test: $(key_color "${file}")"
-        if [[ "$arg_d" ]] || [[ "$arg_v" ]]; then
-          add_space
-        fi
-        run_test_sequence "$file"
+        run_test_sequence "$TEST_PHASE" "$file"
       done
     fi
   fi
@@ -293,18 +221,40 @@ function run_test () {
 }
 
 function run_test_sequence () {
-  export TEST_FILE="$1"
+  local test_phase="$1"
+  local test_found=0
 
-  unset -f test_all
-  unset -f "test_${__environment}"
-  source "$1"
+  local env_phase_test="test_${__environment}_${test_phase}"
+  local env_test="test_${__environment}"
+  local phase_test="test_${test_phase}"
+  local all_test="test_all"
 
-  if function_exists "test_${__environment}"; then
-    "test_${__environment}" "$1"
-  elif function_exists "test_all"; then
-    test_all "$1"
-  else
-    fail "Test files (test_all or test_${__environment}) function do not exist"
+  unset -f "$env_phase_test"
+  unset -f "$env_test"
+  unset -f "$phase_test"
+  unset -f "$all_test"
+
+  export TEST_FILE="$2"
+  source "$TEST_FILE"
+
+  if function_exists "$env_phase_test"; then
+    "$env_phase_test" "$TEST_FILE"
+    test_found=1
+  fi
+  if function_exists "$env_test"; then
+    "$env_test" "$TEST_FILE"
+    test_found=1
+  fi
+  if function_exists "$phase_test"; then
+    "$phase_test" "$TEST_FILE"
+    test_found=1
+  fi
+  if function_exists "$all_test"; then
+    "$all_test" "$TEST_FILE"
+    test_found=1
+  fi
+  if [ $test_found -ne 1 ]; then
+    warning "No test functions defined: ${env_phase_test}, ${env_test}, ${phase_test}, ${all_text}"
   fi
 }
 

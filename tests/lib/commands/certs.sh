@@ -1,6 +1,14 @@
 #========================
 # Certificate execution
 #========================
+#
+# Search path
+#
+# test_{environment}_{phase}
+# test_{environment}
+# test_{phase}
+# test_all
+#
 
 function verify_certs () {
   verify_file "${__certs_dir}/app-ca.crt"

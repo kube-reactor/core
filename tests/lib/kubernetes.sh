@@ -1,6 +1,14 @@
 #=======================
 # Kubernetes execution
 #=======================
+#
+# Search path
+#
+# test_{environment}_{phase}
+# test_{environment}
+# test_{phase}
+# test_all
+#
 
 function test_kubernetes_status () {
   function verify_core_status () {
@@ -132,7 +140,7 @@ function test_kubernetes_ingress () {
   wait verify_core_ingress 10
 }
 
-function test_all () {
+function test_running () {
   tag system monitoring kubernetes
 
   add_tag config settings

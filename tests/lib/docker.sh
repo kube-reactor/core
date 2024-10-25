@@ -1,6 +1,14 @@
 #===================
 # Docker execution
 #===================
+#
+# Search path
+#
+# test_{environment}_{phase}
+# test_{environment}
+# test_{phase}
+# test_all
+#
 
 function test_docker_images () {
   function verify_core_images () {
@@ -80,7 +88,7 @@ function test_docker_services () {
   wait verify_core_services 30
 }
 
-function test_local () {
+function test_local_running () {
   tag system docker
 
   add_tag image
