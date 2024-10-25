@@ -11,7 +11,7 @@ function test_argocd_apps () {
   wait verify_core_apps 30
 }
 
-function test_seq () {
+function test_all () {
   tag passthrough argocd
 
   add_tag app

@@ -80,7 +80,7 @@ function test_docker_services () {
   wait verify_core_services 30
 }
 
-function test_seq () {
+function test_local () {
   tag system docker
 
   add_tag image

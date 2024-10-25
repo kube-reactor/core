@@ -47,7 +47,7 @@ export __docker_group_id="$(cut -d: -f3 < <(getent group docker))"
 export __home_dir="/home/${__user_name}"
 export HOME="${__home_dir}"
 
-export __environment="${REACTOR_ENV:-local}"
+export __environment="${REACTOR_ENVIRONMENT:-local}"
 export __reactor_dir="$(dirname "${__bin_dir}")"
 export __reactor_version="$(cat -s "${__reactor_dir}/VERSION")"
 export __reactor_command_functions=(

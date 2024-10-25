@@ -133,7 +133,7 @@ function test_kubernetes_ingress () {
   wait verify_core_ingress 10
 }
 
-function test_seq () {
+function test_all () {
   tag system monitoring kubernetes
 
   add_tag config settings

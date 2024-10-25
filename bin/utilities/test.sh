@@ -295,13 +295,16 @@ function run_test () {
 function run_test_sequence () {
   export TEST_FILE="$1"
 
-  unset -f test_seq
+  unset -f test_all
+  unset -f "test_${__environment}"
   source "$1"
 
-  if function_exists test_seq; then
-    test_seq "$1"
+  if function_exists "test_${__environment}"; then
+    "test_${__environment}" "$1"
+  elif function_exists "test_all"; then
+    test_all "$1"
   else
-    fail "Test sequence (test_seq) function does not exist"
+    fail "Test files (test_all or test_${__environment}) function do not exist"
   fi
 }
 

@@ -9,7 +9,7 @@ function test_helm_charts () {
   wait verify_core_charts 30
 }
 
-function test_seq () {
+function test_all () {
   tag passthrough helm
 
   add_tag chart

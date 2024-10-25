@@ -89,6 +89,13 @@ function test_params () {
     "Test project Git branch or commit reference" \
     "main"
 
+  parse_option --env \
+    PROJECT_ENVIRONMENT \
+    "Project environment selector" \
+    "local"
+
+  export REACTOR_ENVIRONMENT="$PROJECT_ENVIRONMENT"
+
   parse_option --phases \
     PROJECT_PHASES \
     "Comma separated list of test project phases to test of options: startup, running, shutdown, and exit"
@@ -128,6 +135,7 @@ debug "Script directory: ${__bin_dir}"
 debug "Projects directory: ${__projects_dir}"
 debug "Project name: ${PROJECT_NAME}"
 debug "Project directory: ${PROJECT_DIRECTORY}"
+debug "Project environment: ${REACTOR_ENVIRONMENT}"
 debug "Project phases: ${PROJECT_PHASES[@]}"
 debug "User test tags: ${USER_TEST_TAGS[@]}"
 
@@ -142,7 +150,7 @@ if [[ "$CLEAN_PROJECT" ]] && [[ ! "$FORCE" ]]; then
   confirm
 fi
 
-export __cookiecutter_dir="$(dirname "$(sudo find ~ -name cookiecutter 2>/dev/null | grep -m 1 bin)")"
+export __cookiecutter_dir="$(dirname "$(find ~ -name cookiecutter 2>/dev/null | grep -m 1 bin)")"
 export PATH="${__bin_dir}:${__cookiecutter_dir}:${PATH}"
 
 #=========================================================================================
