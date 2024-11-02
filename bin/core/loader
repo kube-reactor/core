@@ -80,9 +80,15 @@ export __project_manifest="$(project_manifest "$(pwd)")"
 export __project_dir=""
 export __project_name="${REACTOR_PROJECT_NAME:-$(date +%Y-%m-%d+%H.%M.%S)}"
 
+#
+# Project Development Mode
+#
 if [ "${__project_manifest}" ]; then
   export __project_dir="$(dirname "${__project_manifest}")"
 
+#
+# Template Development Mode
+#
 elif [ "${__template_manifest}" ]; then
   #{project directory} = {template directory}/{name}
   export __template_dir="$(dirname "${__template_manifest}")"
@@ -91,8 +97,14 @@ elif [ "${__template_manifest}" ]; then
     export __project_manifest="$(project_manifest "${__template_dir}/${__project_name}")"
   fi
 
+#
+# Core Development Mode
+#
 elif [ "${__core_manifest}" ]; then
   #{project directory} = {core directory}/projects/{name}
+  if [ -d "${__projects_dir}/${__project_name}" ]; then
+    export __project_manifest="$(project_manifest "${__projects_dir}/${__project_name}")"
+  fi
 fi
 
 if [ "${__project_manifest}" ]; then
