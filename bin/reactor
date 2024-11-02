@@ -70,10 +70,8 @@ fi
 
 if [ $? -eq 0 ]; then
   # Local execution (use sparingly)
-  COMMAND_ARGS=("${__app_args[@]:1}")
-
-  reactor_args "${COMMAND_ARGS[@]}"
-  run_command "${__command_name}" host_command "${COMMAND_ARGS[@]}"
+  reactor_args "$@"
+  run_command "${__command_name}" host_command "${__app_args[@]:1}"
 fi
 
 run_hook finalize
