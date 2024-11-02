@@ -5,6 +5,7 @@
 /docs/_build/
 
 # Project files
+/templates/
 /projects/
 /share/
 /package/
@@ -12,7 +13,6 @@
 !/bin/*/
 !/bin/kubectl-reactor
 !/bin/reactor
-!/bin/reactor-*
 
 # Temporary folders
 /logs/
