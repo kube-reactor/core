@@ -47,10 +47,16 @@ export __user_name="$(id -nu)"
 export __group_id="$(id -g)"
 export __group_name="$(id -ng)"
 export __docker_group_id="$(cut -d: -f3 < <(getent group docker))"
-export __home_dir="/home/${__user_name}"
-export HOME="${__home_dir}"
+
+if [ "${HOME:-}" ]; then
+  export __home_dir="$HOME"
+else
+  export __home_dir="/home/${__user_name}"
+  export HOME="${__home_dir}"
+fi
 
 export __environment="${REACTOR_ENVIRONMENT:-local}"
+
 export __reactor_dir="$(dirname "${__bin_dir}")"
 export __reactor_version="$(cat -s "${__reactor_dir}/VERSION")"
 export __reactor_command_functions=(
@@ -67,11 +73,30 @@ export __utilities_dir="${__bin_dir}/utilities"
 export __test_dir="${__reactor_dir}/tests"
 export __test_lib_dir="${__test_dir}/lib"
 export __projects_dir="${__reactor_dir}/projects"
-export __project_file="$(project_file "$(pwd)")"
-export __project_dir=""
 
-if [ "${__project_file}" ]; then
-  export __project_dir="$(dirname "${__project_file}")"
+export __core_manifest="$(core_manifest "$(pwd)")"
+export __template_manifest="$(template_manifest "$(pwd)")"
+export __project_manifest="$(project_manifest "$(pwd)")"
+export __project_dir=""
+export __project_name="${REACTOR_PROJECT_NAME:-$(date +%Y-%m-%d+%H.%M.%S)}"
+
+if [ "${__project_manifest}" ]; then
+  export __project_dir="$(dirname "${__project_manifest}")"
+
+elif [ "${__template_manifest}" ]; then
+  #{project directory} = {template directory}/{name}
+  export __template_dir="$(dirname "${__template_manifest}")"
+
+  if [ -d "${__template_dir}/${__project_name}" ]; then
+    export __project_manifest="$(project_manifest "${__template_dir}/${__project_name}")"
+  fi
+
+elif [ "${__core_manifest}" ]; then
+  #{project directory} = {core directory}/projects/{name}
+fi
+
+if [ "${__project_manifest}" ]; then
+  export __project_dir="$(dirname "${__project_manifest}")"
   export __env_dir="${__project_dir}/env/${__environment}"
   export __init_file="${__env_dir}/.initialized"
 
@@ -90,7 +115,7 @@ if [ "${__project_file}" ]; then
   export __terraform_dir="${__project_dir}/terraform"
   export __argocd_apps_dir="${__terraform_dir}/argocd-apps"
 
-  export __reactor_invocation="$(printf %q "${__project_file}")$( (($#)) && printf ' %q' "$@" || true)"
+  export __reactor_invocation="$(printf %q "${__project_manifest}")$( (($#)) && printf ' %q' "$@" || true)"
 
   # Load environment configuration
   if [ -f "${__env_dir}/public.sh" ]; then
@@ -134,8 +159,24 @@ function is_initialized () {
 }
 
 
+function check_core () {
+  if [ ! "${__core_manifest}" ]; then
+    return 1
+  else
+    return 0
+  fi
+}
+
+function check_template () {
+  if [ ! "${__template_manifest}" ]; then
+    return 1
+  else
+    return 0
+  fi
+}
+
 function check_project () {
-  if [ ! "${__project_file}" ]; then
+  if [ ! "${__project_manifest}" ]; then
     return 1
   else
     return 0

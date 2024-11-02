@@ -44,7 +44,7 @@ try:
     default = sys.argv[2] if len(sys.argv) > 2 else ""
     query = sys.argv[1].split('.')
 
-    with open(os.environ['__project_file'], 'r') as manifest:
+    with open(os.environ['__project_manifest'], 'r') as manifest:
         print(parse(
             yaml.safe_load(manifest),
             query,

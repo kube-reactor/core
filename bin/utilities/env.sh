@@ -19,7 +19,7 @@ function render_overview () {
   debug "Project and development properties"
   debug "======================================"
   debug "> Project directory: ${__project_dir:-}"
-  debug "> Project manifest: ${__project_file:-}"
+  debug "> Project manifest: ${__project_manifest:-}"
   debug "> Certificate directory: ${__certs_dir:-}"
   debug "> Executable directory: ${__bin_dir:-}"
   debug "> Docker image project root directory: ${__docker_dir:-}"

@@ -76,22 +76,54 @@ function run_docker () {
 }
 
 
-function project_file () {
-  project_file="${1}/reactor.yml"
+function core_manifest () {
+  krew_manifest_template="${1}/reactor.template.yaml"
 
-  if [ -f "$project_file" ]; then
-    echo "$project_file"
+  if [ -f "$krew_manifest_template" ]; then
+    echo "$krew_manifest_template"
     return
   fi
 
   parent_dir="$(dirname $1)"
-
   if [ "$parent_dir" = "/" ]; then
     echo ""
   else
-    project_file "$parent_dir"
+    core_manifest "$parent_dir"
   fi
 }
+
+function template_manifest () {
+  cookiecutter_manifest="${1}/cookiecutter.json"
+
+  if [ -f "$cookiecutter_manifest" ]; then
+    echo "$cookiecutter_manifest"
+    return
+  fi
+
+  parent_dir="$(dirname $1)"
+  if [ "$parent_dir" = "/" ]; then
+    echo ""
+  else
+    template_manifest "$parent_dir"
+  fi
+}
+
+function project_manifest () {
+  project_manifest="${1}/reactor.yml"
+
+  if [ -f "$project_manifest" ]; then
+    echo "$project_manifest"
+    return
+  fi
+
+  parent_dir="$(dirname $1)"
+  if [ "$parent_dir" = "/" ]; then
+    echo ""
+  else
+    project_manifest "$parent_dir"
+  fi
+}
+
 
 function config () {
   "${__bin_dir}/utilities/locator.py" "$1" "${2-}"
