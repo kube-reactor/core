@@ -11,6 +11,7 @@ export __package_files_dir="${__package_dir}/files"
 export __core_dir="${__package_files_dir}/core"
 export __utility_dir="${__package_files_dir}/utilities"
 export __command_dir="${__package_files_dir}/commands"
+export __test_dir="${__package_files_dir}/tests"
 #
 # Prepare package directory
 #
@@ -22,15 +23,19 @@ mkdir -p "${__package_files_dir}"
 mkdir "${__core_dir}"
 mkdir "${__utility_dir}"
 mkdir "${__command_dir}"
+mkdir "${__test_dir}"
 
 cp "${__reactor_dir}/VERSION" "${__package_files_dir}"
 cp "${__reactor_dir}/LICENSE" "${__package_files_dir}"
 cp "${__reactor_dir}"/*.* "${__package_files_dir}"
 
-cp "${__reactor_dir}/bin"/*reactor* "${__package_files_dir}"
-cp "${__reactor_dir}/bin/core"/*.sh "${__core_dir}"
+cp "${__reactor_dir}/bin/reactor" "${__package_files_dir}"
+cp "${__reactor_dir}/bin/kubectl-reactor" "${__package_files_dir}"
+cp -R "${__reactor_dir}/bin/core"/* "${__core_dir}"
 cp "${__reactor_dir}/bin/utilities"/*.sh "${__utility_dir}"
+cp "${__reactor_dir}/bin/utilities"/*.py "${__utility_dir}"
 cp "${__reactor_dir}/bin/commands"/*.sh "${__command_dir}"
+cp -R "${__reactor_dir}/tests"/* "${__test_dir}"
 
 cd "${__package_files_dir}"
 tar -cvzf "${__package_dir}/reactor.tar.gz" *
