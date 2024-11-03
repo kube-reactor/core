@@ -87,6 +87,7 @@ Core Environment Variables
  * **REACTOR_ENVIRONMENT**: Environment name _(default **local**)_
  * **REACTOR_PROJECT_NAME**: Reactor project name _(when in core or template development modes)_
 
+ * **DEFAULT_REACTOR_TEMPLATE_URL**: Default template to use in create command _(git url)_
  * **DEFAULT_REACTOR_TEMPLATE_REMOTE**: Default template to use in create command _(git remote)_
  * **DEFAULT_REACTOR_TEMPLATE_REFERENCE**: Default template to use in create command _(get branch or tag)_
  * **PROJECT_TEMPLATE_DIRECTORY**: Specific template directory _(used in test command)_
