@@ -2,9 +2,6 @@
 #=========================================================================================
 # MiniKube Utilities
 #
-
-export MINIKUBE_HOME="${__project_dir}/.minikube"
-
 export DEFAULT_MINIKUBE_DRIVER="docker"
 export DEFAULT_MINIKUBE_NODES=1
 export DEFAULT_MINIKUBE_CPUS=2
@@ -14,6 +11,7 @@ export DEFAULT_MINIKUBE_CONTAINER_RUNTIME="docker"
 
 function minikube_environment () {
   debug "Setting Minikube environment ..."
+  export MINIKUBE_HOME="${__project_dir}/.minikube"
   export MINIKUBE_DRIVER="${MINIKUBE_DRIVER:-$DEFAULT_MINIKUBE_DRIVER}"
   export MINIKUBE_NODES="${MINIKUBE_NODES:-$DEFAULT_MINIKUBE_NODES}"
   export MINIKUBE_CPUS="${MINIKUBE_CPUS:-$DEFAULT_MINIKUBE_CPUS}"
@@ -79,6 +77,7 @@ function destroy_kubernetes_minikube () {
 }
 
 function delete_kubernetes_storage_minikube () {
+  minikube_environment
   if [ -d "$MINIKUBE_HOME" ]; then
     info "Deleting Minikube project storage ..."
     rm -Rf "$MINIKUBE_HOME"
