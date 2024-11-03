@@ -44,7 +44,6 @@ if [[ "$arg_h" ]] || [[ ${#__app_args[@]} -eq 0 ]]; then
     if function_exists "${__app_args[0]}_description"; then
       "${__app_args[0]}_description" >/dev/null 2>&1
       if [ -z "${PASSTHROUGH:-}" ]; then
-        echo "generating command help"
         generate_command_help "${__app_args[0]}"
       fi
     fi
