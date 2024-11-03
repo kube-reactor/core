@@ -70,7 +70,7 @@ fi
 
 if [ $? -eq 0 ]; then
   # Local execution (use sparingly)
-  reactor_args "$@"
+  reactor_args "${__app_args[@]:1}"
   run_command "${__command_name}" host_command "${__app_args[@]:1}"
 fi
 
