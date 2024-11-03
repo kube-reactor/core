@@ -17,6 +17,71 @@ set -o pipefail
 shopt -s globstar
 
 
+function init_core () {
+  export __environment="${REACTOR_ENVIRONMENT:-local}"
+
+  export __reactor_dir="$(dirname "$1")"
+  export __bin_dir="${__reactor_dir}/bin"
+
+  export __core_dir="${__bin_dir}/core"
+  export __core_lib_dir="${__core_dir}/lib"
+
+  export __commands_dir="${__bin_dir}/commands"
+  export __utilities_dir="${__bin_dir}/utilities"
+  export __test_dir="${__reactor_dir}/tests"
+  export __test_lib_dir="${__test_dir}/lib"
+  export __templates_dir="${__reactor_dir}/templates"
+  export __projects_dir="${__reactor_dir}/projects"
+
+  export __reactor_version="$(cat -s "${__reactor_dir}/VERSION")"
+  export __reactor_command_functions=(
+    command
+    host_command
+  )
+  source "${__core_lib_dir}/bootstrap.sh"
+}
+
+function init_template () {
+  export __template_dir="$(dirname "$1")"
+}
+
+function init_project() {
+  export __project_dir="$(dirname "$1")"
+  export __env_dir="${__project_dir}/env/${__environment}"
+  export __init_file="${__env_dir}/.initialized"
+
+  export __project_reactor_dir="${__project_dir}/reactor"
+  export __project_utilities_dir="${__project_reactor_dir}/utilities"
+  export __project_test_dir="${__project_reactor_dir}/tests"
+
+  export __app_dir="${__project_dir}/projects"
+  export __certs_dir="${__project_dir}/certs"
+  export __cache_dir="${__project_dir}/cache"
+
+  export __docker_dir="${__project_dir}/docker"
+  export __charts_dir="${__project_dir}/charts"
+  export __extension_dir="${__project_dir}/extensions"
+
+  export __terraform_dir="${__project_dir}/terraform"
+  export __argocd_apps_dir="${__terraform_dir}/argocd-apps"
+
+  export __project_name="$(config short_name)"
+
+  # Load environment configuration
+  if [ -f "${__env_dir}/public.sh" ]; then
+    source "${__env_dir}/public.sh"
+  fi
+  if [ -f "${__env_dir}/secret.sh" ]; then
+    source "${__env_dir}/secret.sh"
+  fi
+
+  export APP_NAME="${__project_name}"
+  export APP_LABEL="$(config name)"
+
+  export PRIMARY_DOMAIN="$(echo "$APP_NAME" | tr '_' '-').local"
+}
+
+
 export INITIALIZED=""
 export LOG_LEVEL="${LOG_LEVEL:-6}" # 7 = debug -> 0 = emergency
 
@@ -55,98 +120,6 @@ else
   export HOME="${__home_dir}"
 fi
 
-export __environment="${REACTOR_ENVIRONMENT:-local}"
-
-export __reactor_dir="$(dirname "${__bin_dir}")"
-export __reactor_version="$(cat -s "${__reactor_dir}/VERSION")"
-export __reactor_command_functions=(
-  command
-  host_command
-)
-
-export __core_dir="${__bin_dir}/core"
-export __core_lib_dir="${__core_dir}/lib"
-source "${__core_lib_dir}/bootstrap.sh"
-
-export __commands_dir="${__bin_dir}/commands"
-export __utilities_dir="${__bin_dir}/utilities"
-export __test_dir="${__reactor_dir}/tests"
-export __test_lib_dir="${__test_dir}/lib"
-export __projects_dir="${__reactor_dir}/projects"
-
-export __core_manifest="$(core_manifest "$(pwd)")"
-export __template_manifest="$(template_manifest "$(pwd)")"
-export __project_manifest="$(project_manifest "$(pwd)")"
-export __project_dir=""
-export __project_name="${REACTOR_PROJECT_NAME:-$(date +%Y-%m-%d+%H.%M.%S)}"
-
-#
-# Project Development Mode
-#
-if [ "${__project_manifest}" ]; then
-  export __project_dir="$(dirname "${__project_manifest}")"
-
-#
-# Template Development Mode
-#
-elif [ "${__template_manifest}" ]; then
-  #{project directory} = {template directory}/{name}
-  export __template_dir="$(dirname "${__template_manifest}")"
-
-  if [ -d "${__template_dir}/${__project_name}" ]; then
-    export __project_manifest="$(project_manifest "${__template_dir}/${__project_name}")"
-  fi
-
-#
-# Core Development Mode
-#
-elif [ "${__core_manifest}" ]; then
-  #{project directory} = {core directory}/projects/{name}
-  if [ -d "${__projects_dir}/${__project_name}" ]; then
-    export __project_manifest="$(project_manifest "${__projects_dir}/${__project_name}")"
-  fi
-fi
-
-if [ "${__project_manifest}" ]; then
-  export __project_dir="$(dirname "${__project_manifest}")"
-  export __env_dir="${__project_dir}/env/${__environment}"
-  export __init_file="${__env_dir}/.initialized"
-
-  export __project_reactor_dir="${__project_dir}/reactor"
-  export __project_utilities_dir="${__project_reactor_dir}/utilities"
-  export __project_test_dir="${__project_reactor_dir}/tests"
-
-  export __app_dir="${__project_dir}/projects"
-  export __certs_dir="${__project_dir}/certs"
-  export __cache_dir="${__project_dir}/cache"
-
-  export __docker_dir="${__project_dir}/docker"
-  export __charts_dir="${__project_dir}/charts"
-  export __extension_dir="${__project_dir}/extensions"
-
-  export __terraform_dir="${__project_dir}/terraform"
-  export __argocd_apps_dir="${__terraform_dir}/argocd-apps"
-
-  export __reactor_invocation="$(printf %q "${__project_manifest}")$( (($#)) && printf ' %q' "$@" || true)"
-
-  # Load environment configuration
-  if [ -f "${__env_dir}/public.sh" ]; then
-    source "${__env_dir}/public.sh"
-  fi
-  if [ -f "${__env_dir}/secret.sh" ]; then
-    source "${__env_dir}/secret.sh"
-  fi
-fi
-
-export APP_NAME="$(config short_name)"
-export APP_LABEL="$(config name)"
-
-export PRIMARY_DOMAIN="$(echo "$APP_NAME" | tr '_' '-').local"
-
-export DEFAULT_PROJECT_TEMPLATE_REMOTE="${DEFAULT_REACTOR_TEMPLATE_REMOTE:-https://github.com/kube-reactor/cluster-base.git}"
-export DEFAULT_PROJECT_TEMPLATE_REFERENCE="${DEFAULT_REACTOR_TEMPLATE_REFERENCE:-main}"
-
-
 if [ -z "${HOME_SHARES:-}" ]; then
   export HOME_SHARES=(
     ".bashrc"
@@ -155,6 +128,44 @@ if [ -z "${HOME_SHARES:-}" ]; then
     ".ssh"
     ".git"
   )
+fi
+
+export DEFAULT_PROJECT_URL="${DEFAULT_REACTOR_URL:-https://github.com/kube-reactor/cluster-base.git}"
+export DEFAULT_PROJECT_REMOTE="${DEFAULT_REACTOR_REMOTE:-origin}"
+export DEFAULT_PROJECT_REFERENCE="${DEFAULT_REACTOR_REFERENCE:-main}"
+
+init_core "${__bin_dir}"
+
+export __core_manifest="$(core_manifest "$(pwd)")"
+export __template_manifest="$(template_manifest "$(pwd)")"
+export __project_manifest="$(project_manifest "$(pwd)")"
+export __project_name="${REACTOR_PROJECT_NAME:-$(date +%Y-%m-%d+%H.%M.%S)}"
+
+#
+# Core Development Mode
+#
+if [ "${__core_manifest}" ]; then
+  init_core "${__core_manifest}"
+  if [ -d "${__projects_dir}/${__project_name}" ]; then
+    export __project_manifest="$(project_manifest "${__projects_dir}/${__project_name}")"
+  fi
+fi
+
+#
+# Template Development Mode
+#
+if [ "${__template_manifest}" ]; then
+  init_template "${__template_manifest}"
+  if [ -d "${__template_dir}/${__project_name}" ]; then
+    export __project_manifest="$(project_manifest "${__template_dir}/${__project_name}")"
+  fi
+fi
+
+#
+# Project Development Mode
+#
+if [ "${__project_manifest}" ]; then
+  init_project "${__project_manifest}"
 fi
 
 

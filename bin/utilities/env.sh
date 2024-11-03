@@ -11,7 +11,6 @@ function render_overview () {
   debug "> OS type: ${OSTYPE:-}"
   debug "> OS name: ${__os:-}"
   debug "> CPU arch: ${__architecture:-}"
-  debug "> Invocation: ${__reactor_invocation:-}"
   debug "> Reactor directory: ${__reactor_dir:-}"
   debug "> Script directory: ${__bin_dir:-}"
   debug ""
