@@ -7,6 +7,46 @@
 #=========================================================================================
 # Initialization
 #
+#
+# Development Modes
+#
+#  * Core Development
+#
+#    -> When File Exists: ./reactor.template.yaml
+#
+#    *> git clone https://github.com/kube-reactor/core.git {core_directory}
+#    *> cd {core_directory}
+#    *> reactor test --name {project_name} --url {(template|project)_url} # ./projects/{project_name} ./templates/{project_name}
+#
+#  * Template Development
+#
+#    -> When File Exists: ./cookiecutter.json
+#
+#    *> git clone {template_git_url} {template_directory}
+#    *> cd {template_directory}
+#    *> reactor test --name {project_name} # ./{project_name}
+#
+#  * Project Development
+#
+#    -> When File Exists: ./reactor.yml
+#
+#    *> git clone {project_git_url} {project_directory}
+#    *> cd {project_directory}
+#    *> reactor test # ./
+#
+
+# Test parameters:
+#
+# 0. None if within project
+# 1. {project_name} if within template
+# 2. {project_name} and {project_url} if within core
+
+# Development Mode priority:
+#
+# * project - Use current project
+# * template - Use or create new project from existing template (project name)
+# * core - Use or create new template and project from template url (project name)
+#
 
 # Initialize top level directories and load bootstrap functions
 SCRIPT_PATH="${BASH_SOURCE[0]}" # bash
@@ -24,27 +64,6 @@ load_utilities test
 # Parameter processing
 #
 HELP="Test a complete project lifecycle"
-DEFAULT_DIRECTORY=""
-
-#
-# Project Directory Preference (higher overrides lower):
-#
-# 1. CLI --directory option
-# 2. $PROJECT_DIRECTORY variable
-# 3. $PROJECT_TEMPLATE_DIRECTORY variable (Legacy)
-# 4. Active Project (__project_dir)
-# 5. CLI --remote default
-#
-if check_project; then
-  DEFAULT_DIRECTORY="${__project_dir}"
-fi
-if [ "${PROJECT_TEMPLATE_DIRECTORY:-}" ]; then
-  # Depreciated - Legacy Usage (CI/CD)
-  DEFAULT_DIRECTORY="$PROJECT_TEMPLATE_DIRECTORY"
-fi
-if [ "${PROJECT_DIRECTORY:-}" ]; then
-  DEFAULT_DIRECTORY="$PROJECT_DIRECTORY"
-fi
 
 function test_params () {
   force_option
@@ -71,28 +90,28 @@ function test_params () {
 
   parse_option --name \
     PROJECT_NAME \
-    "Test project name (if none given then project created with test name)" \
-    "$(config short_name)"
+    "Test project name" \
+    "${__project_name}"
 
-  parse_option --directory \
-    PROJECT_DIRECTORY \
-    "Test project or template directory" \
-    "$DEFAULT_DIRECTORY"
+  parse_option --url \
+    PROJECT_URL \
+    "Project template Git remote URL" \
+    "$DEFAULT_PROJECT_URL"
 
   parse_option --remote \
-    PROJECT_TEMPLATE_REMOTE \
-    "Test project Git remote repository" \
-    "https://github.com/kube-reactor/cluster-base.git"
+    PROJECT_REMOTE \
+    "Test project Git remote name to fetch (when repository exists)" \
+    "$DEFAULT_PROJECT_REMOTE"
 
   parse_option --reference \
-    PROJECT_TEMPLATE_REFERENCE \
-    "Test project Git branch or commit reference" \
-    "main"
+    PROJECT_REFERENCE \
+    "Project template Git reference" \
+    "$DEFAULT_PROJECT_REFERENCE"
 
   parse_option --env \
     PROJECT_ENVIRONMENT \
     "Project environment selector" \
-    "local"
+    "${__environment}"
 
   export REACTOR_ENVIRONMENT="$PROJECT_ENVIRONMENT"
 
@@ -117,15 +136,6 @@ function test_params () {
     USER_TEST_TAGS=()
   fi
   export USER_TEST_TAGS
-
-  if [ "$PROJECT_NAME" ]; then
-    project_directory="${__projects_dir}/${PROJECT_NAME}"
-    if [ -d "$project_directory" ]; then
-      export PROJECT_DIRECTORY="$project_directory"
-    fi
-  else
-    export PROJECT_NAME=test
-  fi
 }
 parse_cli test_params "$@"
 
@@ -150,45 +160,12 @@ if [[ "$CLEAN_PROJECT" ]] && [[ ! "$FORCE" ]]; then
   confirm
 fi
 
-export __cookiecutter_dir="$(dirname "$(find ~ -name cookiecutter 2>/dev/null | grep -m 1 bin)")"
-export PATH="${__bin_dir}:${__cookiecutter_dir}:${PATH}"
+export PATH="${__bin_dir}:${PATH}"
 
 #=========================================================================================
 # Project testing
 #
 
-#
-# Development Modes
-#
-#  * Core Development
-#
-#    -> When File Exists: ./reactor.template.yaml
-#
-#    *> git clone https://github.com/kube-reactor/core.git {core_directory}
-#    *> cd {core_directory}
-#    *> reactor create --name {project_name} --remote {project_remote} # ./projects/{project_name}
-#    *> reactor test --name {project_name}                             # ./projects/{project_name}
-#
-#  * Project Development
-#
-#    -> When Check project
-#
-#    *> git clone {project_git_url} {project_directory}
-#    *> cd {project_directory}
-#    *> reactor test                                                   # ./
-#    *> reactor template --name {template_name}                        # ./
-#
-#  * Template Development
-#
-#    -> When File Exists: ./cookiecutter.json
-#
-#    *> git clone {template_git_url} {template_directory}
-#    *> cd {template_directory}
-#    *> reactor create --name {project_name}                           # ./{project_name}
-#    *> reactor test --name {project_name}                             # ./{project_name}
-#
-
-#
 # Test Phases
 #
 # 1. Project Setup *
@@ -200,39 +177,29 @@ export PATH="${__bin_dir}:${__cookiecutter_dir}:${PATH}"
 # 7. Project Cleanup *
 # 8. <exit>
 #
-if [[ "$PROJECT_DIRECTORY" ]] && [[ -d "$PROJECT_DIRECTORY" ]]; then
-  #
-  # Local project testing
-  #
-  __project_dir="$PROJECT_DIRECTORY"
+# * project - No create
+# * template - Create {template dir}/{name}
+# * core - Create {core dir}/projects/{name}
+#
+if ! check_project; then
+  reactor create --defaults \
+    --name="$PROJECT_NAME" \
+    --url="$PROJECT_URL" \
+    --remote="$PROJECT_REMOTE" \
+    --reference="$PROJECT_REFERENCE"
 
-  if [ -f "${__project_dir}/cookiecutter.json" ]; then
-    #
-    # Local template project testing
-    #
-    reactor create --defaults \
-      --project="${__project_dir}" \
-      --directory="${__projects_dir}" \
-      --name="$PROJECT_NAME"
-
-    __project_dir="${__projects_dir}/${PROJECT_NAME}"
+  if check_template; then
+    cd "${__template_dir}/${PROJECT_NAME}"
+  elif check_core; then
+    cd "${__projects_dir}/${PROJECT_NAME}"
+  else
+    emergency "You must run tests within a project, template, or core development context"
   fi
 else
-  #
-  # Remote template project testing
-  #
-  reactor create --defaults \
-    --directory="${__projects_dir}" \
-    --remote="$PROJECT_TEMPLATE_REMOTE" \
-    --reference="$PROJECT_TEMPLATE_REFERENCE" \
-    --name="$PROJECT_NAME"
-
-  __project_dir="${__projects_dir}/${PROJECT_NAME}"
+  cd "${__project_dir}"
 fi
-export __project_dir
-cd "${__project_dir}"
 
-debug "Project directory: ${__project_dir}"
+debug "Project directory: $(pwd)"
 add_space
 render " * Sourcing development environment"
 source reactor
@@ -243,6 +210,8 @@ fi
 if [ "$CLEAN_PROJECT" ]; then
   reactor clean --force
 fi
+echo "done"
+echo $?
 
 #
 # Project test initialization
