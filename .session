@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# 
+# Source this file to add the bin directory to your path for development.
+#
+# > source .session
+#
+export PATH="$(pwd)/bin:$PATH"
+
