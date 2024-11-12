@@ -58,10 +58,16 @@ function create_requires_project () {
 }
 
 function create_command_environment () {
+  force_option
+
   parse_option --name \
     PROJECT_NAME \
     "Cookiecutter project_slug value override" \
     "${__project_name}"
+
+  parse_flag --rebuild \
+    PROJECT_REBUILD \
+    "Clean and rebuild project (VERY destructive)"
 
   if ! check_template && ! check_core; then
     parse_option --directory \
@@ -103,6 +109,10 @@ function create_command_environment () {
 
   export PROJECT_DIRECTORY="${PROJECT_PARENT_DIRECTORY}/${PROJECT_NAME}"
 
+  parse_flag --ignore \
+    IGNORE_EXISTS \
+    "Return immediately without error if project exists instead default behavior of erroring"
+
   parse_flag --defaults \
     USE_DEFAULTS \
     "Use default parameters for cluster testing (no prompt)"
@@ -113,28 +123,43 @@ function create_command_environment () {
 }
 
 function create_command () {
-  if check_project; then
-    emergency "You cannot create a new project while in the context of an existing project"
-  fi
-  if [ -d "$PROJECT_DIRECTORY" ]; then
-    emergency "Can not create project ${PROJECT_NAME} because project directory already exists"
-  fi
-
   cookiecutter_bin="$(find ~ -name cookiecutter 2>/dev/null | grep -m 1 "/bin/")"
   project_temp_dir="/tmp/reactor/download"
 
-  info "Fetching cluster template ..."
-  download_git_repo \
-    "$PROJECT_URL" \
-    "$project_temp_dir" \
-    "$PROJECT_REFERENCE"
-
-  if [ -f "${project_temp_dir}/reactor.yml" ]; then
-    mv "$project_temp_dir" "$PROJECT_DIRECTORY"
-  elif [ ! -d "$TEMPLATE_DIRECTORY" ]; then
-    mv "$project_temp_dir" "$TEMPLATE_DIRECTORY"
+  if check_project; then
+    emergency "You cannot create a new project while in the context of an existing project"
+  fi
+  if [[ "$PROJECT_REBUILD" ]] && [[ ! "$FORCE" ]]; then
+    render "The --rebuild option will completely destroy all project files before creating again"
+    confirm
+  fi
+  if [ ! "$PROJECT_REBUILD" ]; then
+    if [ -d "$PROJECT_DIRECTORY" ]; then
+      if [ "$IGNORE_EXISTS" ]; then
+        info "Project exists: skipping create"
+        exit 0
+      else
+        emergency "Can not create project ${PROJECT_NAME} because project directory already exists"
+      fi
+    fi
   else
-    rm -Rf "$project_temp_dir"
+    rm -Rf "$PROJECT_DIRECTORY"
+  fi
+
+  if [ ! -d "$TEMPLATE_DIRECTORY" ]; then
+    info "Fetching cluster template ..."
+    download_git_repo \
+      "$PROJECT_URL" \
+      "$project_temp_dir" \
+      "$PROJECT_REFERENCE"
+
+    if [ -f "${project_temp_dir}/reactor.yml" ]; then
+      # Reactor Project
+      mv "$project_temp_dir" "$PROJECT_DIRECTORY"
+    else
+      # Reactor Template
+      mv "$project_temp_dir" "$TEMPLATE_DIRECTORY"
+    fi
   fi
 
   if [ -d "$TEMPLATE_DIRECTORY" ]; then
@@ -163,5 +188,10 @@ function create_command () {
     info "Creating cluster project ..."
     "$cookiecutter_bin" "${TEMPLATE_VARS[@]}"
   fi
+
+  if [ ! -f "${PROJECT_DIRECTORY}/reactor.yml" ]; then
+    emergency "No valid project created: ${PROJECT_DIRECTORY}"
+  fi
+
   run_hook create
 }
