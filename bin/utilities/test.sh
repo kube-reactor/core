@@ -102,6 +102,11 @@ function fail () {
 
 function run () {
   local test_command="$1"
+
+  echo "+=+=+=+=+=+="
+  echo "$*"
+  echo "$(echo "$*" | tr -d ' ')"
+
   local log_file="$(logdir)/$(echo "$*" | tr -d ' ').log"
   shift
 
