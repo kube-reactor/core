@@ -105,6 +105,9 @@ function run () {
   local log_file="$(logdir)/$(echo "$*" | tr -d ' ').log"
   shift
 
+  echo "-----------"
+  echo "${log_file}"
+
   export TEST_COMMAND="${test_command} ${@}"
 
   debug ""
@@ -112,6 +115,9 @@ function run () {
   debug ""
   debug "Command: ${TEST_COMMAND}"
   debug "Log File: ${log_file}"
+
+  echo "==========="
+  echo "${log_file}"
 
   "$test_command" "$@" 1>"$log_file" 2>&1
   export TEST_STATUS=$?
