@@ -124,7 +124,7 @@ function create_command_environment () {
 
 function create_command () {
   echo "Searching for cookiecutter"
-  cookiecutter_bin="$(find ~ -name cookiecutter 2>/dev/null | grep -m 1 "/bin/")"
+  cookiecutter_bin="$(sudo find / -name cookiecutter 2>/dev/null | grep -m 1 "/bin/")"
   echo "$cookiecutter_bin"
   project_temp_dir="/tmp/reactor/download"
 
