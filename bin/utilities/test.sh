@@ -102,12 +102,13 @@ function fail () {
 
 function run () {
   local test_command="$1"
+  local test_args="$*"
 
   echo "+=+=+=+=+=+="
-  echo "<$*>"
-  echo "<$(echo "$*" | sed 's/ //g')>"
+  echo "<$test_args>"
+  echo "<$(echo "$test_args" | sed 's/ //g')>"
 
-  local log_file="$(logdir)/$(echo "$*" | sed 's/ //g').log"
+  local log_file="$(logdir)/$(echo "$test_args" | sed 's/ //g').log"
   shift
 
   echo "-----------"
