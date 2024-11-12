@@ -254,7 +254,7 @@ function run_test_sequence () {
     test_found=1
   fi
   if [ $test_found -ne 1 ]; then
-    warning "No test functions defined: ${env_phase_test}, ${env_test}, ${phase_test}, ${all_text}"
+    warning "No test functions defined: ${env_phase_test}, ${env_test}, ${phase_test}, ${all_test}"
   fi
 }
 
