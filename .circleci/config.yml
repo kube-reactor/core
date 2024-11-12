@@ -1,395 +1,395 @@
 version: 2
 
 ubuntu_amd64: &ubuntu_amd64
-    resource_class: medium
-    machine:
-        image: ubuntu-2404:current
+  resource_class: medium
+  machine:
+    image: ubuntu-2404:current
 
 ubuntu_arm64: &ubuntu_arm64
-    resource_class: arm.medium
-    machine:
-        image: ubuntu-2404:current
+  resource_class: arm.medium
+  machine:
+    image: ubuntu-2404:current
 
 bootstrap: &bootstrap
-    name: Bootstrap test OS
-    command: ./tests/bootstrap.sh
+  name: Bootstrap test OS
+  command: ./tests/bootstrap.sh
 
 session: &session
-    name: Test Docker image
-    command: ./bin/core/test
+  name: Test Docker image
+  command: ./bin/core/test --name=test
 
 session_env: &session_env
-    REACTOR_PARENT_IMAGE: ubuntu:22.04
-    MINIKUBE_CPUS: 2
-    MINIKUBE_MEMORY: 4096
+  REACTOR_PARENT_IMAGE: ubuntu:22.04
+  MINIKUBE_CPUS: 2
+  MINIKUBE_MEMORY: 4096
 
 dump_log: &dump_log
-    name: Dump reactor command log
-    when: always
-    command: test ! -f ./tests/project/logs/reactor.log || cat ./tests/project/logs/reactor.log
+  name: Dump reactor command log
+  when: always
+  command: test ! -f ./tests/project/logs/reactor.log || cat ./tests/project/logs/reactor.log
 
 test_bash: &test_bash
-    steps:
-        - checkout
-        - run:
-            <<: *bootstrap
-            shell: /usr/bin/bash
-            environment: *session_env
-        - run:
-            <<: *session
-            shell: /usr/bin/bash
-            environment: *session_env
-        - run: *dump_log
+  steps:
+    - checkout
+    - run:
+        <<: *bootstrap
+        shell: /usr/bin/bash
+        environment: *session_env
+    - run:
+        <<: *session
+        shell: /usr/bin/bash
+        environment: *session_env
+    - run: *dump_log
 
 test_package: &test_package
-    steps:
-        - run:
-            name: Install Kubectl CLI
-            shell: /usr/bin/bash
-            command: |
-              ARCH="$(uname -m | sed -e 's/x86_64/amd64/' -e 's/\(arm\)\(64\)\?.*/\1\2/' -e 's/aarch64$/arm64/')"
-              cd "$(mktemp -d)"
-              curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/${ARCH}/kubectl"
-              sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
-        - run:
-            name: Install Kubectl Krew plugin
-            shell: /usr/bin/bash
-            command: |
-              OS="$(uname | tr '[:upper:]' '[:lower:]')"
-              ARCH="$(uname -m | sed -e 's/x86_64/amd64/' -e 's/\(arm\)\(64\)\?.*/\1\2/' -e 's/aarch64$/arm64/')"
-              cd "$(mktemp -d)"
-              curl -fsSLO "https://github.com/kubernetes-sigs/krew/releases/latest/download/krew-${OS}_${ARCH}.tar.gz"
-              tar zxvf "krew-${OS}_${ARCH}.tar.gz"
-              ./"krew-${OS}_${ARCH}" install krew
-              echo 'export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"' >> $BASH_ENV
+  steps:
+    - run:
+        name: Install Kubectl CLI
+        shell: /usr/bin/bash
+        command: |
+          ARCH="$(uname -m | sed -e 's/x86_64/amd64/' -e 's/\(arm\)\(64\)\?.*/\1\2/' -e 's/aarch64$/arm64/')"
+          cd "$(mktemp -d)"
+          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/${ARCH}/kubectl"
+          sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+    - run:
+        name: Install Kubectl Krew plugin
+        shell: /usr/bin/bash
+        command: |
+          OS="$(uname | tr '[:upper:]' '[:lower:]')"
+          ARCH="$(uname -m | sed -e 's/x86_64/amd64/' -e 's/\(arm\)\(64\)\?.*/\1\2/' -e 's/aarch64$/arm64/')"
+          cd "$(mktemp -d)"
+          curl -fsSLO "https://github.com/kubernetes-sigs/krew/releases/latest/download/krew-${OS}_${ARCH}.tar.gz"
+          tar zxvf "krew-${OS}_${ARCH}.tar.gz"
+          ./"krew-${OS}_${ARCH}" install krew
+          echo 'export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"' >> $BASH_ENV
 
-        - checkout
-        - run:
-            name: Test Reactor Krew Plugin packaging and installation
-            shell: /usr/bin/bash
-            command: |
-              kubectl version --client
-              kubectl krew version
-              ./tests/test_package.sh
+    - checkout
+    - run:
+        name: Test Reactor Krew Plugin packaging and installation
+        shell: /usr/bin/bash
+        command: |
+          kubectl version --client
+          kubectl krew version
+          ./tests/test_package.sh
 
 jobs:
-    test-amd64-ubuntu-bash:
-        <<: [*ubuntu_amd64, *test_bash]
+  test-amd64-ubuntu-bash:
+    <<: [*ubuntu_amd64, *test_bash]
 
-    test-arm64-ubuntu-bash:
-        <<: [*ubuntu_arm64, *test_bash]
+  test-arm64-ubuntu-bash:
+    <<: [*ubuntu_arm64, *test_bash]
 
-    test-amd64-ubuntu-package:
-        <<: [*ubuntu_amd64, *test_package]
+  test-amd64-ubuntu-package:
+    <<: [*ubuntu_amd64, *test_package]
 
-    test-arm64-ubuntu-package:
-        <<: [*ubuntu_arm64, *test_package]
+  test-arm64-ubuntu-package:
+    <<: [*ubuntu_arm64, *test_package]
 
-    deploy-docs:
-        docker:
-            - image: python:3.10
-        steps:
-            - add_ssh_keys:
-                fingerprints:
-                    - "SHA256:Et02GjIRCFTsh5JKh7j9STKDqFmdx3S2RYTiTNooa+Q"
-            - run:
-                name: Install core dependencies
-                command: |
-                    apt-get update
-                    apt-get install -y git g++ gcc make
+  deploy-docs:
+    docker:
+      - image: python:3.10
+    steps:
+      - add_ssh_keys:
+          fingerprints:
+            - "SHA256:Et02GjIRCFTsh5JKh7j9STKDqFmdx3S2RYTiTNooa+Q"
+      - run:
+          name: Install core dependencies
+          command: |
+            apt-get update
+            apt-get install -y git g++ gcc make
 
-            - checkout
-            - run:
-                name: Install documentation dependencies
-                command: pip install --no-cache-dir -r ./docs/requirements.txt
+      - checkout
+      - run:
+          name: Install documentation dependencies
+          command: pip install --no-cache-dir -r ./docs/requirements.txt
 
-            - run:
-                name: Deploy documentation
-                command: |
-                    git config --global user.name "CircleCI ( ${CIRCLE_USERNAME} )"
-                    git config --global user.email "${CIRCLE_USERNAME}@main"
-                    ./docs/deploy.sh git@github.com:kube-reactor/core.git main
+      - run:
+          name: Deploy documentation
+          command: |
+            git config --global user.name "CircleCI ( ${CIRCLE_USERNAME} )"
+            git config --global user.email "${CIRCLE_USERNAME}@main"
+            ./docs/deploy.sh git@github.com:kube-reactor/core.git main
 
-    deploy-release:
-        docker:
-            - image: cibuilds/github:0.10
-        steps:
-            - add_ssh_keys:
-                fingerprints:
-                    - "SHA256:iE95/6H6eI+Bv00LaLvA/DTqpOf/Qzi1ck6caPgBOsA"
-            - checkout
-            - run:
-                name: Deploy release
-                command: |
-                    ./package.sh
-                    ghr -t ${GITHUB_TOKEN} \
-                        -u ${CIRCLE_PROJECT_USERNAME} \
-                        -r ${CIRCLE_PROJECT_REPONAME} \
-                        -c ${CIRCLE_SHA1} \
-                        -delete "$(cat ./VERSION)" \
-                        ./package
-            - run:
-                name: Deploy Krew Index manifest
-                command: |
-                    VERSION="$(cat ./VERSION)"
+  deploy-release:
+    docker:
+      - image: cibuilds/github:0.10
+    steps:
+      - add_ssh_keys:
+          fingerprints:
+            - "SHA256:iE95/6H6eI+Bv00LaLvA/DTqpOf/Qzi1ck6caPgBOsA"
+      - checkout
+      - run:
+          name: Deploy release
+          command: |
+            ./package.sh
+            ghr -t ${GITHUB_TOKEN} \
+                -u ${CIRCLE_PROJECT_USERNAME} \
+                -r ${CIRCLE_PROJECT_REPONAME} \
+                -c ${CIRCLE_SHA1} \
+                -delete "$(cat ./VERSION)" \
+                ./package
+      - run:
+          name: Deploy Krew Index manifest
+          command: |
+            VERSION="$(cat ./VERSION)"
 
-                    git config --global user.name "CircleCI ( ${CIRCLE_USERNAME} )"
-                    git config --global user.email "${CIRCLE_USERNAME}@${CIRCLE_BRANCH}"
+            git config --global user.name "CircleCI ( ${CIRCLE_USERNAME} )"
+            git config --global user.email "${CIRCLE_USERNAME}@${CIRCLE_BRANCH}"
 
-                    git clone git@github.com:kube-reactor/krew-index.git /tmp/krew-index
-                    cp -f ./package/reactor.yaml /tmp/krew-index/plugins/reactor.yaml
+            git clone git@github.com:kube-reactor/krew-index.git /tmp/krew-index
+            cp -f ./package/reactor.yaml /tmp/krew-index/plugins/reactor.yaml
 
-                    cd /tmp/krew-index
-                    git add .
-                    git commit -m "Updating the Reactor plugin to version v${VERSION}"
-                    git push origin main
+            cd /tmp/krew-index
+            git add .
+            git commit -m "Updating the Reactor plugin to version v${VERSION}"
+            git push origin main
 
-    deploy-docker-amd64-latest:
-        <<: *ubuntu_amd64
-        steps:
-            - checkout
-            - run:
-                name: Deploy latest AMD Docker image
-                command: ./docker/deploy_image.sh standard latest
-                environment:
-                    REACTOR_PARENT_IMAGE: ubuntu:22.04
+  deploy-docker-amd64-latest:
+    <<: *ubuntu_amd64
+    steps:
+      - checkout
+      - run:
+          name: Deploy latest AMD Docker image
+          command: ./docker/deploy_image.sh standard latest
+          environment:
+            REACTOR_PARENT_IMAGE: ubuntu:22.04
 
-    deploy-docker-arm64-latest:
-        <<: *ubuntu_arm64
-        steps:
-            - checkout
-            - run:
-                name: Deploy latest ARM Docker image
-                command: ./docker/deploy_image.sh standard latest
-                environment:
-                    REACTOR_PARENT_IMAGE: ubuntu:22.04
+  deploy-docker-arm64-latest:
+    <<: *ubuntu_arm64
+    steps:
+      - checkout
+      - run:
+          name: Deploy latest ARM Docker image
+          command: ./docker/deploy_image.sh standard latest
+          environment:
+            REACTOR_PARENT_IMAGE: ubuntu:22.04
 
-    deploy-docker-latest:
-        <<: *ubuntu_amd64
-        steps:
-            - checkout
-            - run:
-                name: Deploy latest Docker platform manifest
-                command: ./docker/deploy_manifest.sh standard latest
+  deploy-docker-latest:
+    <<: *ubuntu_amd64
+    steps:
+      - checkout
+      - run:
+          name: Deploy latest Docker platform manifest
+          command: ./docker/deploy_manifest.sh standard latest
 
-    deploy-docker-nvidia-amd64-latest:
-        <<: *ubuntu_amd64
-        steps:
-            - checkout
-            - run:
-                name: Deploy latest AMD Nvidia Docker image
-                command: ./docker/deploy_image.sh nvidia latest
-                environment:
-                    REACTOR_PARENT_IMAGE: nvidia/cuda:12.3.2-cudnn9-devel-ubuntu22.04
+  deploy-docker-nvidia-amd64-latest:
+    <<: *ubuntu_amd64
+    steps:
+      - checkout
+      - run:
+          name: Deploy latest AMD Nvidia Docker image
+          command: ./docker/deploy_image.sh nvidia latest
+          environment:
+            REACTOR_PARENT_IMAGE: nvidia/cuda:12.3.2-cudnn9-devel-ubuntu22.04
 
-    deploy-docker-nvidia-latest:
-        <<: *ubuntu_amd64
-        steps:
-            - checkout
-            - run:
-                name: Deploy latest Nvidia Docker platform manifest
-                command: ./docker/deploy_manifest.sh nvidia latest
+  deploy-docker-nvidia-latest:
+    <<: *ubuntu_amd64
+    steps:
+      - checkout
+      - run:
+          name: Deploy latest Nvidia Docker platform manifest
+          command: ./docker/deploy_manifest.sh nvidia latest
 
-    deploy-docker-amd64-version:
-        <<: *ubuntu_amd64
-        steps:
-            - checkout
-            - run:
-                name: Deploy versioned AMD Docker image
-                command: ./docker/deploy_image.sh
-                environment:
-                    REACTOR_PARENT_IMAGE: ubuntu:22.04
+  deploy-docker-amd64-version:
+    <<: *ubuntu_amd64
+    steps:
+      - checkout
+      - run:
+          name: Deploy versioned AMD Docker image
+          command: ./docker/deploy_image.sh
+          environment:
+            REACTOR_PARENT_IMAGE: ubuntu:22.04
 
-    deploy-docker-arm64-version:
-        <<: *ubuntu_arm64
-        steps:
-            - checkout
-            - run:
-                name: Deploy versioned ARM Docker image
-                command: ./docker/deploy_image.sh
-                environment:
-                    REACTOR_PARENT_IMAGE: ubuntu:22.04
+  deploy-docker-arm64-version:
+    <<: *ubuntu_arm64
+    steps:
+      - checkout
+      - run:
+          name: Deploy versioned ARM Docker image
+          command: ./docker/deploy_image.sh
+          environment:
+            REACTOR_PARENT_IMAGE: ubuntu:22.04
 
-    deploy-docker-version:
-        <<: *ubuntu_amd64
-        steps:
-            - checkout
-            - run:
-                name: Deploy versioned Docker platform manifest
-                command: ./docker/deploy_manifest.sh
+  deploy-docker-version:
+    <<: *ubuntu_amd64
+    steps:
+      - checkout
+      - run:
+          name: Deploy versioned Docker platform manifest
+          command: ./docker/deploy_manifest.sh
 
-    deploy-docker-nvidia-amd64-version:
-        <<: *ubuntu_amd64
-        steps:
-            - checkout
-            - run:
-                name: Deploy versioned AMD Nvidia Docker image
-                command: ./docker/deploy_image.sh nvidia
-                environment:
-                    REACTOR_PARENT_IMAGE: nvidia/cuda:12.3.2-cudnn9-devel-ubuntu22.04
+  deploy-docker-nvidia-amd64-version:
+    <<: *ubuntu_amd64
+    steps:
+      - checkout
+      - run:
+          name: Deploy versioned AMD Nvidia Docker image
+          command: ./docker/deploy_image.sh nvidia
+          environment:
+            REACTOR_PARENT_IMAGE: nvidia/cuda:12.3.2-cudnn9-devel-ubuntu22.04
 
-    deploy-docker-nvidia-version:
-        <<: *ubuntu_amd64
-        steps:
-            - checkout
-            - run:
-                name: Deploy versioned Nvidia Docker platform manifest
-                command: ./docker/deploy_manifest.sh nvidia
+  deploy-docker-nvidia-version:
+    <<: *ubuntu_amd64
+    steps:
+      - checkout
+      - run:
+          name: Deploy versioned Nvidia Docker platform manifest
+          command: ./docker/deploy_manifest.sh nvidia
 
 workflows:
-    version: 2
-    deploy:
-        jobs:
-            - test-amd64-ubuntu-bash:
-                filters:
-                    tags:
-                        only: /.*/
+  version: 2
+  deploy:
+    jobs:
+      - test-amd64-ubuntu-bash:
+          filters:
+            tags:
+              only: /.*/
 
-            - test-arm64-ubuntu-bash:
-                filters:
-                    tags:
-                        only: /.*/
+      - test-arm64-ubuntu-bash:
+          filters:
+            tags:
+              only: /.*/
 
-            - test-amd64-ubuntu-package:
-                filters:
-                    tags:
-                        only: /.*/
+      - test-amd64-ubuntu-package:
+          filters:
+            tags:
+              only: /.*/
 
-            - test-arm64-ubuntu-package:
-                filters:
-                    tags:
-                        only: /.*/
+      - test-arm64-ubuntu-package:
+          filters:
+            tags:
+              only: /.*/
 
-            - deploy-docs:
-                filters:
-                    tags:
-                        only: /.*/
-                    branches:
-                        ignore: /.*/
-                requires:
-                    - test-amd64-ubuntu-bash
-                    - test-arm64-ubuntu-bash
-                    - test-amd64-ubuntu-package
-                    - test-arm64-ubuntu-package
+      - deploy-docs:
+          filters:
+            tags:
+              only: /.*/
+            branches:
+              ignore: /.*/
+          requires:
+            - test-amd64-ubuntu-bash
+            - test-arm64-ubuntu-bash
+            - test-amd64-ubuntu-package
+            - test-arm64-ubuntu-package
 
-            - deploy-release:
-                filters:
-                    tags:
-                        only: /.*/
-                    branches:
-                        ignore: /.*/
-                requires:
-                    - test-amd64-ubuntu-bash
-                    - test-arm64-ubuntu-bash
-                    - test-amd64-ubuntu-package
-                    - test-arm64-ubuntu-package
+      - deploy-release:
+          filters:
+            tags:
+              only: /.*/
+            branches:
+              ignore: /.*/
+          requires:
+            - test-amd64-ubuntu-bash
+            - test-arm64-ubuntu-bash
+            - test-amd64-ubuntu-package
+            - test-arm64-ubuntu-package
 
-            - deploy-docker-amd64-latest:
-                filters:
-                    tags:
-                        ignore: /.*/
-                    branches:
-                        only: main
-                requires:
-                    - test-amd64-ubuntu-bash
-                    - test-arm64-ubuntu-bash
-                    - test-amd64-ubuntu-package
-                    - test-arm64-ubuntu-package
+      - deploy-docker-amd64-latest:
+          filters:
+            tags:
+              ignore: /.*/
+            branches:
+              only: main
+          requires:
+            - test-amd64-ubuntu-bash
+            - test-arm64-ubuntu-bash
+            - test-amd64-ubuntu-package
+            - test-arm64-ubuntu-package
 
-            - deploy-docker-arm64-latest:
-                filters:
-                    tags:
-                        ignore: /.*/
-                    branches:
-                        only: main
-                requires:
-                    - test-amd64-ubuntu-bash
-                    - test-arm64-ubuntu-bash
-                    - test-amd64-ubuntu-package
-                    - test-arm64-ubuntu-package
+      - deploy-docker-arm64-latest:
+          filters:
+            tags:
+              ignore: /.*/
+            branches:
+              only: main
+          requires:
+            - test-amd64-ubuntu-bash
+            - test-arm64-ubuntu-bash
+            - test-amd64-ubuntu-package
+            - test-arm64-ubuntu-package
 
-            - deploy-docker-latest:
-                filters:
-                    tags:
-                        ignore: /.*/
-                    branches:
-                        only: main
-                requires:
-                    - deploy-docker-amd64-latest
-                    - deploy-docker-arm64-latest
+      - deploy-docker-latest:
+          filters:
+            tags:
+              ignore: /.*/
+            branches:
+              only: main
+          requires:
+            - deploy-docker-amd64-latest
+            - deploy-docker-arm64-latest
 
-            - deploy-docker-nvidia-amd64-latest:
-                filters:
-                    tags:
-                        ignore: /.*/
-                    branches:
-                        only: main
-                requires:
-                    - test-amd64-ubuntu-bash
-                    - test-arm64-ubuntu-bash
-                    - test-amd64-ubuntu-package
-                    - test-arm64-ubuntu-package
+      - deploy-docker-nvidia-amd64-latest:
+          filters:
+            tags:
+              ignore: /.*/
+            branches:
+              only: main
+          requires:
+            - test-amd64-ubuntu-bash
+            - test-arm64-ubuntu-bash
+            - test-amd64-ubuntu-package
+            - test-arm64-ubuntu-package
 
-            - deploy-docker-nvidia-latest:
-                filters:
-                    tags:
-                        ignore: /.*/
-                    branches:
-                        only: main
-                requires:
-                    - deploy-docker-nvidia-amd64-latest
+      - deploy-docker-nvidia-latest:
+          filters:
+            tags:
+              ignore: /.*/
+            branches:
+              only: main
+          requires:
+            - deploy-docker-nvidia-amd64-latest
 
-            - deploy-docker-amd64-version:
-                filters:
-                    tags:
-                        only: /.*/
-                    branches:
-                        ignore: /.*/
-                requires:
-                    - test-amd64-ubuntu-bash
-                    - test-arm64-ubuntu-bash
-                    - test-amd64-ubuntu-package
-                    - test-arm64-ubuntu-package
+      - deploy-docker-amd64-version:
+          filters:
+            tags:
+              only: /.*/
+            branches:
+              ignore: /.*/
+          requires:
+            - test-amd64-ubuntu-bash
+            - test-arm64-ubuntu-bash
+            - test-amd64-ubuntu-package
+            - test-arm64-ubuntu-package
 
-            - deploy-docker-arm64-version:
-                filters:
-                    tags:
-                        only: /.*/
-                    branches:
-                        ignore: /.*/
-                requires:
-                    - test-amd64-ubuntu-bash
-                    - test-arm64-ubuntu-bash
-                    - test-amd64-ubuntu-package
-                    - test-arm64-ubuntu-package
+      - deploy-docker-arm64-version:
+          filters:
+            tags:
+              only: /.*/
+            branches:
+              ignore: /.*/
+          requires:
+            - test-amd64-ubuntu-bash
+            - test-arm64-ubuntu-bash
+            - test-amd64-ubuntu-package
+            - test-arm64-ubuntu-package
 
-            - deploy-docker-version:
-                filters:
-                    tags:
-                        only: /.*/
-                    branches:
-                        ignore: /.*/
-                requires:
-                    - deploy-docker-amd64-version
-                    - deploy-docker-arm64-version
+      - deploy-docker-version:
+          filters:
+            tags:
+              only: /.*/
+            branches:
+              ignore: /.*/
+          requires:
+            - deploy-docker-amd64-version
+            - deploy-docker-arm64-version
 
-            - deploy-docker-nvidia-amd64-version:
-                filters:
-                    tags:
-                        only: /.*/
-                    branches:
-                        ignore: /.*/
-                requires:
-                    - test-amd64-ubuntu-bash
-                    - test-arm64-ubuntu-bash
-                    - test-amd64-ubuntu-package
-                    - test-arm64-ubuntu-package
+      - deploy-docker-nvidia-amd64-version:
+          filters:
+            tags:
+              only: /.*/
+            branches:
+              ignore: /.*/
+          requires:
+            - test-amd64-ubuntu-bash
+            - test-arm64-ubuntu-bash
+            - test-amd64-ubuntu-package
+            - test-arm64-ubuntu-package
 
-            - deploy-docker-nvidia-version:
-                filters:
-                    tags:
-                        only: /.*/
-                    branches:
-                        ignore: /.*/
-                requires:
-                    - deploy-docker-nvidia-amd64-version
+      - deploy-docker-nvidia-version:
+          filters:
+            tags:
+              only: /.*/
+            branches:
+              ignore: /.*/
+          requires:
+            - deploy-docker-nvidia-amd64-version
