@@ -165,8 +165,8 @@ function create_command () {
   if [ -d "$TEMPLATE_DIRECTORY" ]; then
     cd "$TEMPLATE_DIRECTORY"
 
-    if [ "${PROJECT_REFERENCE:-}" ]; then
-      git fetch "${PROJECT_REMOTE:-origin}"
+    if check_core; then
+      git fetch "$PROJECT_REMOTE"
       git checkout "$PROJECT_REFERENCE"
     fi
 
