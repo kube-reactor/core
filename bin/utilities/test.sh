@@ -104,14 +104,14 @@ function run () {
   local test_command="$1"
 
   echo "+=+=+=+=+=+="
-  echo "$*"
-  echo "$(echo "$*" | tr -d ' ')"
+  echo "<$*>"
+  echo "<$(echo "$*" | tr -d ' ')>"
 
   local log_file="$(logdir)/$(echo "$*" | tr -d ' ').log"
   shift
 
   echo "-----------"
-  echo "${log_file}"
+  echo "<${log_file}>"
 
   export TEST_COMMAND="${test_command} ${@}"
 
