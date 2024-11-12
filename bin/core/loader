@@ -231,7 +231,7 @@ function warn_no_project () {
   if ! check_project && requires_project "$command"; then
     # Display error message (no project)
     add_space
-    error "Project directory with a 'reactor.yml' file does not exist in current or parent directories"
+    error "Project directory with a 'reactor.yml' file does not exist in current or parent directories (set project name with REACTOR_PROJECT_NAME)"
     add_space
 fi
 }
