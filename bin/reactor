@@ -27,6 +27,8 @@ fi
 reactor_args "$@"
 delete_docker_environment
 
+export __init_args=("${__app_args[@]}")
+
 #
 #=========================================================================================
 # Execution
@@ -70,8 +72,10 @@ fi
 
 if [ $? -eq 0 ]; then
   # Local execution (use sparingly)
-  reactor_args "${__app_args[@]:1}"
-  run_command "${__command_name}" host_command "${__app_args[@]:1}"
+  COMMAND_ARGS=("${__init_args[@]:1}")
+
+  reactor_args "${COMMAND_ARGS[@]}"
+  run_command "${__command_name}" host_command "${COMMAND_ARGS[@]}"
 fi
 
 run_hook finalize
