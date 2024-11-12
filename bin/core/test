@@ -58,7 +58,7 @@ export __script_name="reactor test"
 export __core_dir="$(cd "$(dirname "${SCRIPT_PATH}")" && pwd)"
 export __bin_dir="$(dirname "${__core_dir}")"
 source "${__core_dir}/loader"
-load_utilities test
+load_utilities test cli
 
 #=========================================================================================
 # Parameter processing
@@ -90,6 +90,8 @@ function test_params () {
         "Project template Git reference" \
         "$DEFAULT_PROJECT_REFERENCE"
     fi
+  else
+    export PROJECT_NAME="${__project_name}"
   fi
 
   parse_option --env \
@@ -152,7 +154,6 @@ debug "Reactor directory: ${__reactor_dir}"
 debug "Script directory: ${__bin_dir}"
 debug "Projects directory: ${__projects_dir}"
 debug "Project name: ${PROJECT_NAME}"
-debug "Project directory: ${PROJECT_DIRECTORY}"
 debug "Project environment: ${REACTOR_ENVIRONMENT}"
 debug "Project phases: ${PROJECT_PHASES[@]}"
 debug "User test tags: ${USER_TEST_TAGS[@]}"
@@ -223,8 +224,6 @@ fi
 if [ "$CLEAN_PROJECT" ]; then
   reactor clean --force
 fi
-echo "done"
-echo $?
 
 #
 # Project test initialization
