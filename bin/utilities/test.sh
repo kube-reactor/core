@@ -102,7 +102,7 @@ function fail () {
 
 function run () {
   local test_command="$1"
-  local log_name="${*//[[:blank:]]/}"
+  local log_name="'${*// /}'"
 
   echo "+=+=+=+=+=+="
   echo "<$log_name>"
