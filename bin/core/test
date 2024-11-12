@@ -71,7 +71,7 @@ function test_params () {
   if ! check_project; then
     parse_option --name \
       PROJECT_NAME \
-      "Test project name" \
+      "Test project name (environment variable: REACTOR_PROJECT_NAME)" \
       "${__project_name}"
 
     if ! check_template; then
@@ -143,6 +143,10 @@ function test_params () {
 }
 parse_cli test_params "$@"
 
+if ! check_project && ! check_template && ! check_core; then
+  emergency "To execute test command you must be in either core, template, or project development modes."
+fi
+
 debug "Test directory: ${__test_dir}"
 debug "Reactor directory: ${__reactor_dir}"
 debug "Script directory: ${__bin_dir}"
@@ -152,10 +156,6 @@ debug "Project directory: ${PROJECT_DIRECTORY}"
 debug "Project environment: ${REACTOR_ENVIRONMENT}"
 debug "Project phases: ${PROJECT_PHASES[@]}"
 debug "User test tags: ${USER_TEST_TAGS[@]}"
-
-if ! check_project && ! check_template && ! check_core; then
-  emergency "To execute test command you must be in either core, template, or project development modes."
-fi
 
 render "Reactor testing requires sudo access to run host commands"
 add_space
