@@ -105,9 +105,9 @@ function run () {
 
   echo "+=+=+=+=+=+="
   echo "<$*>"
-  echo "<$(echo "$*" | tr -d ' ')>"
+  echo "<$(echo "$*" | sed 's/ //g')>"
 
-  local log_file="$(logdir)/$(echo "$*" | tr -d ' ').log"
+  local log_file="$(logdir)/$(echo "$*" | sed 's/ //g').log"
   shift
 
   echo "-----------"
