@@ -15,8 +15,6 @@ function logdir () {
   if check_project; then
     local log_dir="${__project_dir}/${__log_dir}"
 
-    echo "++++++++++"
-    echo "${log_dir}"
     mkdir -p "${log_dir}"
     echo "${log_dir}"
   else
