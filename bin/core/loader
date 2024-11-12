@@ -139,7 +139,7 @@ init_core "${__bin_dir}"
 export __core_manifest="$(core_manifest "$(pwd)")"
 export __template_manifest="$(template_manifest "$(pwd)")"
 export __project_manifest="$(project_manifest "$(pwd)")"
-export __project_name="${REACTOR_PROJECT_NAME:-$(date +%Y-%m-%d+%H.%M.%S)}"
+export __project_name="${REACTOR_PROJECT_NAME:-$(date +%Y%m%d_%H%M%S)}"
 
 #
 # Core Development Mode
