@@ -47,7 +47,7 @@ function run_docker () {
 
   if ! docker inspect "$REACTOR_RUNTIME_IMAGE" >/dev/null 2>&1; then
     debug "Building local virtualization container"
-    "${__bin_dir}/reactor-build"
+    "${__bin_dir}/core/image"
     REACTOR_RUNTIME_IMAGE="${APP_NAME}:${__reactor_version}"
   fi
   REACTOR_ARGS=(
