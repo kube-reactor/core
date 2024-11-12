@@ -196,11 +196,11 @@ export PATH="${__bin_dir}:${PATH}"
 #
 if ! check_project; then
   if check_template; then
-    reactor create "$PROJECT_NAME" --ignore --defaults
+    reactor create "$PROJECT_NAME" --ignore --defaults --debug
     cd "${__template_dir}/${PROJECT_NAME}"
 
   elif check_core; then
-    reactor create "$PROJECT_NAME" --ignore --defaults \
+    reactor create "$PROJECT_NAME" --ignore --defaults --debug \
       --url="$PROJECT_URL" \
       --remote="$PROJECT_REMOTE" \
       --reference="$PROJECT_REFERENCE"
