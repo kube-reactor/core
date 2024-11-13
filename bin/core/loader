@@ -16,8 +16,6 @@ set -o pipefail
 
 shopt -s globstar
 
-ulimit -S -s unlimited
-
 
 function init_core () {
   export __environment="${REACTOR_ENVIRONMENT:-local}"
