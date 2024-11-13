@@ -102,12 +102,13 @@ function fail () {
 
 function run () {
   local test_command="$1"
+  local test_args="$*"
 
   echo "*@*@*@*@*@*@*"
   echo "<$test_command>"
-  echo "<$*>"
+  echo "<$test_args>"
 
-  local log_name="$(echo "test-$*" | sed 's/ //g')"
+  local log_name="$(echo "test-$test_args" | sed 's/ //g')"
 
   echo "+=+=+=+=+=+="
   echo "<$log_name>"
