@@ -57,6 +57,7 @@ function init_project() {
   export __app_dir="${__project_dir}/projects"
   export __certs_dir="${__project_dir}/certs"
   export __cache_dir="${__project_dir}/cache"
+  export __log_dir="${__project_dir}/logs"
 
   export __docker_dir="${__project_dir}/docker"
   export __charts_dir="${__project_dir}/charts"
