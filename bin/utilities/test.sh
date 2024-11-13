@@ -103,6 +103,7 @@ function fail () {
 function run () {
   test_command="$1"
   test_args="$*"
+  shift
 
   echo "*@*@*@*@*@*@*"
   echo "<$test_command>"
@@ -115,7 +116,6 @@ function run () {
   echo "<$log_name>"
 
   log_file="$(logdir)/${log_name}.log"
-  shift
 
   echo "-----------"
   echo "<${log_file}>"
