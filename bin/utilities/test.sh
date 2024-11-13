@@ -108,7 +108,7 @@ function run () {
   echo "<$test_command>"
   echo "<$test_args>"
 
-  local log_name="$(echo "test-$test_args" | sed 's/ //g')"
+  local log_name="test-${test_args// /}"
 
   echo "+=+=+=+=+=+="
   echo "<$log_name>"
