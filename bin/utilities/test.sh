@@ -107,6 +107,7 @@ function run () {
   echo "*@*@*@*@*@*@*"
   echo "<$test_command>"
   echo "<$test_args>"
+  echo "<${__project_dir}/${__log_dir}>"
 
   log_name="test-${test_args// /}"
 
