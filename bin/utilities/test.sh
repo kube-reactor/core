@@ -102,7 +102,7 @@ function fail () {
 
 function run () {
   local test_command="$1"
-  local log_name="$(echo "log-$*" | sed 's/ //g')"
+  local log_name="$(echo "test-$@" | sed 's/ //g')"
 
   echo "+=+=+=+=+=+="
   echo "<$log_name>"
