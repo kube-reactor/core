@@ -101,19 +101,19 @@ function fail () {
 }
 
 function run () {
-  local test_command="$1"
-  local test_args="$*"
+  test_command="$1"
+  test_args="$*"
 
   echo "*@*@*@*@*@*@*"
   echo "<$test_command>"
   echo "<$test_args>"
 
-  local log_name="test-${test_args// /}"
+  log_name="test-${test_args// /}"
 
   echo "+=+=+=+=+=+="
   echo "<$log_name>"
 
-  local log_file="$(logdir)/${log_name}.log"
+  log_file="$(logdir)/${log_name}.log"
   shift
 
   echo "-----------"
