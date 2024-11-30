@@ -123,6 +123,12 @@ function create_command_environment () {
 }
 
 function create_command () {
+  render "Reactor requires sudo access to run host commands"
+  add_space
+  render " -> this includes commands for: tunneling and local DNS"
+  add_space
+  check_admin
+
   cookiecutter_bin="$(sudo find / -name cookiecutter 2>/dev/null | grep -m 1 "/bin/")"
   project_temp_dir="/tmp/reactor/download"
 
