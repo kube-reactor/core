@@ -101,9 +101,23 @@ function fail () {
 }
 
 function run () {
-  local test_command="$1"
-  local log_file="$(logdir)/$(echo "$*" | tr -d ' ').log"
+  local test_args=("$@")
+  local test_command="${test_args[0]}"
   shift
+
+  echo "*@*@*@*@*@*@*"
+  echo "<$test_command>"
+  echo "<$test_args>"
+
+  local log_name="test-${test_args[*]// /}"
+
+  echo "+=+=+=+=+=+="
+  echo "<$log_name>"
+
+  local log_file="$(logdir)/${log_name}.log"
+
+  echo "-----------"
+  echo "<${log_file}>"
 
   export TEST_COMMAND="${test_command} ${@}"
 
@@ -112,6 +126,9 @@ function run () {
   debug ""
   debug "Command: ${TEST_COMMAND}"
   debug "Log File: ${log_file}"
+
+  echo "==========="
+  echo "${log_file}"
 
   "$test_command" "$@" 1>"$log_file" 2>&1
   export TEST_STATUS=$?
@@ -254,7 +271,7 @@ function run_test_sequence () {
     test_found=1
   fi
   if [ $test_found -ne 1 ]; then
-    warning "No test functions defined: ${env_phase_test}, ${env_test}, ${phase_test}, ${all_text}"
+    warning "No test functions defined: ${env_phase_test}, ${env_test}, ${phase_test}, ${all_test}"
   fi
 }
 

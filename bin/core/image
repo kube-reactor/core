@@ -56,8 +56,10 @@ check_binary git 1>>"$(logfile)" 2>&1
 check_binary curl 1>>"$(logfile)" 2>&1
 check_binary openssl 1>>"$(logfile)" 2>&1
 
-info "Removing existing Docker image: ${REACTOR_IMAGE}:${REACTOR_TAG}"
-docker image rm "${REACTOR_IMAGE}:${REACTOR_TAG}" 2>/dev/null
+if docker image inspect "${REACTOR_IMAGE}:${REACTOR_TAG}" 1>/dev/null 2>&1; then
+  info "Removing existing Docker image: ${REACTOR_IMAGE}:${REACTOR_TAG}"
+  docker image rm "${REACTOR_IMAGE}:${REACTOR_TAG}"
+fi
 
 info "Building Docker image: ${REACTOR_IMAGE}:${REACTOR_TAG}"
 rm -Rf "${__reactor_dir}/share"

@@ -39,7 +39,10 @@ function current_environment () {
       && [[ "$variable" != "USER" ]] \
       && [[ "$variable" != "HOME" ]] \
       && [[ "$variable" != "SHELL" ]] \
-      && [[ "$variable" != "BASH_"* ]]; then
+      && [[ "$variable" != "BASH_"* ]] \
+      && [[ "$variable" != "SCRIPT_"* ]] \
+      && [[ "$variable" != "REACTOR_DIR" ]] \
+      && [[ "$variable" != "SHARE_DIR" ]]; then
 
       ENVIRONMENT_VARS=("${ENVIRONMENT_VARS[@]}" "$variable")
     fi

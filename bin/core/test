@@ -58,7 +58,7 @@ export __script_name="reactor test"
 export __core_dir="$(cd "$(dirname "${SCRIPT_PATH}")" && pwd)"
 export __bin_dir="$(dirname "${__core_dir}")"
 source "${__core_dir}/loader"
-load_utilities test
+load_utilities test cli
 
 #=========================================================================================
 # Parameter processing
@@ -71,7 +71,7 @@ function test_params () {
   if ! check_project; then
     parse_option --name \
       PROJECT_NAME \
-      "Test project name" \
+      "Test project name (environment variable: REACTOR_PROJECT_NAME)" \
       "${__project_name}"
 
     if ! check_template; then
@@ -90,6 +90,8 @@ function test_params () {
         "Project template Git reference" \
         "$DEFAULT_PROJECT_REFERENCE"
     fi
+  else
+    export PROJECT_NAME="${__project_name}"
   fi
 
   parse_option --env \
@@ -143,19 +145,18 @@ function test_params () {
 }
 parse_cli test_params "$@"
 
+if ! check_project && ! check_template && ! check_core; then
+  emergency "To execute test command you must be in either core, template, or project development modes."
+fi
+
 debug "Test directory: ${__test_dir}"
 debug "Reactor directory: ${__reactor_dir}"
 debug "Script directory: ${__bin_dir}"
 debug "Projects directory: ${__projects_dir}"
 debug "Project name: ${PROJECT_NAME}"
-debug "Project directory: ${PROJECT_DIRECTORY}"
 debug "Project environment: ${REACTOR_ENVIRONMENT}"
 debug "Project phases: ${PROJECT_PHASES[@]}"
 debug "User test tags: ${USER_TEST_TAGS[@]}"
-
-if ! check_project && ! check_template && ! check_core; then
-  emergency "To execute test command you must be in either core, template, or project development modes."
-fi
 
 render "Reactor testing requires sudo access to run host commands"
 add_space
@@ -195,12 +196,11 @@ export PATH="${__bin_dir}:${PATH}"
 #
 if ! check_project; then
   if check_template; then
-    reactor create --ignore --defaults --name="$PROJECT_NAME"
+    reactor create "$PROJECT_NAME" --ignore --defaults --debug
     cd "${__template_dir}/${PROJECT_NAME}"
 
   elif check_core; then
-    reactor create --ignore --defaults \
-      --name="$PROJECT_NAME" \
+    reactor create "$PROJECT_NAME" --ignore --defaults --debug \
       --url="$PROJECT_URL" \
       --remote="$PROJECT_REMOTE" \
       --reference="$PROJECT_REFERENCE"
@@ -224,8 +224,6 @@ fi
 if [ "$CLEAN_PROJECT" ]; then
   reactor clean --force
 fi
-echo "done"
-echo $?
 
 #
 # Project test initialization

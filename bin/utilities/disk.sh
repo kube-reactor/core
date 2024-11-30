@@ -3,9 +3,6 @@
 # Disk Utilities
 #
 
-export __log_dir="${LOG_DIR:-logs}"
-export __log_file="${LOG_FILE:-reactor}"
-
 #
 #=========================================================================================
 # Logging Utilities
@@ -13,16 +10,14 @@ export __log_file="${LOG_FILE:-reactor}"
 
 function logdir () {
   if check_project; then
-    local log_dir="${__project_dir}/${__log_dir}"
-    mkdir -p "${log_dir}"
-    echo "${log_dir}"
+    echo "${__log_dir}"
   else
     echo "/tmp"
   fi
 }
 
 function logfile () {
-    echo "$(logdir)/${__log_file}.log"
+    echo "$(logdir)/reactor.log"
 }
 
 #

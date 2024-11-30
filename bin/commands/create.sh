@@ -60,11 +60,6 @@ function create_requires_project () {
 function create_command_environment () {
   force_option
 
-  parse_option --name \
-    PROJECT_NAME \
-    "Cookiecutter project_slug value override" \
-    "${__project_name}"
-
   parse_flag --rebuild \
     PROJECT_REBUILD \
     "Clean and rebuild project (VERY destructive)"
@@ -90,7 +85,24 @@ function create_command_environment () {
       PROJECT_REFERENCE \
       "Project template Git reference" \
       "$DEFAULT_PROJECT_REFERENCE"
+  fi
 
+  parse_flag --ignore \
+    IGNORE_EXISTS \
+    "Return immediately without error if project exists instead default behavior of erroring"
+
+  parse_flag --defaults \
+    USE_DEFAULTS \
+    "Use default parameters for cluster testing (no prompt)"
+
+  parse_option --config-file \
+    PROJECT_TEMPLATE_CONFIG_FILE \
+    "Configuration values for the project template"
+
+  parse_arg PROJECT_NAME \
+    "Cookiecutter project_slug value override"
+
+  if ! check_template; then
     export TEMPLATES_DIRECTORY="${__templates_dir}"
     mkdir -p "$TEMPLATES_DIRECTORY"
 
@@ -108,22 +120,10 @@ function create_command_environment () {
   fi
 
   export PROJECT_DIRECTORY="${PROJECT_PARENT_DIRECTORY}/${PROJECT_NAME}"
-
-  parse_flag --ignore \
-    IGNORE_EXISTS \
-    "Return immediately without error if project exists instead default behavior of erroring"
-
-  parse_flag --defaults \
-    USE_DEFAULTS \
-    "Use default parameters for cluster testing (no prompt)"
-
-  parse_option --config-file \
-    PROJECT_TEMPLATE_CONFIG_FILE \
-    "Configuration values for the project template"
 }
 
 function create_command () {
-  cookiecutter_bin="$(find ~ -name cookiecutter 2>/dev/null | grep -m 1 "/bin/")"
+  cookiecutter_bin="$(sudo find / -name cookiecutter 2>/dev/null | grep -m 1 "/bin/")"
   project_temp_dir="/tmp/reactor/download"
 
   if check_project; then
@@ -164,8 +164,11 @@ function create_command () {
 
   if [ -d "$TEMPLATE_DIRECTORY" ]; then
     cd "$TEMPLATE_DIRECTORY"
-    git fetch "$PROJECT_REMOTE"
-    git checkout "$PROJECT_REFERENCE"
+
+    if check_core; then
+      git fetch "$PROJECT_REMOTE"
+      git checkout "$PROJECT_REFERENCE"
+    fi
 
     TEMPLATE_VARS=(
       "--overwrite-if-exists"

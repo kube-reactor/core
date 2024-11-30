@@ -46,6 +46,7 @@ function install_kubernetes_minikube () {
 
 
 function kubernetes_status_minikube () {
+  minikube_environment
   "${__bin_dir}/minikube" status 1>/dev/null 2>&1
   return $?
 }

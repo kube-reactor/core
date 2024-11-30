@@ -30,11 +30,7 @@ ENV REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
 #
 # Application environment variables
 #
-ENV REACTOR_DIR="/reactor"
-ENV SCRIPT_DIR="${REACTOR_DIR}/bin"
-ENV SHARE_DIR="${REACTOR_DIR}/share"
-
-ENV PATH="${SCRIPT_DIR}:${PATH}"
+ENV PATH="/reactor/bin:${PATH}"
 #
 # Shell environment
 #
@@ -79,7 +75,7 @@ RUN groupmod --gid ${REACTOR_DOCKER_GID} docker \
   --groups sudo,docker \
   ${REACTOR_USER_NAME} \
   && echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers \
-  && echo 'alias reactor="${SCRIPT_DIR}/core/exec"' >> /etc/bash.bashrc
+  && echo 'alias reactor="/reactor/bin/core/exec"' >> /etc/bash.bashrc
 #
 #====================================================================
 # Application configuration
@@ -88,21 +84,21 @@ RUN groupmod --gid ${REACTOR_DOCKER_GID} docker \
 #
 # Reactor directory
 #
-COPY --chown=${REACTOR_USER_NAME}:${REACTOR_USER_NAME} ./ ${REACTOR_DIR}
-VOLUME ${REACTOR_DIR}
+COPY --chown=${REACTOR_USER_NAME}:${REACTOR_USER_NAME} ./ /reactor
+VOLUME /reactor
 
-RUN ln -s ${REACTOR_DIR}/VERSION /REACTOR.txt
+RUN ln -s /reactor/VERSION /REACTOR.txt
 #
 # Project customization
 #
-RUN test ! -f ${SHARE_DIR}/requirements.txt \
-  || pip3 install --no-cache-dir -r ${SHARE_DIR}/requirements.txt
+RUN test ! -f /reactor/share/requirements.txt \
+  || pip3 install --no-cache-dir -r /reactor/share/requirements.txt
 
-RUN test ! -x ${SHARE_DIR}/install.sh \
-  || ${SHARE_DIR}/install.sh
+RUN test ! -x /reactor/share/install.sh \
+  || /reactor/share/install.sh
 #
 # Execution gateway
 #
 USER ${REACTOR_USER_NAME}
 WORKDIR ${HOME_DIR}
-ENTRYPOINT ["${SCRIPT_DIR}/core/exec"]
+ENTRYPOINT ["/reactor/bin/core/exec"]

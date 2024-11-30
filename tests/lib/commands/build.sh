@@ -19,7 +19,7 @@ function build_no_cache () {
   verify_build
 }
 
-function build_no_cache () {
+function build_cache () {
   run reactor build --debug
   verify_build
 }
