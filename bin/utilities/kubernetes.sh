@@ -90,8 +90,6 @@ function destroy_kubernetes () {
   delete_kubernetes_kubeconfig
   delete_kubernetes_storage
   delete_docker_environment
-
-  rm -f "$(logdir)/docker.sh"
 }
 
 function destroy_host_kubernetes () {

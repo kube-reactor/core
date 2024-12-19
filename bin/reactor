@@ -25,7 +25,6 @@ if [ $SOURCED -eq 1 ]; then
   return
 fi
 reactor_args "$@"
-delete_docker_environment
 
 export __init_args=("${__app_args[@]}")
 
