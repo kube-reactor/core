@@ -78,7 +78,7 @@ function init_project() {
   export APP_NAME="${__project_name}"
   export APP_LABEL="$(config name)"
 
-  export PRIMARY_DOMAIN="$(echo "$APP_NAME" | tr '_' '-').local"
+  export PRIMARY_DOMAIN="$(config "domain.${__environment}" "$(echo "$APP_NAME" | tr '_' '-').local")"
 }
 
 
