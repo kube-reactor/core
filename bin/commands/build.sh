@@ -16,9 +16,10 @@ function build_command () {
 
   info "Initializing docker image repositories ..."
   for project in $(config docker); do
-    project_dir="${__docker_dir}/$(config docker.$project.project $project)"
-    project_remote="$(config docker.$project.remote)"
-    project_reference="$(config docker.$project.reference main)"
+    project_reference="$(config docker.$project.project $project)"
+    project_dir="${__docker_dir}/${project_reference}"
+    project_remote="$(config docker.$project_reference.remote)"
+    project_reference="$(config docker.$project_reference.reference main)"
 
     if [ ! -z "$project_remote" ]; then
       info "Initializing ${project} docker image repository"
@@ -31,14 +32,15 @@ function build_command () {
       source "${project_dir}/reactor/initialize.sh" "$project" "$project_dir"
     fi
     info "Building ${project} docker image"
-    build_docker_image "$project" "$NO_CACHE"
+    build_docker_image "$project" "$project_dir" "$NO_CACHE"
   done
 
   info "Initializing Helm chart repositories ..."
   for chart in $(config charts); do
-    chart_dir="${__charts_dir}/$(config charts.$chart.project $chart)"
-    chart_remote="$(config charts.$chart.remote)"
-    chart_reference="$(config charts.$chart.reference main)"
+    chart_reference="$(config charts.$chart.project $chart)"
+    chart_dir="${__charts_dir}/${chart_reference}"
+    chart_remote="$(config charts.$chart_reference.remote)"
+    chart_reference="$(config charts.$chart_reference.reference main)"
 
     if [ ! -z "$chart_remote" ]; then
       info "Initializing ${chart} Helm chart repository"

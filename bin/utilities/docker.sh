@@ -21,48 +21,53 @@ function build_docker_image () {
   cert_environment
 
   PROJECT_NAME="${1}"
-  NO_CACHE="${2:-}"
+  PROJECT_DIR="${2}"
+  NO_CACHE="${3:-}"
 
-  PROJECT_DIR="${__docker_dir}/$(config docker.$PROJECT_NAME.project $PROJECT_NAME)"
   DOCKER_DIR="${PROJECT_DIR}/$(config docker.$PROJECT_NAME.docker_dir docker)"
-  BUILD_SCRIPT="${PROJECT_DIR}/reactor/build_image.sh"
-  PROJECT_BUILD_SCRIPT="${__project_reactor_dir}/docker/${PROJECT_NAME}_build_image.sh"
-  DOCKER_FILE="Dockerfile"
-  DOCKER_BUILD_VARS=()
+  DOCKER_FILE="${DOCKER_DIR}/Dockerfile"
 
-  debug "Function: build_image"
-  debug "> PROJECT_NAME: ${PROJECT_NAME}"
-  debug "> PROJECT_DIR: ${PROJECT_DIR}"
-  debug "> DOCKER_DIR: ${DOCKER_DIR}"
-  debug "> BUILD_SCRIPT: ${BUILD_SCRIPT}"
-  debug "> PROJECT_BUILD_SCRIPT: ${PROJECT_BUILD_SCRIPT}"
-  debug "> NO_CACHE: ${NO_CACHE}"
+  if [ -f "$DOCKER_FILE" ]; then
+    BUILD_SCRIPT="${PROJECT_DIR}/reactor/build_image.sh"
+    PROJECT_BUILD_SCRIPT="${__project_reactor_dir}/docker/${PROJECT_NAME}_build_image.sh"
+    DOCKER_BUILD_VARS=()
 
-  if [ -f "$BUILD_SCRIPT" ]; then
-    source "$BUILD_SCRIPT" "$NO_CACHE"
+    debug "Function: build_image"
+    debug "> PROJECT_NAME: ${PROJECT_NAME}"
+    debug "> PROJECT_DIR: ${PROJECT_DIR}"
+    debug "> DOCKER_DIR: ${DOCKER_DIR}"
+    debug "> BUILD_SCRIPT: ${BUILD_SCRIPT}"
+    debug "> PROJECT_BUILD_SCRIPT: ${PROJECT_BUILD_SCRIPT}"
+    debug "> NO_CACHE: ${NO_CACHE}"
+
+    if [ -f "$BUILD_SCRIPT" ]; then
+      source "$BUILD_SCRIPT" "$NO_CACHE"
+    fi
+    if [ -f "$PROJECT_BUILD_SCRIPT" ]; then
+      source "$PROJECT_BUILD_SCRIPT" "$NO_CACHE"
+    fi
+
+    DOCKER_ARGS=(
+      "--file" "${DOCKER_FILE}"
+      "--tag" "${PROJECT_NAME}:$(config docker.$PROJECT_NAME.docker_tag dev)"
+      "--platform" "linux/${__architecture}"
+    )
+    if [ "$NO_CACHE" ]; then
+      DOCKER_ARGS=("${DOCKER_ARGS[@]}" "--no-cache" "--force-rm")
+    fi
+
+    for build_var in "${DOCKER_BUILD_VARS[@]}"
+    do
+      DOCKER_ARGS=("${DOCKER_ARGS[@]}" "--build-arg" "$build_var")
+    done
+    DOCKER_ARGS=("${DOCKER_ARGS[@]}" "${PROJECT_DIR}")
+
+    debug "Docker build arguments"
+    debug "${DOCKER_ARGS[@]}"
+    docker build "${DOCKER_ARGS[@]}" 1>>"$(logfile)" 2>&1
+  else
+    debug "No Dockerfile for project ${PROJECT_NAME} in ${PROJECT_DIR}"
   fi
-  if [ -f "$PROJECT_BUILD_SCRIPT" ]; then
-    source "$PROJECT_BUILD_SCRIPT" "$NO_CACHE"
-  fi
-
-  DOCKER_ARGS=(
-    "--file" "${DOCKER_DIR}/${DOCKER_FILE}"
-    "--tag" "${PROJECT_NAME}:$(config docker.$PROJECT_NAME.docker_tag dev)"
-    "--platform" "linux/${__architecture}"
-  )
-  if [ "$NO_CACHE" ]; then
-    DOCKER_ARGS=("${DOCKER_ARGS[@]}" "--no-cache" "--force-rm")
-  fi
-
-  for build_var in "${DOCKER_BUILD_VARS[@]}"
-  do
-    DOCKER_ARGS=("${DOCKER_ARGS[@]}" "--build-arg" "$build_var")
-  done
-  DOCKER_ARGS=("${DOCKER_ARGS[@]}" "${PROJECT_DIR}")
-
-  debug "Docker build arguments"
-  debug "${DOCKER_ARGS[@]}"
-  docker build "${DOCKER_ARGS[@]}" 1>>"$(logfile)" 2>&1
 }
 
 

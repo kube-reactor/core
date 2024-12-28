@@ -42,15 +42,20 @@ function sync_argocd_charts () {
     login_argocd
 
     for chart in $(config charts); do
-      app_name="$(config charts.$chart.app "$chart")"
+      chart_reference="$(config charts.$chart.project $chart)"
+      chart_dir="${__charts_dir}/${chart_reference}/$(config charts.$chart.chart_dir "charts/${chart}")"
 
-      debug "app_name: ${app_name}"
+      if [ -d "$chart_dir" ]; then
+        app_name="$(config charts.$chart.app "$chart")"
 
-      if "${__bin_dir}/argocd" app get "$app_name" >/dev/null 2>&1; then
-        info "Syncing ${app_name} chart into ArgoCD ..."
-        "${__bin_dir}/argocd" app set "$app_name" --grpc-web --sync-policy none 1>>"$(logfile)" 2>&1
-        "${__bin_dir}/argocd" app sync "$app_name" --prune --grpc-web \
-          --local "${__charts_dir}/${chart}/$(config charts.$chart.chart_dir "charts/${chart}")" 1>>"$(logfile)" 2>&1
+        debug "app_name: ${app_name}"
+
+        if "${__bin_dir}/argocd" app get "$app_name" >/dev/null 2>&1; then
+          info "Syncing ${app_name} chart into ArgoCD ..."
+          "${__bin_dir}/argocd" app set "$app_name" --grpc-web --sync-policy none 1>>"$(logfile)" 2>&1
+          "${__bin_dir}/argocd" app sync "$app_name" --prune --grpc-web \
+            --local "$chart_dir" 1>>"$(logfile)" 2>&1
+        fi
       fi
     done
   fi
