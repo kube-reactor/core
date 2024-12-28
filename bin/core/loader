@@ -79,6 +79,7 @@ function init_project() {
   export APP_LABEL="$(config name)"
 
   export PRIMARY_DOMAIN="$(config "domain.${__environment}" "$(echo "$APP_NAME" | tr '_' '-').local")"
+  export PROJECT_UPDATE_WAIT="${PROJECT_UPDATE_WAIT:-"30s"}"
 }
 
 

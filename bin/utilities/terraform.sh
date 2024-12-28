@@ -34,6 +34,7 @@ function provision_terraform () {
       "--workdir" "${TERRAFORM_GATEWAY}"
       "--env" "TF_DATA_DIR=${__project_dir}/.terraform"
       "--env" "TF_VAR_project_path=${__project_dir}"
+      "--env" "TF_VAR_project_wait=${PROJECT_UPDATE_WAIT}"
       "--env" "TF_VAR_kube_config=${__env_dir}/.kubeconfig"
       "--env" "TF_VAR_domain=${PRIMARY_DOMAIN}"
       "--env" "TF_VAR_environment=${__environment}"
