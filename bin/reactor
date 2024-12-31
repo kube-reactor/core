@@ -65,7 +65,7 @@ elif ! requires_project "${__command_name}"; then
 elif ! check_project; then
   debug "Exiting due to no project and no help option specified"
   exit 1
-else
+elif function_exists "${__command_name}_command"; then
   run_docker
 fi
 
