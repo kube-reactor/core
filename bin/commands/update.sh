@@ -20,8 +20,16 @@ function update_command_environment () {
     UPDATE_CHARTS \
     "Sync local charts to ArgoCD application"
 
+  parse_flag --hooks \
+    HOOKS \
+    "Run all hooks defined"
+
+  parse_flag --no-hooks \
+    NO_HOOKS \
+    "Disable the execution of update hooks for this update"
+
   UPDATE_ALL="1"
-  if [ "$UPDATE_APPS" -o "$UPDATE_DNS" -o "$UPDATE_CHARTS" ]; then
+  if [ "$UPDATE_APPS" -o "$UPDATE_DNS" -o "$UPDATE_CHARTS" -o "$HOOKS" ]; then
     UPDATE_ALL=""
   fi
   export UPDATE_ALL
@@ -33,7 +41,9 @@ function update_command () {
   if [ "$UPDATE_ALL" -o "$UPDATE_APPS" ]; then
     provision_terraform
   fi
-  run_hook update
+  if [ "$HOOKS" -o ! "$NO_HOOKS" ]; then
+    run_hook update
+  fi
 }
 
 function update_host_command () {
@@ -47,6 +57,8 @@ function update_host_command () {
     sync_argocd_charts
   fi
 
-  run_hook update_host
+  if [ "$HOOKS" -o ! "$NO_HOOKS" ]; then
+    run_hook update_host
+  fi
   info "Kubernetes environment has been updated"
 }
