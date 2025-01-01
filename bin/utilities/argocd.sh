@@ -22,11 +22,11 @@ function install_argocd () {
 function login_argocd () {
   if kubernetes_status; then
     info "Logging into ArgoCD via CLI ..."
-    debug "PRIMARY_DOMAIN: ${PRIMARY_DOMAIN}"
+    debug "ARGOCD_DOMAIN: ${ARGOCD_DOMAIN}"
     debug "ARGOCD_ADMIN_PASSWORD: ${ARGOCD_ADMIN_PASSWORD}"
 
     "${__bin_dir}/argocd" login \
-      "argocd.${PRIMARY_DOMAIN}" \
+      "$ARGOCD_DOMAIN" \
       --username admin --password \
       "$ARGOCD_ADMIN_PASSWORD" \
       --insecure --grpc-web 1>>"$(logfile)" 2>&1

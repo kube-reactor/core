@@ -22,7 +22,7 @@ function test_kubernetes_status () {
 function test_kubernetes_config () {
   function verify_core_config () {
     verify_config argocd argocd-cm \
-      url "https://argocd.${PRIMARY_DOMAIN}"
+      url "https://${ARGOCD_DOMAIN}"
 
     verify_config argocd argocd-cm \
       admin.enabled true
@@ -135,7 +135,7 @@ function test_kubernetes_services () {
 
 function test_kubernetes_ingress () {
   function verify_core_ingress () {
-    verify_ingress argocd argocd-server "argocd.${PRIMARY_DOMAIN}" 80 443
+    verify_ingress argocd argocd-server "$ARGOCD_DOMAIN" 80 443
   }
   wait verify_core_ingress 10
 }

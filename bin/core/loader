@@ -80,6 +80,8 @@ function init_project() {
 
   export PRIMARY_DOMAIN="$(config "domain.${__environment}" "$(echo "$APP_NAME" | tr '_' '-').local")"
   export PROJECT_UPDATE_WAIT="${PROJECT_UPDATE_WAIT:-"30s"}"
+
+  export ARGOCD_DOMAIN="${ARGOCD_DOMAIN:-"argocd.${PRIMARY_DOMAIN}"}"
 }
 
 

@@ -270,7 +270,7 @@ if [ ! "$NO_UP" ]; then
     verify_file "${__project_dir}/terraform/argocd-apps/gateway/.terraform.lock.hcl"
     verify_file "${__project_dir}/terraform/argocd-apps/gateway/terraform.tfstate"
     verify_file "${__project_dir}/logs/hosts.txt"
-    verify_host "argocd.${APP_NAME}.local"
+    verify_host "$ARGOCD_DOMAIN"
   }
 
   start_test lifecycle start build
@@ -308,7 +308,7 @@ if [[ ! "$NO_DOWN" ]] && [[ ! "$ENSURE_RUNNING" ]]; then
     verify_no_file "${__project_dir}/logs/tunnel.kpid"
     verify_no_file "${__project_dir}/logs/dashboard.kpid"
     verify_no_file "${__project_dir}/logs/hosts.txt"
-    verify_no_host "argocd.${APP_NAME}.local"
+    verify_no_host "$ARGOCD_DOMAIN"
   }
 
   start_test lifecycle clean
