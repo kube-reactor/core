@@ -56,7 +56,7 @@ function run_command () {
 
 function run_subcommand () {
   local command="$1"
-  local args="${@:2}"
+  local args=("${@:2}")
 
   export __normalized_params="$(normalize_params "${args[@]}")"
 
@@ -66,7 +66,7 @@ function run_subcommand () {
 
 function run_host_subcommand () {
   local command="$1"
-  local args="${@:2}"
+  local args=("${@:2}")
 
   export __normalized_params="$(normalize_params "${args[@]}")"
 
