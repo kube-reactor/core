@@ -70,7 +70,38 @@ if [ -f "${__project_dir}/reactor/requirements.txt" ]; then
 fi
 if [ -f "${__project_dir}/reactor/install.sh" ]; then
   cp -f "${__project_dir}/reactor/install.sh" "${__reactor_dir}/share/install.sh"
+  chmod 755 "${__reactor_dir}/share/install.sh"
 fi
+for docker in $(config docker); do
+  docker_dir="${__docker_dir}/$(config docker.docker.project $docker)"
+  if [ -f "${docker_dir}/reactor/requirements.txt" ]; then
+    cp -f "${docker_dir}/reactor/requirements.txt" "${__reactor_dir}/share/requirements.docker.${docker}.txt"
+  fi
+  if [ -f "${docker_dir}/reactor/install.sh" ]; then
+    cp -f "${docker_dir}/reactor/install.sh" "${__reactor_dir}/share/install.docker.${docker}.sh"
+    chmod 755 "${__reactor_dir}/share/install.docker.${docker}.sh"
+  fi
+done
+for chart in $(config charts); do
+  chart_dir="${__charts_dir}/$(config charts.$chart.project $chart)"
+  if [ -f "${chart_dir}/reactor/requirements.txt" ]; then
+    cp -f "${chart_dir}/reactor/requirements.txt" "${__reactor_dir}/share/requirements.chart.${chart}.txt"
+  fi
+  if [ -f "${chart_dir}/reactor/install.sh" ]; then
+    cp -f "${chart_dir}/reactor/install.sh" "${__reactor_dir}/share/install.chart.${chart}.sh"
+    chmod 755 "${__reactor_dir}/share/install.chart.${chart}.sh"
+  fi
+done
+for extension in $(config extensions); do
+  extension_dir="${__extension_dir}/${extension}"
+  if [ -f "${extension_dir}/reactor/requirements.txt" ]; then
+    cp -f "${extension_dir}/reactor/requirements.txt" "${__reactor_dir}/share/requirements.ext.${extension}.txt"
+  fi
+  if [ -f "${extension_dir}/reactor/install.sh" ]; then
+    cp -f "${extension_dir}/reactor/install.sh" "${__reactor_dir}/share/install.ext.${extension}.sh"
+    chmod 755 "${__reactor_dir}/share/install.ext.${extension}.sh"
+  fi
+done
 
 if [ -z ${REACTOR_DOCKER_BUILD_ARGS+x} ]; then
   export REACTOR_DOCKER_BUILD_ARGS=()

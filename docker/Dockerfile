@@ -91,11 +91,8 @@ RUN ln -s /reactor/VERSION /REACTOR.txt
 #
 # Project customization
 #
-RUN test ! -f /reactor/share/requirements.txt \
-  || pip3 install --no-cache-dir -r /reactor/share/requirements.txt
+RUN /reactor/docker/install.sh
 
-RUN test ! -x /reactor/share/install.sh \
-  || /reactor/share/install.sh
 #
 # Execution gateway
 #
