@@ -50,10 +50,10 @@ function sync_argocd_charts () {
 
         debug "app_name: ${app_name}"
 
-        if "${__bin_dir}/argocd" app get "$app_name" >/dev/null 2>&1; then
+        if "${__bin_dir}/argocd" app get "$app_name" --insecure >/dev/null 2>&1; then
           info "Syncing ${app_name} chart into ArgoCD ..."
-          "${__bin_dir}/argocd" app set "$app_name" --grpc-web --sync-policy none 1>>"$(logfile)" 2>&1
-          "${__bin_dir}/argocd" app sync "$app_name" --prune --grpc-web \
+          "${__bin_dir}/argocd" app set "$app_name" --insecure --grpc-web --sync-policy none 1>>"$(logfile)" 2>&1
+          "${__bin_dir}/argocd" app sync "$app_name" --prune --insecure --grpc-web \
             --local "$chart_dir" 1>>"$(logfile)" 2>&1
         fi
       fi
