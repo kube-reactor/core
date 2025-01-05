@@ -67,6 +67,8 @@ elif ! check_project; then
   exit 1
 elif function_exists "${__command_name}_command"; then
   run_docker
+elif [ "${__command_name}" == "enter" ]; then
+  run_docker
 fi
 
 if [ $? -eq 0 ]; then
