@@ -27,7 +27,7 @@ function minikube_environment () {
 }
 
 function add_docker_environment_minikube () {
-  eval $("${__bin_dir}/minikube" docker-env)
+  eval $("${__bin_dir}/minikube" docker-env --profile="${APP_NAME}")
 
   debug "DOCKER_TLS_VERIFY=${DOCKER_TLS_VERIFY}"
   debug "DOCKER_HOST=${DOCKER_HOST}"
@@ -47,34 +47,35 @@ function install_kubernetes_minikube () {
 
 function kubernetes_status_minikube () {
   minikube_environment
-  "${__bin_dir}/minikube" status 1>/dev/null 2>&1
+  "${__bin_dir}/minikube" status --profile="${APP_NAME}" 1>/dev/null 2>&1
   return $?
 }
 
 function start_kubernetes_minikube () {
   minikube_environment
   "${__bin_dir}/minikube" start \
-    --driver=${MINIKUBE_DRIVER} \
-    --nodes=${MINIKUBE_NODES} \
-    --cpus=${MINIKUBE_CPUS} \
-    --memory=${MINIKUBE_MEMORY} \
-    --kubernetes-version=${KUBERNETES_VERSION} \
-    --container-runtime=${MINIKUBE_CONTAINER_RUNTIME} \
+    --profile="${APP_NAME}" \
+    --driver="${MINIKUBE_DRIVER}" \
+    --nodes="${MINIKUBE_NODES}" \
+    --cpus="${MINIKUBE_CPUS}" \
+    --memory="${MINIKUBE_MEMORY}" \
+    --kubernetes-version="${KUBERNETES_VERSION}" \
+    --container-runtime="${MINIKUBE_CONTAINER_RUNTIME}" \
     --addons="default-storageclass,storage-provisioner,metrics-server,dashboard" \
     --mount \
     --mount-string="${__project_dir}:${__project_dir}" \
     --embed-certs \
     --dns-domain="${PRIMARY_DOMAIN}" 1>>"$(logfile)" 2>&1
 
-  "${__bin_dir}/minikube" update-context 1>>"$(logfile)" 2>&1
+  "${__bin_dir}/minikube" --profile="${APP_NAME}" update-context 1>>"$(logfile)" 2>&1
 }
 
 function stop_kubernetes_minikube () {
-  "${__bin_dir}/minikube" stop 1>>"$(logfile)" 2>&1
+  "${__bin_dir}/minikube" stop --profile="${APP_NAME}" 1>>"$(logfile)" 2>&1
 }
 
 function destroy_kubernetes_minikube () {
-  "${__bin_dir}/minikube" delete --purge 1>>"$(logfile)" 2>&1
+  "${__bin_dir}/minikube" delete --profile="${APP_NAME}" --purge 1>>"$(logfile)" 2>&1
 }
 
 function delete_kubernetes_storage_minikube () {
@@ -92,7 +93,7 @@ function launch_host_kubernetes_tunnel_minikube () {
 
   info "Launching Minikube tunnel (requires sudo) ..."
   check_admin
-  "${__bin_dir}/minikube" tunnel 1>>"$(logfile)" 2>&1 &
+  "${__bin_dir}/minikube" tunnel --profile="${APP_NAME}" 1>>"$(logfile)" 2>&1 &
   echo "$!" >"$PID_FILE"
 }
 
@@ -114,7 +115,7 @@ function launch_host_kubernetes_dashboard_minikube () {
   PID_FILE="$(logdir)/dashboard.kpid"
 
   info "Launching Kubernetes Dashboard ..."
-  "${__bin_dir}/minikube" dashboard 1>>"$(logfile)" 2>&1 &
+  "${__bin_dir}/minikube" dashboard --profile="${APP_NAME}" 1>>"$(logfile)" 2>&1 &
   echo "$!" >"$PID_FILE"
 }
 
