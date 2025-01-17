@@ -29,7 +29,7 @@ function minikube_environment () {
 }
 
 function add_docker_environment_minikube () {
-  if [ "${APP_NAME:-}" ]; then
+  if [[ "${APP_NAME:-}" ]] && kubernetes_status; then
     eval $("${__bin_dir}/minikube" docker-env --profile="${APP_NAME}")
 
     debug "DOCKER_TLS_VERIFY=${DOCKER_TLS_VERIFY}"
