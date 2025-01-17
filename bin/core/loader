@@ -75,7 +75,7 @@ function init_project() {
     source "${__env_dir}/secret.sh"
   fi
 
-  export APP_NAME="${__project_name}"
+  export APP_NAME="${__project_name//_/-}"
   export APP_LABEL="$(config name)"
 
   export PRIMARY_DOMAIN="$(config "domain.${__environment}" "$(echo "$APP_NAME" | tr '_' '-').local")"
