@@ -2,10 +2,14 @@
 #-------------------------------------------------------------------------------
 set -e
 
-for requirements in "/reactor/share/"*.txt; do
-  pip3 install --no-cache-dir -r "$requirements"
-done
+if compgen -G "/reactor/share/"*.txt >/dev/null; then
+  for requirements in "/reactor/share/"*.txt; do
+    pip3 install --no-cache-dir -r "$requirements"
+  done
+fi
 
-for script in "/reactor/share/"*.sh; do
-  "$script"
-done
+if compgen -G "/reactor/share/"*.sh >/dev/null; then
+  for script in "/reactor/share/"*.sh; do
+    "$script"
+  done
+fi
