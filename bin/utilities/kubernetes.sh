@@ -35,8 +35,9 @@ function run_kube_function () {
 
   if function_exists "$provider_name"; then
     "$provider_name" "$@"
+    return $?
   fi
-  return $?
+  return 1
 }
 
 
