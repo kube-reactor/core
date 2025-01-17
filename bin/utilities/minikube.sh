@@ -52,8 +52,9 @@ function install_kubernetes_minikube () {
 function kubernetes_status_minikube () {
   minikube_environment
   if [ "${APP_NAME:-}" ]; then
-    "${__bin_dir}/minikube" status --profile="${APP_NAME}" 1>/dev/null 2>&1
-    return $?
+    if "${__bin_dir}/minikube" status --profile="${APP_NAME}" 1>/dev/null 2>&1; then
+      return 0
+    fi
   fi
   return 1
 }
