@@ -49,13 +49,6 @@ export REACTOR_TAG="${REACTOR_TAG:-"${__reactor_version}"}"
 
 export REACTOR_PARENT_IMAGE="${REACTOR_PARENT_IMAGE:-"ubuntu:22.04"}"
 
-info "Checking development software requirements ..."
-check_binary python3 1>>"$(logfile)" 2>&1
-check_binary docker 1>>"$(logfile)" 2>&1
-check_binary git 1>>"$(logfile)" 2>&1
-check_binary curl 1>>"$(logfile)" 2>&1
-check_binary openssl 1>>"$(logfile)" 2>&1
-
 if docker image inspect "${REACTOR_IMAGE}:${REACTOR_TAG}" 1>/dev/null 2>&1; then
   info "Removing existing Docker image: ${REACTOR_IMAGE}:${REACTOR_TAG}"
   docker image rm "${REACTOR_IMAGE}:${REACTOR_TAG}"
