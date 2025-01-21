@@ -13,9 +13,11 @@
 set -o errtrace
 set -o nounset
 
-shopt -s globstar
+shopt -s expand_aliases
 
-
+#
+# Reactor Core Initialization
+#
 function init_core () {
   export __environment="${REACTOR_ENVIRONMENT:-local}"
 
@@ -38,52 +40,16 @@ function init_core () {
     host_command
   )
   source "${__core_lib_dir}/bootstrap.sh"
+  source "${__core_lib_dir}/aliases.sh"
 }
 
-function init_template () {
-  export __template_dir="$(dirname "$1")"
-}
 
-function init_project() {
-  export __project_dir="$(dirname "$1")"
-  export __env_dir="${__project_dir}/env/${__environment}"
-  export __init_file="${__env_dir}/.initialized"
-
-  export __project_reactor_dir="${__project_dir}/reactor"
-  export __project_utilities_dir="${__project_reactor_dir}/utilities"
-  export __project_test_dir="${__project_reactor_dir}/tests"
-
-  export __app_dir="${__project_dir}/projects"
-  export __certs_dir="${__project_dir}/certs"
-  export __cache_dir="${__project_dir}/cache"
-  export __log_dir="${__project_dir}/logs"
-
-  export __docker_dir="${__project_dir}/docker"
-  export __charts_dir="${__project_dir}/charts"
-  export __extension_dir="${__project_dir}/extensions"
-
-  export __terraform_dir="${__project_dir}/terraform"
-  export __argocd_apps_dir="${__terraform_dir}/argocd-apps"
-
-  export __project_name="$(config short_name)"
-
-  # Load environment configuration
-  if [ -f "${__env_dir}/public.sh" ]; then
-    source "${__env_dir}/public.sh"
-  fi
-  if [ -f "${__env_dir}/secret.sh" ]; then
-    source "${__env_dir}/secret.sh"
-  fi
-
-  export APP_NAME="${__project_name//_/-}"
-  export APP_LABEL="$(config name)"
-
-  export PRIMARY_DOMAIN="$(config "domain.${__environment}" "$(echo "$APP_NAME" | tr '_' '-').local")"
-  export PROJECT_UPDATE_WAIT="${PROJECT_UPDATE_WAIT:-"30s"}"
-
-  export ARGOCD_DOMAIN="${ARGOCD_DOMAIN:-"argocd.${PRIMARY_DOMAIN}"}"
-}
-
+#
+# >>> Startup
+#
+export CORE_INDEX=()
+export COMMAND_INDEX=()
+export UTILITY_INDEX=()
 
 export INITIALIZED=""
 export LOG_LEVEL="${LOG_LEVEL:-6}" # 7 = debug -> 0 = emergency
@@ -110,11 +76,28 @@ case $(uname -m) in
 esac
 export __architecture
 
+if [ "${__os}" == "darwin" ]; then
+  __bash_version="$(echo "$BASH_VERSION" | sed -E 's/^([0-9]+).*/\1/')"
+else
+  __bash_version="$(echo "$BASH_VERSION" | sed 's/^([0-9]+).*/\1/')"
+fi
+export __bash_version
+
 export __user_id="$(id -u)"
 export __user_name="$(id -nu)"
 export __group_id="$(id -g)"
 export __group_name="$(id -ng)"
-export __docker_group_id="$(cut -d: -f3 < <(getent group docker))"
+
+if [ "${__os}" == "darwin" ]; then
+  gid="$(awk -F: -v group=docker '$1==group{print $3}' /etc/group)"
+  if [ ! "$gid" ]; then 
+    gid="$(awk -F: -v group=daemon '$1==group{print $3}' /etc/group)"    
+  fi
+  __docker_group_id="$gid"
+else
+  __docker_group_id="$(cut -d: -f3 < <(getent group docker))"
+fi
+export __docker_group_id
 
 if [ "${HOME:-}" ]; then
   export __home_dir="$HOME"
@@ -155,6 +138,62 @@ if [ "${__core_manifest}" ]; then
 fi
 
 #
+# Load Runtime dependencies
+#
+source "${__core_lib_dir}/runtime.sh"
+
+#
+# Checking application requirements
+#
+if ! is_setup_complete; then
+  echo "" >"$(logfile)"
+
+  check_binary curl 1>>"$(logfile)" 2>&1
+  check_binary git 1>>"$(logfile)" 2>&1
+  check_binary docker 1>>"$(logfile)" 2>&1
+
+  if [ "${__os}" == "darwin" ]; then 
+    check_binary brew 1>>"$(logfile)" 2>&1
+    brew install openssl 1>>"$(logfile)" 2>&1
+    brew install grep 1>>"$(logfile)" 2>&1
+
+    if ! check_binary python3 1>>"$(logfile)" 2>&1; then 
+      brew install python 1>>"$(logfile)" 2>&1
+    fi
+  else
+    check_binary openssl 1>>"$(logfile)" 2>&1
+    check_binary python3 1>>"$(logfile)" 2>&1
+  fi
+
+  python3 -m venv "${HOME}/.reactor/python" 1>>"$(logfile)" 2>&1
+fi
+
+export PATH="${HOME}/.reactor/python/bin:${PATH}"
+source "${HOME}/.reactor/python/bin/activate" 1>>"$(logfile)" 2>&1
+
+if ! is_setup_complete; then
+  python3 -m pip install -U pip setuptools wheel --ignore-installed 1>>"$(logfile)" 2>&1
+  python3 -m pip install -r "${__reactor_dir}/requirements.txt" 1>>"$(logfile)" 2>&1
+fi
+
+
+if [ "${__bash_version}" -lt "4" ]; then 
+  echo "Reactor requires Bash version 4+"
+  if [ "${__os}" == "darwin" ]; then
+    echo "Upgrading Bash version ..."
+    brew install bash 1>>"$(logfile)" 2>&1
+    echo ""
+    echo "Your Bash version has been upgraded.  Please rerun this command"
+  else
+    echo ""
+    echo "Please upgrade your Bash version and rerun this command"
+  fi
+  exit 1  
+fi
+
+shopt -s globstar
+
+#
 # Template Development Mode
 #
 if [ "${__template_manifest}" ]; then
@@ -171,192 +210,8 @@ if [ "${__project_manifest}" ]; then
   init_project "${__project_manifest}"
 fi
 
-
-function set_initialized () {
-  export INITIALIZED="1"
-}
-
-function is_initialized () {
-  if [ "$INITIALIZED" ]; then
-    return 0
-  else
-    return 1
-  fi
-}
-
-
-function check_core () {
-  if [ ! "${__core_manifest}" ]; then
-    return 1
-  else
-    return 0
-  fi
-}
-
-function check_template () {
-  if [ ! "${__template_manifest}" ]; then
-    return 1
-  else
-    return 0
-  fi
-}
-
-function check_project () {
-  if [ ! "${__project_manifest}" ]; then
-    return 1
-  else
-    return 0
-  fi
-}
-
-function requires_project () {
-  local command="$1"
-  local check_function="${command}_requires_project"
-
-  if [[ "$command" =~ ^- ]]; then
-    # No valid command specifed so pass back to parent as normal
-    return 0
-  fi
-
-  if function_exists "$check_function"; then
-    # Farm it off to a command level processor (create and test ...)
-    "$check_function"
-    return $?
-  else
-    # All commands by default run in containers before host execution
-    return 0
-  fi
-}
-
-function warn_no_project () {
-  local command="${1:--}"
-
-  if ! check_project && requires_project "$command"; then
-    # Display error message (no project)
-    add_space
-    error "Project directory with a 'reactor.yml' file does not exist in current or parent directories (set project name with REACTOR_PROJECT_NAME)"
-    add_space
-fi
-}
-
-
-function get_run_mode () {
-  local current_directory="$(pwd)"
-
-  if [ -f "${current_directory}/reactor.template.yaml" ]; then
-    echo "core"
-  elif check_project; then
-    echo "project"
-  elif [ -f "${current_directory}/cookiecutter.json" ]; then
-    echo "template"
-  else
-    emergency "Reactor run mode not supported (needs core, template, or project)"
-  fi
-}
-
-function core_run_mode () {
-  if [ "$(get_run_mode)" == "core" ]; then
-    return 0
-  else
-    return 1
-  fi
-}
-
-function template_run_mode () {
-  if [ "$(get_run_mode)" == "template" ]; then
-    return 0
-  else
-    return 1
-  fi
-}
-
-function project_run_mode () {
-  if [ "$(get_run_mode)" == "project" ]; then
-    return 0
-  else
-    return 1
-  fi
-}
-
-
-function init_loader () {
-  source "${__utilities_dir}/env.sh"
-  source "${__utilities_dir}/hooks.sh"
-
-  export CORE_INDEX=()
-  export COMMAND_INDEX=()
-  export UTILITY_INDEX=()
-
-  load_utilities cli
-}
-
-function load_hook () {
-  local lib_name="$1"
-  if [[ ! " ${CORE_INDEX[*]} " =~ [[:space:]]${lib_name}[[:space:]] ]]; then
-    local lib_script="${__core_lib_dir}/${lib_name}.sh"
-    if [ -f "$lib_script" ]; then
-      source "$lib_script"
-    fi
-    source_hook "$lib_name"
-    export CORE_INDEX=("${CORE_INDEX[@]}" "$lib_name")
-  fi
-}
-
-function load_utility () {
-  local utility_name="$1"
-  if [[ ! " ${UTILITY_INDEX[*]} " =~ [[:space:]]${utility_name}[[:space:]] ]]; then
-    source_utility "$utility_name"
-    export UTILITY_INDEX=("${UTILITY_INDEX[@]}" "$utility_name")
-  fi
-}
-
-function load_command () {
-  local command_name="$1"
-  if [[ ! " ${COMMAND_INDEX[*]} " =~ [[:space:]]${command_name}[[:space:]] ]]; then
-    source "${__commands_dir}/${command_name}.sh"
-    export COMMAND_INDEX=("${COMMAND_INDEX[@]}" "$command_name")
-  fi
-}
-
-function load_commands () {
-  if [ $# -gt 0 ]; then
-    for command in $@; do
-      load_command "$command"
-    done
-  else
-    load_library commands
-    run_hook initialize_commands
-  fi
-}
-
-function load_utilities () {
-  if [ $# -gt 0 ]; then
-    for library in $@; do
-      load_utility "$library"
-    done
-  else
-    load_library utilities
-    run_hook initialize_utilities
-  fi
-}
-
-
-function parse_cli () {
-  local param_function="$1"
-  shift
-
-  load_utilities help
-  set_initialized
-  reactor_args "$@"
-
-  "$param_function"
-
-  if [ "$arg_h" ]; then
-    generic_usage "${HELP:-}"
-  else
-    render_overview
-  fi
-}
-
+#
 # Initialize the command and utility file indexes
+#
 init_loader
+mark_setup_complete
