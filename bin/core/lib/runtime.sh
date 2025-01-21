@@ -26,7 +26,6 @@ function load_hook () {
 function load_utility () {
   local utility_name="$1"
   if [[ ! " ${UTILITY_INDEX[*]-} " =~ [[:space:]]${utility_name}[[:space:]] ]]; then
-    echo "loading: $utility_name"
     source_utility "$utility_name"
     export UTILITY_INDEX=("${UTILITY_INDEX[@]+"${UTILITY_INDEX[@]}"}" "$utility_name")
   fi
