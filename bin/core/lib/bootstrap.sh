@@ -27,8 +27,6 @@ function run_docker () {
 
   REACTOR_ARGS=(
     "--rm"
-    "--interactive"
-    "--tty"
     "--network" "host"
     "--volume" "${REACTOR_DOCKER_SOCKET_FILE}:/var/run/docker.sock"
     "--volume" "${__reactor_dir}:/reactor"
@@ -47,6 +45,10 @@ function run_docker () {
       REACTOR_ARGS=("${REACTOR_ARGS[@]}" "--volume" "${__home_dir}/${share_dir_name}:${__home_dir}/${share_dir_name}")
     fi
   done
+
+  if [ ! "${REACTOR_CICD:-}" ]; then
+    REACTOR_ARGS=("${REACTOR_ARGS[@]}" "--tty" "--interactive")
+  fi
 
   if ! docker inspect "$REACTOR_RUNTIME_IMAGE" >/dev/null 2>&1; then
     debug "Building local virtualization container"
