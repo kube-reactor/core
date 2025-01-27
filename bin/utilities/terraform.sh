@@ -3,68 +3,70 @@
 # Terraform Utilities
 #
 
-export DEFAULT_TERRAFORM_VERSION="1.9.5"
-
-
 function terraform_environment () {
   debug "Setting Terraform environment ..."
-  export TERRAFORM_VERSION="${TERRAFORM_VERSION:-$DEFAULT_TERRAFORM_VERSION}"
   export TERRAFORM_GATEWAY="${__argocd_apps_dir}/gateway"
 
-  debug "TERRAFORM_VERSION: ${TERRAFORM_VERSION}"
   debug "TERRAFORM_GATEWAY: ${TERRAFORM_GATEWAY}"
 }
 
 
-function provision_terraform () {
-  if kubernetes_status; then
-    cert_environment
-    terraform_environment
-    helm_environment
+function run_terraform () {
+  terraform_environment
+  cert_environment
+  kubernetes_environment
+  helm_environment
 
-    export TF_VAR_variables="$(env_json)"
+  install_argocd
 
-    debug "Terraform project environment variables"
-    debug "${TF_VAR_variables}"
+  local project_dir="$1"
+  local project_type="$2"
+  shift; shift
 
-    TERRAFORM_ARGS=(
-      "--rm"
-      "--network" "host"
-      "--volume" "${__project_dir}:${__project_dir}"  # Kubernetes host path -> Terraform container path
-      "--workdir" "${TERRAFORM_GATEWAY}"
-      "--env" "TF_DATA_DIR=${__project_dir}/.terraform"
-      "--env" "TF_VAR_project_path=${__project_dir}"
-      "--env" "TF_VAR_project_wait=${PROJECT_UPDATE_WAIT}"
-      "--env" "TF_VAR_kube_config=${__env_dir}/.kubeconfig"
-      "--env" "TF_VAR_domain=${PRIMARY_DOMAIN}"
-      "--env" "TF_VAR_environment=${__environment}"
-      "--env" "TF_VAR_argocd_admin_password=$("${__bin_dir}/argocd" account bcrypt --password "${ARGOCD_ADMIN_PASSWORD:-admin}")"
-      "--env" "TF_VAR_variables"
-    )
-    if [ ! -z "${ARGOCD_PROJECT_SEQUENCE}" ]; then
-      export TF_VAR_argocd_project_sequence="${ARGOCD_PROJECT_SEQUENCE}"
-      TERRAFORM_ARGS=("${TERRAFORM_ARGS[@]}" "--env" "TF_VAR_argocd_project_sequence")
-    fi
-    if [[ "${LOG_LEVEL:-0}" -ge 7 ]]; then
-      TERRAFORM_ARGS=("${TERRAFORM_ARGS[@]}" "--env" "TF_LOG=DEBUG")
-    fi
+  cd "$project_dir"
 
-    TERRAFORM_ARGS=(
-      "${TERRAFORM_ARGS[@]}"
-      "hashicorp/terraform:${TERRAFORM_VERSION}"
-    )
-    debug "Terraform Arguments: ${TERRAFORM_ARGS[@]}"
+  if [[ "${LOG_LEVEL:-0}" -ge 7 ]]; then
+    export TF_LOG=DEBUG
+  fi
 
-    info "Initializing Terraform project ..."
-    docker run "${TERRAFORM_ARGS[@]}" init 1>>"$(logfile)" 2>&1
+  export TF_DATA_DIR="${__project_dir}/.terraform/${project_type}"
+  export TF_VAR_kube_config="$KUBECONFIG"
+  export TF_VAR_domain="$PRIMARY_DOMAIN"
+  export TF_VAR_environment="${__environment}"
+  export TF_VAR_variables="$(env_json)"
 
-    info "Validating Terraform project ..."
-    docker run "${TERRAFORM_ARGS[@]}" validate 1>>"$(logfile)" 2>&1
+  debug "Terraform project environment variables"
+  debug ""
+  debug "TF_DATA_DIR: ${TF_DATA_DIR}"
+  debug "VAR: kube_config: ${TF_VAR_kube_config}"
+  debug "VAR: domain: ${TF_VAR_domain}"
+  debug "VAR: environment: ${TF_VAR_environment}"
+  debug ""
+  debug "Variables:"
+  debug "-------------------------------------"
+  debug "$TF_VAR_variables"
+  debug ""
 
-    info "Deploying Kubernetes cluster ..."
-    docker run "${TERRAFORM_ARGS[@]}" apply -auto-approve -input=false 1>>"$(logfile)" 2>&1
+  terraform init "${@}" 1>>"$(logfile)" 2>&1
+  terraform validate 1>>"$(logfile)" 2>&1
+
+  if [ "${TERRAFORM_DESTROY:-}" ]; then
+    info "Deploying Terraform project ..."
+    terraform destroy -auto-approve -input=false 1>>"$(logfile)" 2>&1
+
+  elif [ "${TERRAFORM_PLAN:-}" ]; then
+    info "Testing Terraform project ..."
+    terraform plan -input=false 1>>"$(logfile)" 2>&1
+
+  else
+    info "Deploying Terraform project ..."
+    terraform apply -auto-approve -input=false 1>>"$(logfile)" 2>&1
+
+    info "Capturing Terraform Output ..."
+    terraform output -json 1>"${__env_dir}/${project_type}.json"
   fi
 }
+
 
 function clean_terraform () {
   if [ -d "${__project_dir}/.terraform" ]; then
@@ -76,4 +78,6 @@ function clean_terraform () {
     rm -f "${TERRAFORM_GATEWAY}/terraform.tfvars"
     rm -f "${TERRAFORM_GATEWAY}/terraform.tfstate"*
   fi
+
+  run_hook clean_terraform
 }
