@@ -78,6 +78,19 @@ function start_kubernetes_minikube () {
   "${__bin_dir}/minikube" --profile="${APP_NAME}" update-context 1>>"$(logfile)" 2>&1
 }
 
+function provision_kubernetes_applications_minikube () {
+  export TF_VAR_project_path="${__project_dir}"
+  export TF_VAR_project_wait="$PROJECT_UPDATE_WAIT"
+  export TF_VAR_argocd_admin_password="$("${__bin_dir}/argocd" account bcrypt --password "${ARGOCD_ADMIN_PASSWORD:-admin}")"
+
+  if [ ! -z "${ARGOCD_PROJECT_SEQUENCE}" ]; then
+    export TF_VAR_argocd_project_sequence="${ARGOCD_PROJECT_SEQUENCE}"
+  fi
+
+  info "Managing ArgoCD Applications ..."
+  run_terraform "${TERRAFORM_GATEWAY}" minikube_applications
+}
+
 function stop_kubernetes_minikube () {
   "${__bin_dir}/minikube" stop --profile="${APP_NAME}" 1>>"$(logfile)" 2>&1
 }

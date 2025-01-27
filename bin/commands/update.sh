@@ -39,7 +39,7 @@ function update_command_environment () {
 
 function update_command () {
   if [ "$UPDATE_ALL" -o "$UPDATE_APPS" ]; then
-    provision_terraform
+    provision_kubernetes_applications
   fi
   if [ "$HOOKS" -o ! "$NO_HOOKS" ]; then
     run_hook update

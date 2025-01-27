@@ -35,9 +35,8 @@ function run_kube_function () {
 
   if function_exists "$provider_name"; then
     "$provider_name" "$@"
-    return $?
   fi
-  return 1
+  return $?
 }
 
 
@@ -66,6 +65,13 @@ function start_kubernetes () {
     run_kube_function start_kubernetes
   fi
   add_docker_environment
+}
+
+function provision_kubernetes_applications () {
+  kubernetes_environment
+  if kubernetes_status; then
+    run_kube_function provision_kubernetes_applications
+  fi
 }
 
 function stop_kubernetes () {
