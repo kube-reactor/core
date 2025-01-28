@@ -67,14 +67,6 @@ function init_project() {
 
   export __project_name="$(config short_name)"
 
-  # Load environment configuration
-  if [ -f "${__env_dir}/public.sh" ]; then
-    source "${__env_dir}/public.sh"
-  fi
-  if [ -f "${__env_dir}/secret.sh" ]; then
-    source "${__env_dir}/secret.sh"
-  fi
-
   export APP_NAME="${__project_name//_/-}"
   export APP_LABEL="$(config name)"
 
@@ -86,6 +78,14 @@ function init_project() {
   export PROJECT_UPDATE_WAIT="${PROJECT_UPDATE_WAIT:-"30s"}"
 
   export ARGOCD_DOMAIN="${ARGOCD_DOMAIN:-"argocd.${PRIMARY_DOMAIN}"}"
+
+  # Load environment configuration
+  if [ -f "${__env_dir}/public.sh" ]; then
+    source "${__env_dir}/public.sh"
+  fi
+  if [ -f "${__env_dir}/secret.sh" ]; then
+    source "${__env_dir}/secret.sh"
+  fi
 }
 
 
