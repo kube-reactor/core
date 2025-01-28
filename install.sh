@@ -19,7 +19,7 @@ setup_installer
 #
 # Run Installer
 #
-./requirements/install.sh
+"${__reactor_dir}/requirements/install.sh"
 
 #
 # Cleanup Installation Files
