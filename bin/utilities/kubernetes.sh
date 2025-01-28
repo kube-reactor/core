@@ -60,10 +60,8 @@ function kubernetes_status () {
 
 
 function start_kubernetes () {
-  if ! kubernetes_status; then
-    info "Starting Kubernetes ..."
-    run_kube_function start_kubernetes
-  fi
+  info "Starting Kubernetes ..."
+  run_kube_function start_kubernetes
   add_container_environment
 }
 
