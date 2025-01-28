@@ -80,7 +80,7 @@ if [ $? -eq 0 ]; then
   COMMAND_ARGS=("${__init_args[@]:1}")
 
   if kubernetes_status; then
-    add_docker_environment
+    add_container_environment
   fi
   reactor_args "${COMMAND_ARGS[@]}"
   run_command "${__command_name}" host_command "${COMMAND_ARGS[@]}"

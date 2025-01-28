@@ -64,11 +64,20 @@ function start_kubernetes () {
     info "Starting Kubernetes ..."
     run_kube_function start_kubernetes
   fi
-  add_docker_environment
+  add_container_environment
 }
 
 function provision_kubernetes_applications () {
   kubernetes_environment
+
+  export TF_VAR_project_path="${__project_dir}"
+  export TF_VAR_project_wait="$PROJECT_UPDATE_WAIT"
+  export TF_VAR_argocd_admin_password="$("${__bin_dir}/argocd" account bcrypt --password "${ARGOCD_ADMIN_PASSWORD:-admin}")"
+
+  if [ ! -z "${ARGOCD_PROJECT_SEQUENCE}" ]; then
+    export TF_VAR_argocd_project_sequence="${ARGOCD_PROJECT_SEQUENCE}"
+  fi
+
   if kubernetes_status; then
     run_kube_function provision_kubernetes_applications
   fi

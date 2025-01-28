@@ -3,8 +3,8 @@
 # Docker Utilities
 #
 
-function add_docker_environment () {
-  run_kube_function add_docker_environment
+function add_container_environment () {
+  run_kube_function add_container_environment
 }
 
 function delete_docker_environment () {

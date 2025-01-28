@@ -28,8 +28,8 @@ function minikube_environment () {
   fi
 }
 
-function add_docker_environment_minikube () {
-  if [[ "${APP_NAME:-}" ]] && kubernetes_status_minikube; then
+function add_container_environment_minikube () {
+  if kubernetes_status_minikube; then
     eval $("${__bin_dir}/minikube" docker-env --profile="${APP_NAME}")
 
     debug "DOCKER_TLS_VERIFY=${DOCKER_TLS_VERIFY}"
@@ -79,14 +79,6 @@ function start_kubernetes_minikube () {
 }
 
 function provision_kubernetes_applications_minikube () {
-  export TF_VAR_project_path="${__project_dir}"
-  export TF_VAR_project_wait="$PROJECT_UPDATE_WAIT"
-  export TF_VAR_argocd_admin_password="$("${__bin_dir}/argocd" account bcrypt --password "${ARGOCD_ADMIN_PASSWORD:-admin}")"
-
-  if [ ! -z "${ARGOCD_PROJECT_SEQUENCE}" ]; then
-    export TF_VAR_argocd_project_sequence="${ARGOCD_PROJECT_SEQUENCE}"
-  fi
-
   info "Managing ArgoCD Applications ..."
   run_terraform "${TERRAFORM_GATEWAY}" minikube_applications
 }

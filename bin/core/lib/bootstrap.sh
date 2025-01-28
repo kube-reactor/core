@@ -5,7 +5,7 @@
 
 function run_local () {
   if kubernetes_status; then
-    add_docker_environment
+    add_container_environment
   fi
   "${__bin_dir}/core/exec" "${__app_args[@]}"
 }
