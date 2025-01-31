@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+#
+# Source this file to add the bin directory to your path for development.
+#
+# > source session
+#
+#   or
+#
+# > source session dev-platform prod
+#
+export __reactor_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Add reactor executables to system path
+export PATH="${__reactor_dir}/bin:$PATH"
+
+# Set the reactor project name
+export REACTOR_PROJECT_NAME="${1:-}"
+
+# Set the reactor project environment
+export REACTOR_ENVIRONMENT="${2:-local}"
