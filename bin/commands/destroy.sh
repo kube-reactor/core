@@ -20,15 +20,14 @@ function destroy_command () {
 
   rm -f "${__init_file}"
 
-  remove_dns_records
-  clean_terraform
+  clean_provisioner
 
   run_hook destroy
 }
 
 function destroy_host_command () {
   destroy_host_kubernetes
-  remove_host_dns_records
+  remove_dns_records
 
   run_hook destroy_host
   info "Kubernetes environment has been destroyed"

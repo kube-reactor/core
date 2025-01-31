@@ -50,8 +50,7 @@ function update_host_command () {
   launch_host_kubernetes_tunnel
 
   if [ "$UPDATE_ALL" -o "$UPDATE_DNS" ]; then
-    create_host_dns_records
-    save_host_dns_records
+    save_dns_records
   fi
   if [ "$UPDATE_ALL" -o "$UPDATE_CHARTS" ]; then
     sync_argocd_charts
