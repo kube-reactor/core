@@ -80,7 +80,7 @@ function start_kubernetes_minikube () {
 
 function provision_kubernetes_applications_minikube () {
   info "Managing ArgoCD Applications ..."
-  run_terraform "${TERRAFORM_GATEWAY}" minikube_applications
+  run_provisioner "${PROVISIONER_GATEWAY}" minikube_applications
 }
 
 function stop_kubernetes_minikube () {
