@@ -26,7 +26,7 @@ function namespace_command () {
       | tr -d "\n" | sed "s/\"finalizers\": \[[^]]\+\]/\"finalizers\": []/" \
       | "${__bin_dir}/kubectl" replace --raw "/api/v1/namespaces/${NAMESPACE}/finalize" -f - 1>"$(logfile)" 2>/dev/null
 
-    success "Namepace ${NAMESPACE} has been destroyed"
+    info "Namepace ${NAMESPACE} has been destroyed"
   else
     "${__bin_dir}/kubectl" get namespace "$NAMESPACE"
   fi
