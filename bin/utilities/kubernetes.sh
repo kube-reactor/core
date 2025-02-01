@@ -23,6 +23,20 @@ function kubernetes_environment () {
   debug "KUBECTL_VERSION: ${KUBECTL_VERSION}"
 }
 
+function kubernetes_application_environment () {
+  export TF_VAR_project_path="${__project_dir}"
+  export TF_VAR_project_wait="$PROJECT_UPDATE_WAIT"
+  export TF_VAR_argocd_admin_password="$("${__bin_dir}/argocd" account bcrypt --password "${ARGOCD_ADMIN_PASSWORD:-admin}")"
+
+  if [ ! -z "${ARGOCD_PROJECT_SEQUENCE}" ]; then
+    export TF_VAR_argocd_project_sequence="${ARGOCD_PROJECT_SEQUENCE}"
+  fi
+  debug "TF_VAR_project_path: ${TF_VAR_project_path}"
+  debug "TF_VAR_project_wait: ${TF_VAR_project_wait}"
+  debug "TF_VAR_argocd_admin_password: ${TF_VAR_argocd_admin_password}"
+  debug "TF_VAR_argocd_project_sequence: ${TF_VAR_argocd_project_sequence:-}"
+}
+
 
 function run_kube_function () {
   kubernetes_environment
@@ -41,14 +55,14 @@ function run_kube_function () {
 
 
 function install_kubernetes () {
-  run_kube_function install_kubernetes
-
   download_binary kubectl \
     "https://dl.k8s.io/release/v${KUBECTL_VERSION}/bin/linux/${__architecture}/kubectl" \
     "${__bin_dir}"
 
   install_helm
   install_argocd
+
+  run_kube_function install_kubernetes
 }
 
 
@@ -64,21 +78,25 @@ function start_kubernetes () {
   add_container_environment
 }
 
+
 function provision_kubernetes_applications () {
   kubernetes_environment
-
-  export TF_VAR_project_path="${__project_dir}"
-  export TF_VAR_project_wait="$PROJECT_UPDATE_WAIT"
-  export TF_VAR_argocd_admin_password="$("${__bin_dir}/argocd" account bcrypt --password "${ARGOCD_ADMIN_PASSWORD:-admin}")"
-
-  if [ ! -z "${ARGOCD_PROJECT_SEQUENCE}" ]; then
-    export TF_VAR_argocd_project_sequence="${ARGOCD_PROJECT_SEQUENCE}"
-  fi
+  kubernetes_application_environment
 
   if kubernetes_status; then
     run_kube_function provision_kubernetes_applications
   fi
 }
+
+function destroy_kubernetes_applications () {
+  kubernetes_environment
+  kubernetes_application_environment
+
+  if kubernetes_status; then
+    run_kube_function destroy_kubernetes_applications
+  fi
+}
+
 
 function stop_kubernetes () {
   info "Stopping Kubernetes environment ..."
@@ -98,11 +116,21 @@ function stop_host_kubernetes () {
 
 function destroy_kubernetes () {
   info "Destroying Kubernetes environment ..."
+  kubernetes_environment
+
+  export TF_VAR_project_path="${__project_dir}"
+  export TF_VAR_project_wait="$PROJECT_UPDATE_WAIT"
+  export TF_VAR_argocd_admin_password="$("${__bin_dir}/argocd" account bcrypt --password "${ARGOCD_ADMIN_PASSWORD:-admin}")"
+
+  if [ ! -z "${ARGOCD_PROJECT_SEQUENCE}" ]; then
+    export TF_VAR_argocd_project_sequence="${ARGOCD_PROJECT_SEQUENCE}"
+  fi
+
   run_kube_function destroy_kubernetes
 
   delete_kubernetes_kubeconfig
   delete_kubernetes_storage
-  delete_docker_environment
+  delete_container_environment
 }
 
 function destroy_host_kubernetes () {

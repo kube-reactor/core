@@ -7,13 +7,13 @@ function add_container_environment () {
   run_kube_function add_container_environment
 }
 
-function delete_docker_environment () {
+function delete_container_environment () {
   unset DOCKER_TLS_VERIFY
   unset DOCKER_HOST
   unset DOCKER_CERT_PATH
   unset MINIKUBE_ACTIVE_DOCKERD
 
-  run_kube_function delete_docker_environment
+  run_kube_function delete_container_environment
 }
 
 

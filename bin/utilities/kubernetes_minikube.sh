@@ -83,6 +83,12 @@ function provision_kubernetes_applications_minikube () {
   run_provisioner "${PROVISIONER_GATEWAY}" minikube_applications
 }
 
+function destroy_kubernetes_applications_minikube () {
+  info "Destroying ArgoCD Applications ..."
+  run_provisioner_destroy "${PROVISIONER_GATEWAY}" minikube_applications
+}
+
+
 function stop_kubernetes_minikube () {
   "${__bin_dir}/minikube" stop --profile="${APP_NAME}" 1>>"$(logfile)" 2>&1
 }
