@@ -24,7 +24,7 @@ function namespace_command () {
   if [ "$DESTROY" ]; then
     "${__bin_dir}/kubectl" get namespace "$NAMESPACE" -o json \
       | tr -d "\n" | sed "s/\"finalizers\": \[[^]]\+\]/\"finalizers\": []/" \
-      | "${__bin_dir}/kubectl" replace --raw "/api/v1/namespaces/${NAMESPACE}/finalize" -f - 1>"$(logfile)" 2>/dev/null
+      | "${__bin_dir}/kubectl" replace --raw "/api/v1/namespaces/${NAMESPACE}/finalize" -f - 1>"$(logfile)" 2>$1
 
     info "Namepace ${NAMESPACE} has been destroyed"
   else
