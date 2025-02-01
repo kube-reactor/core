@@ -16,6 +16,7 @@ function clean_command () {
     confirm
   fi
 
+  destroy_kubernetes_applications
   destroy_kubernetes
 
   rm -f "${__init_file}"
