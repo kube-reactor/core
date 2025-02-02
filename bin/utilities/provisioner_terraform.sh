@@ -38,19 +38,23 @@ function terraform_environment () {
 function run_provisioner_terraform () {
   local project_dir="$1"
   local project_type="$2"
+  local local_state="${3:-}"
   shift; shift
 
   cd "$project_dir"
 
   terraform_environment
 
-  if [[ "${__terraform_state_file:-}" ]] && [[ -f "${__terraform_state_file}" ]]; then
-    rm -f "${project_dir}/reactor_state.tf"
-    cp "${__terraform_state_file:-}" "${project_dir}/reactor_state.tf"
+  if [ "$local_state" ]; then
+    terraform init 1>>"$(logfile)" 2>&1
+  else
+    if [[ "${__terraform_state_file:-}" ]] && [[ -f "${__terraform_state_file}" ]]; then
+      rm -f "${project_dir}/reactor_state.tf"
+      cp "${__terraform_state_file:-}" "${project_dir}/reactor_state.tf"
+    fi
+    local state_options=($(get_remote_state "$project_type"))
+    terraform init "${state_options[@]}" 1>>"$(logfile)" 2>&1
   fi
-
-  local state_options=($(get_remote_state "$project_type"))
-  terraform init "${state_options[@]}" 1>>"$(logfile)" 2>&1
   terraform validate 1>>"$(logfile)" 2>&1
 
   if [ "${TERRAFORM_PLAN:-}" ]; then
@@ -69,19 +73,23 @@ function run_provisioner_terraform () {
 function run_provisioner_destroy_terraform () {
   local project_dir="$1"
   local project_type="$2"
+  local local_state="${3:-}"
   shift; shift
 
   cd "$project_dir"
 
   terraform_environment
 
-  if [[ "${__terraform_state_file:-}" ]] && [[ -f "${__terraform_state_file}" ]]; then
-    rm -f "${project_dir}/reactor_state.tf"
-    cp "${__terraform_state_file:-}" "${project_dir}/reactor_state.tf"
+  if [ "$local_state" ]; then
+    terraform init 1>>"$(logfile)" 2>&1
+  else
+    if [[ "${__terraform_state_file:-}" ]] && [[ -f "${__terraform_state_file}" ]]; then
+      rm -f "${project_dir}/reactor_state.tf"
+      cp "${__terraform_state_file:-}" "${project_dir}/reactor_state.tf"
+    fi
+    local state_options=($(get_remote_state "$project_type"))
+    terraform init "${state_options[@]}" 1>>"$(logfile)" 2>&1
   fi
-
-  local state_options=($(get_remote_state "$project_type"))
-  terraform init "${state_options[@]}" 1>>"$(logfile)" 2>&1
   terraform validate 1>>"$(logfile)" 2>&1
 
   info "Destroying Terraform project ..."
@@ -92,8 +100,40 @@ function run_provisioner_destroy_terraform () {
   fi
 }
 
+function run_provisioner_delete_terraform () {
+  local project_dir="$1"
+  local project_type="$2"
+  local local_state="${3:-}"
+  shift; shift
+
+  cd "$project_dir"
+
+  terraform_environment
+
+  if [ "$local_state" ]; then
+    terraform init 1>>"$(logfile)" 2>&1
+  else
+    if [[ "${__terraform_state_file:-}" ]] && [[ -f "${__terraform_state_file}" ]]; then
+      rm -f "${project_dir}/reactor_state.tf"
+      cp "${__terraform_state_file:-}" "${project_dir}/reactor_state.tf"
+    fi
+    local state_options=($(get_remote_state "$project_type"))
+    terraform init "${state_options[@]}" 1>>"$(logfile)" 2>&1
+  fi
+  terraform validate 1>>"$(logfile)" 2>&1
+
+  info "Deleting Terraform project ..."
+  terraform state rm $(terraform state list) 1>>"$(logfile)" 2>&1
+
+  if [ -f "${__env_dir}/${project_type}.json" ]; then
+    rm -f "${__env_dir}/${project_type}.json"
+  fi
+}
+
 
 function clean_provisioner_terraform () {
+  provisioner_environment_terraform
+
   if [ -d "${__project_dir}/.terraform" ]; then
     info "Removing Terraform configuration ..."
     sudo rm -Rf "${__project_dir}/.terraform"
