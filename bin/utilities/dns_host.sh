@@ -1,4 +1,10 @@
 
+if [[ "$__os" == "darwin" ]]; then
+  export DEFAULT_HOSTS_FILE="/private/etc/hosts"
+else
+  export DEFAULT_HOSTS_FILE="/etc/hosts"
+fi
+
 function dns_environment_host () {
   export HOSTS_FILE="${HOSTS_FILE:-"$DEFAULT_HOSTS_FILE"}"
   export HOSTS_MANIFEST_FILE="$(logdir)/hosts.txt"

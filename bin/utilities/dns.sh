@@ -3,12 +3,6 @@
 # DNS Utilities
 #
 
-if [[ "$__os" == "darwin" ]]; then
-  export DEFAULT_HOSTS_FILE="/private/etc/hosts"
-else
-  export DEFAULT_HOSTS_FILE="/etc/hosts"
-fi
-
 function dns_environment () {
   debug "Setting DNS environment ..."
   export DNS_PROVIDER="${DNS_PROVIDER:-host}"
