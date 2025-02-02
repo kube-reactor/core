@@ -10,6 +10,7 @@
 # Initialization
 #
 # Error handling
+set -e
 set -o errtrace
 set -o nounset
 
