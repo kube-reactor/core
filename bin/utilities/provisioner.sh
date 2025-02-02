@@ -19,6 +19,36 @@ function provisioner_environment () {
 }
 
 
+function provisioner_create () {
+  local name="$1"
+  local project_dir="$2"
+
+  if [ ! -d "$project_dir" ]; then
+    emergency "In order to provision ${name} you must specify a valid project directory.  Given: ${project_dir}"
+  fi
+
+  info "Creating ${name} ..."
+  load_hook "${name}_variables"
+  run_provisioner "$project_dir" "$name"
+  run_hook "create_${name}"
+}
+
+
+function provisioner_destroy () {
+  local name="$1"
+  local project_dir="$2"
+
+  if [ ! -d "$project_dir" ]; then
+    emergency "In order to provision ${name} you must specify a valid project directory.  Given: ${project_dir}"
+  fi
+
+  info "Destroying ${name} ..."
+  load_hook "${name}_variables"
+  run_provisioner_destroy "$project_dir" "$name"
+  run_hook "destroy_${name}"
+}
+
+
 function run_state_function () {
   local base_name="$1"
   shift
@@ -59,8 +89,10 @@ function destroy_remote_state () {
 }
 
 function get_remote_state () {
+  local project_type="$1"
+
   if [ "${STATE_PROVIDER}" ]; then
-    run_state_function get_remote_state
+    run_state_function get_remote_state "$project_type"
   else
     local options=()
     echo "${options[@]}"
@@ -73,7 +105,6 @@ function run_provisioner () {
   install_argocd
 
   ensure_remote_state
-
   run_provisioner_function run_provisioner "$@"
   run_hook run_provisioner "$@"
 }
@@ -83,7 +114,6 @@ function run_provisioner_destroy () {
   install_argocd
 
   ensure_remote_state
-
   run_provisioner_function run_provisioner_destroy "$@"
   run_hook run_provisioner_destroy "$@"
 }
