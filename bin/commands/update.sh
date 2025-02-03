@@ -53,7 +53,9 @@ function update_host_command () {
     save_dns_records
   fi
   if [ "$UPDATE_ALL" -o "$UPDATE_CHARTS" ]; then
-    sync_argocd_charts
+    if [ "$REACTOR_ENVIRONMENT" == "local" ]; then
+      sync_argocd_charts
+    fi
   fi
 
   if [ "$HOOKS" -o ! "$NO_HOOKS" ]; then
