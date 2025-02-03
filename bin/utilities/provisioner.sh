@@ -121,7 +121,6 @@ function run_provisioner () {
   provisioner_environment
   install_argocd
 
-  ensure_remote_state
   run_provisioner_function run_provisioner "$@"
   run_hook run_provisioner "$@"
 }
@@ -130,7 +129,6 @@ function run_provisioner_destroy () {
   provisioner_environment
   install_argocd
 
-  ensure_remote_state
   run_provisioner_function run_provisioner_destroy "$@"
   run_hook run_provisioner_destroy "$@"
 }
@@ -139,7 +137,6 @@ function run_provisioner_delete () {
   provisioner_environment
   install_argocd
 
-  ensure_remote_state
   run_provisioner_function run_provisioner_delete "$@"
   run_hook run_provisioner_delete "$@"
 }

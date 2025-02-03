@@ -48,6 +48,8 @@ function run_provisioner_terraform () {
   if [ "$local_state" ]; then
     terraform init 1>>"$(logfile)" 2>&1
   else
+    ensure_remote_state
+
     if [[ "${__terraform_state_file:-}" ]] && [[ -f "${__terraform_state_file}" ]]; then
       rm -f "${project_dir}/reactor_state.tf"
       cp "${__terraform_state_file:-}" "${project_dir}/reactor_state.tf"
@@ -83,6 +85,8 @@ function run_provisioner_destroy_terraform () {
   if [ "$local_state" ]; then
     terraform init 1>>"$(logfile)" 2>&1
   else
+    ensure_remote_state
+
     if [[ "${__terraform_state_file:-}" ]] && [[ -f "${__terraform_state_file}" ]]; then
       rm -f "${project_dir}/reactor_state.tf"
       cp "${__terraform_state_file:-}" "${project_dir}/reactor_state.tf"
@@ -113,6 +117,8 @@ function run_provisioner_delete_terraform () {
   if [ "$local_state" ]; then
     terraform init 1>>"$(logfile)" 2>&1
   else
+    ensure_remote_state
+
     if [[ "${__terraform_state_file:-}" ]] && [[ -f "${__terraform_state_file}" ]]; then
       rm -f "${project_dir}/reactor_state.tf"
       cp "${__terraform_state_file:-}" "${project_dir}/reactor_state.tf"
