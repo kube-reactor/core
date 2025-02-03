@@ -57,7 +57,7 @@ function run_provisioner_terraform () {
   fi
   terraform validate 1>>"$(logfile)" 2>&1
 
-  if [ "${TERRAFORM_PLAN:-}" ]; then
+  if [ "${PROVISIONER_PLAN:-}" ]; then
     info "Testing Terraform project ..."
     terraform plan -input=false 1>>"$(logfile)" 2>&1
   else
