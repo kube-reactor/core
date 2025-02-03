@@ -12,6 +12,10 @@ function up_command_environment () {
     BUILD \
     "Build development environment artifacts after startup"
 
+  parse_flag --plan \
+    PROVISIONER_PLAN \
+    "Output a plan for building the platform instead of deploying"
+
   image_build_options "(requires --build)"
   cert_options
 
