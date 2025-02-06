@@ -10,6 +10,7 @@
 
 function logdir () {
   if check_project; then
+    mkdir -p "${__log_dir}"
     echo "${__log_dir}"
   else
     echo "/tmp"
