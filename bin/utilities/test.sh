@@ -109,12 +109,12 @@ function run () {
   echo "<$test_command>"
   echo "<$test_args>"
 
-  local log_name="test-${test_args[*]// /}"
+  local log_name="test-$(echo "${test_args[*]// /}" | sed -e 's/[\t ]//g')"
 
   echo "+=+=+=+=+=+="
   echo "<$log_name>"
 
-  local log_file="$(logdir)/$(echo "$log_name" | sed -e 's/[\t ]//g').log"
+  local log_file="$(logdir)/${log_name}.log"
 
   echo "-----------"
   echo "<${log_file}>"
@@ -130,7 +130,7 @@ function run () {
   echo "==========="
   echo "${log_file}"
 
-  "$test_command" "$@" 1>"$log_file" 2>&1
+  "$test_command" "$@" 2>&1 | tee "$log_file"
   export TEST_STATUS=$?
   export TEST_OUTPUT="$(cat "$log_file")"
 
