@@ -18,7 +18,11 @@ function logdir () {
 }
 
 function logfile () {
+  if [ "${REACTOR_SHELL_OUTPUT:-}" ]; then
+    echo "/dev/stdout"
+  else
     echo "$(logdir)/reactor.log"
+  fi
 }
 
 #
