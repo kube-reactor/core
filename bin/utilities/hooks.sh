@@ -118,7 +118,6 @@ function source_hook () {
       echo "$extension_dir"
       ls -al "${__project_dir}"
       ls -al "${__extension_dir}"
-      ls -al "$extension_dir"
       echo "-----"
       hook_script="${extension_dir}/reactor/${hook_name}.sh"
       echo "$hook_script"
