@@ -93,6 +93,7 @@ function exec_git ()
 {
    DIRECTORY="$1";
    shift;
+   echo "Running git ${@} on ${DIRECTORY}" >>"$(logfile)"
    git --git-dir="${DIRECTORY}/.git" --work-tree="${DIRECTORY}" "$@" 1>>"$(logfile)" 2>&1
 }
 
