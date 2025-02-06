@@ -48,9 +48,11 @@ function up_command () {
   start_kubernetes
 
   if [[ "$BUILD" ]] || [[ ! -f "${__init_file}" ]]; then
+    echo "building..."
     run_subcommand build "${BUILD_ARGS[@]}"
     load_hook initialize
     load_utilities
+    echo "...done"
   fi
   touch "${__init_file}"
   echo "1"

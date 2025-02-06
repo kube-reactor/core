@@ -113,9 +113,6 @@ function source_hook () {
         source "$hook_script" "$project" "$chart_dir"
       fi
     done
-    echo ""
-    echo "extensions> $(config extensions)"
-    echo ""
     for extension in $(config extensions); do
       extension_dir="${__extension_dir}/${extension}"
       echo "$extension_dir"
