@@ -89,8 +89,6 @@ function init_project() {
   fi
 }
 
-echo "--0"
-
 export INITIALIZED=""
 export LOG_LEVEL="${LOG_LEVEL:-6}" # 7 = debug -> 0 = emergency
 
@@ -143,18 +141,12 @@ export DEFAULT_PROJECT_URL="${DEFAULT_REACTOR_URL:-https://github.com/kube-react
 export DEFAULT_PROJECT_REMOTE="${DEFAULT_REACTOR_REMOTE:-origin}"
 export DEFAULT_PROJECT_REFERENCE="${DEFAULT_REACTOR_REFERENCE:-main}"
 
-echo "--1"
-
 init_core "${__bin_dir}"
-
-echo "--2"
 
 export __core_manifest="$(core_manifest "$(pwd)")"
 export __template_manifest="$(template_manifest "$(pwd)")"
 export __project_manifest="$(project_manifest "$(pwd)")"
 export __project_name="${REACTOR_PROJECT_NAME:-$(date +%Y%m%d_%H%M%S)}"
-
-echo "--3"
 
 #
 # Core Development Mode
@@ -166,8 +158,6 @@ if [ "${__core_manifest}" ]; then
   fi
 fi
 
-echo "--4"
-
 #
 # Template Development Mode
 #
@@ -178,16 +168,12 @@ if [ "${__template_manifest}" ]; then
   fi
 fi
 
-echo "--5"
-
 #
 # Project Development Mode
 #
 if [ "${__project_manifest}" ]; then
   init_project "${__project_manifest}"
 fi
-
-echo "--6"
 
 
 function set_initialized () {
@@ -298,14 +284,18 @@ function project_run_mode () {
 
 
 function init_loader () {
+  echo "-+1"
   source "${__utilities_dir}/env.sh"
+  echo "-+2"
   source "${__utilities_dir}/hooks.sh"
+  echo "-+3"
 
   export CORE_INDEX=()
   export COMMAND_INDEX=()
   export UTILITY_INDEX=()
 
   load_utilities cli
+  echo "-+4"
 }
 
 function load_hook () {
@@ -381,3 +371,5 @@ function parse_cli () {
 echo "--10"
 
 init_loader
+
+echo "--20"
