@@ -157,7 +157,7 @@ function __log () {
 
   # all remaining arguments are to be printed
   local log_line=""
-  local date_time="" #$(date -u +"%Y-%m-%d %H:%M:%S-UTC")"
+  local date_time="$(date -u +"%Y-%m-%d %H:%M:%S-UTC")"
 
   if [ ${REACTOR_LOCAL:-0} -ne 0 ]; then
     local local_indicator="*"
