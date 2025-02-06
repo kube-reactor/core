@@ -114,7 +114,7 @@ function run () {
   echo "+=+=+=+=+=+="
   echo "<$log_name>"
 
-  local log_file="$(logdir)/${log_name}.log"
+  local log_file="$(logdir)/$(echo "$log_name" | sed -e 's/[\t ]//g').log"
 
   echo "-----------"
   echo "<${log_file}>"
