@@ -46,6 +46,7 @@ function up_command () {
 
   if [[ "$BUILD" ]] || [[ ! -f "${__init_file}" ]]; then
     run_subcommand build "${BUILD_ARGS[@]}"
+    load_hook initialize
     load_utilities
   fi
   touch "${__init_file}"
