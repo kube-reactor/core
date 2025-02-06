@@ -13,21 +13,16 @@
 export SOURCED="$1"
 
 source "${__bin_dir}/core/loader"
-echo "--initializing"
 load_hook initialize
-echo "--utilities"
 load_utilities
 
-echo "--environment"
 if [[ $REACTOR_LOCAL -eq 0 ]] || [[ $SOURCED -eq 1 ]]; then
   if kubernetes_status; then
     add_container_environment
   fi
 fi
 
-echo "--commands"
 load_commands
 set_initialized
 
-echo "--hook-initialized"
 run_hook initialize
