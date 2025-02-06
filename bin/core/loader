@@ -71,10 +71,6 @@ function init_project() {
   export APP_NAME="${__project_name//_/-}"
   export APP_LABEL="$(config name)"
 
-  if [[ ! "$APP_NAME" ]] || [[ ! "$APP_LABEL" ]]; then
-    emergency "To manage a Reactor project, reactor.yml configurations 'short_name' and 'name' must be specified"
-  fi
-
   export PRIMARY_DOMAIN="$(config "domain.${__environment}" "$(echo "$APP_NAME" | tr '_' '-').local")"
   export PROJECT_UPDATE_WAIT="${PROJECT_UPDATE_WAIT:-"30s"}"
 
@@ -292,6 +288,11 @@ function init_loader () {
   export UTILITY_INDEX=()
 
   load_utilities cli
+
+  if [[ ! "$APP_NAME" ]] || [[ ! "$APP_LABEL" ]]; then
+    emergency "To manage a Reactor project, reactor.yml configurations 'short_name' and 'name' must be specified"
+  fi
+  update_projects
 }
 
 function load_hook () {
@@ -363,5 +364,4 @@ function parse_cli () {
 }
 
 # Initialize the command and utility file indexes
-
 init_loader
