@@ -46,15 +46,15 @@ function up_command () {
 
   if [[ "$BUILD" ]] || [[ ! -f "${__init_file}" ]]; then
     run_subcommand build "${BUILD_ARGS[@]}"
-    echo "1"
     load_hook initialize
-    echo "2"
     load_utilities
-    echo "3"
   fi
   touch "${__init_file}"
+  echo "1"
   run_subcommand update
+  echo "2"
   run_hook up
+  echo "3"
 }
 
 function up_host_command () {
