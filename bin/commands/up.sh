@@ -50,7 +50,7 @@ function up_command () {
   if [[ "$BUILD" ]] || [[ ! -f "${__init_file}" ]]; then
     echo "building..."
     run_subcommand build "${BUILD_ARGS[@]}"
-    load_hook initialize
+    load_hook initialize reload
     load_utilities
     echo "...done"
   fi
