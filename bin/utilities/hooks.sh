@@ -126,7 +126,6 @@ function source_hook () {
     for extension in $(config extensions); do
       extension_dir="${__extension_dir}/${extension}"
       echo "$extension_dir"
-      echo "$hooks_script_name"
       hook_script="${extension_dir}/reactor/${hook_name}.sh"
       echo "$hook_script"
       if [ -f "$hook_script" ]; then
