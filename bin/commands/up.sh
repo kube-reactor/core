@@ -29,9 +29,6 @@ function up_command_environment () {
 }
 
 function up_command () {
-  echo "current directory"
-  pwd
-
   cert_environment
   kubernetes_environment
   helm_environment
@@ -48,18 +45,13 @@ function up_command () {
   start_kubernetes
 
   if [[ "$BUILD" ]] || [[ ! -f "${__init_file}" ]]; then
-    echo "building..."
     run_subcommand build "${BUILD_ARGS[@]}"
     load_hook initialize reload
     load_utilities
-    echo "...done"
   fi
   touch "${__init_file}"
-  echo "1"
   run_subcommand update
-  echo "2"
   run_hook up
-  echo "3"
 }
 
 function up_host_command () {

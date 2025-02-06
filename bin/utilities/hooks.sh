@@ -115,14 +115,8 @@ function source_hook () {
     done
     for extension in $(config extensions); do
       extension_dir="${__extension_dir}/${extension}"
-      echo "$extension_dir"
-      ls -al "${__project_dir}"
-      ls -al "${__extension_dir}"
-      echo "-----"
       hook_script="${extension_dir}/reactor/${hook_name}.sh"
-      echo "$hook_script"
       if [ -f "$hook_script" ]; then
-        echo "sourcing: $extension $extension_dir"
         source "$hook_script" "$extension" "$extension_dir"
       fi
     done
