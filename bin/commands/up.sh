@@ -29,6 +29,9 @@ function up_command_environment () {
 }
 
 function up_command () {
+  echo "current directory"
+  pwd
+
   cert_environment
   kubernetes_environment
   helm_environment
