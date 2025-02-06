@@ -20,6 +20,8 @@ session: &session
 
 session_env: &session_env
   REACTOR_PARENT_IMAGE: ubuntu:22.04
+  REACTOR_SHELL_OUTPUT: true
+
   MINIKUBE_CPUS: 2
   MINIKUBE_MEMORY: 4096
 
