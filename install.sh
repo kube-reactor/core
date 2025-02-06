@@ -8,9 +8,9 @@ export __bin_dir="${__reactor_dir}/bin"
 #
 # Collect and Check Dependencies
 #
-echo "1"
+pwd
+
 source "${__bin_dir}/core/loader"
-echo "2"
 
 #
 # Collect and Check Dependencies
