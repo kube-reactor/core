@@ -29,5 +29,5 @@ echo "--commands"
 load_commands
 set_initialized
 
-echo "--hook-initialized
+echo "--hook-initialized"
 run_hook initialize
