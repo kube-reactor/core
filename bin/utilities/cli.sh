@@ -5,8 +5,15 @@
 load_utilities disk
 
 
-export TERMINAL_COLUMNS="$(stty -a | grep -Po '(?<=columns )\d+')"
-export TERMINAL_ROWS="$(stty -a | grep -Po '(?<=rows )\d+')"
+if tty -s; then
+  TERMINAL_COLUMNS="$(stty -a | grep -Po '(?<=columns )\d+')"
+  TERMINAL_ROWS="$(stty -a | grep -Po '(?<=rows )\d+')"
+else
+  TERMINAL_COLUMNS="50"
+  TERMINAL_ROWS="50"
+fi
+export TERMINAL_COLUMNS
+export TERMINAL_ROWS
 
 export COLOR_DEBUG="${COLOR_DEBUG:-"\\x1b[1;35m"}"
 export COLOR_INFO="${COLOR_INFO:-"\\x1b[1;32m"}"
