@@ -14,7 +14,10 @@ source "${__bin_dir}/core/loader"
 # Collect and Check Dependencies
 #
 check_dependencies
-setup_installer
+
+if check_project; then
+  setup_installer
+fi
 
 #
 # Run Installer
@@ -24,4 +27,6 @@ setup_installer
 #
 # Cleanup Installation Files
 #
-clean_installer
+if check_project; then
+  clean_installer
+fi
