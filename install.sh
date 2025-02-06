@@ -8,7 +8,9 @@ export __bin_dir="${__reactor_dir}/bin"
 #
 # Collect and Check Dependencies
 #
+echo "1"
 source "${__bin_dir}/core/loader"
+echo "2"
 
 #
 # Collect and Check Dependencies
@@ -19,7 +21,9 @@ setup_installer
 #
 # Run Installer
 #
+echo "3"
 "${__reactor_dir}/requirements/install.sh"
+echo "4"
 
 #
 # Cleanup Installation Files
