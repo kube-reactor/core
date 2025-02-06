@@ -21,6 +21,9 @@ function load_hooks () {
         source "$hook_script"
       fi
     done
+    echo ""
+    echo "extensions> $(config extensions)"
+    echo ""
     for extension in $(config extensions); do
       extension_dir="${__extension_dir}/${extension}"
       echo "$extension_dir"
