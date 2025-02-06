@@ -12,7 +12,7 @@ ubuntu_arm64: &ubuntu_arm64
 
 bootstrap: &bootstrap
   name: Bootstrap test OS
-  command: ./tests/bootstrap.sh
+  command: ./install.sh
 
 session: &session
   name: Test Docker image
