@@ -15,7 +15,7 @@ function provisioner_environment () {
   kubernetes_environment
   helm_environment
 
-  run_dns_function provisioner_environment
+  run_provisioner_function provisioner_environment
 }
 
 
@@ -94,13 +94,13 @@ function run_provisioner_function () {
 
 
 function ensure_remote_state () {
-  if [ "${STATE_PROVIDER}" ]; then
+  if [ "${STATE_PROVIDER:-}" ]; then
     run_state_function ensure_remote_state
   fi
 }
 
 function destroy_remote_state () {
-  if [ "${STATE_PROVIDER}" ]; then
+  if [ "${STATE_PROVIDER:-}" ]; then
     run_state_function destroy_remote_state
   fi
 }
@@ -108,7 +108,7 @@ function destroy_remote_state () {
 function get_remote_state () {
   local project_type="$1"
 
-  if [ "${STATE_PROVIDER}" ]; then
+  if [ "${STATE_PROVIDER:-}" ]; then
     run_state_function get_remote_state "$project_type"
   else
     local options=()
