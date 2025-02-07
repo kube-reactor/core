@@ -169,7 +169,9 @@ function __log () {
     local log_info="$($color_function "$(printf "[%s]%s" "${log_level}" "${local_indicator}")")"
 
     echo -e "${date_time} ${log_info} ${log_line}" 1>&2
-    echo "${date_time} [${log_level}] ${log_line}" >>"$(logfile)"
+    if [ ! "${REACTOR_SHELL_OUTPUT:-}" ]; then
+      echo "${date_time} [${log_level}] ${log_line}" >>"$(logfile)"
+    fi
   done <<< "${@:-}"
 }
 

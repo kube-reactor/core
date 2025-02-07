@@ -91,10 +91,12 @@ function clean_cache () {
 
 function exec_git ()
 {
-   DIRECTORY="$1";
-   shift;
-   echo "Running git ${@} on ${DIRECTORY}" >>"$(logfile)"
-   git --git-dir="${DIRECTORY}/.git" --work-tree="${DIRECTORY}" "$@" 1>>"$(logfile)" 2>&1
+  DIRECTORY="$1";
+  shift;
+  if [ ! "${REACTOR_SHELL_OUTPUT:-}" ]; then
+    echo "Running git ${@} on ${DIRECTORY}" >>"$(logfile)"
+  fi
+  git --git-dir="${DIRECTORY}/.git" --work-tree="${DIRECTORY}" "$@" 1>>"$(logfile)" 2>&1
 }
 
 function download_git_repo () {
@@ -111,7 +113,12 @@ function download_git_repo () {
     git clone --quiet "$URL" "$DIRECTORY" 1>>"$(logfile)" 2>&1
   fi
   exec_git "$DIRECTORY" fetch origin --tags
-  exec_git "$DIRECTORY" checkout "$REFERENCE" --
+
+  if [ ! "${REACTOR_SHELL_OUTPUT:-}" ]; then
+    exec_git "$DIRECTORY" checkout "$REFERENCE" -- 1>>"$(logfile)" 2>&1
+  else
+    exec_git "$DIRECTORY" checkout "$REFERENCE" -- 1>/dev/null 2>&1
+  fi
 }
 
 #
@@ -135,9 +142,6 @@ function update_projects () {
           "$project_dir" \
           "$project_reference"
       fi
-      if [ -f "${project_dir}/reactor/initialize.sh" ]; then
-        source "${project_dir}/reactor/initialize.sh" "$project" "$project_dir"
-      fi
     done
 
     debug "Updating Helm chart repositories ..."
@@ -154,9 +158,6 @@ function update_projects () {
           "$chart_dir" \
           "$chart_reference"
       fi
-      if [ -f "${chart_dir}/reactor/initialize.sh" ]; then
-        source "${chart_dir}/reactor/initialize.sh" "$chart" "$chart_dir"
-      fi
     done
 
     debug "Updating extension repositories ..."
@@ -168,10 +169,6 @@ function update_projects () {
           "$(config extensions.$extension.remote)" \
           "${extension_dir}" \
           "$(config extensions.$extension.reference)"
-
-      if [ -f "${extension_dir}/reactor/initialize.sh" ]; then
-        source "${extension_dir}/reactor/initialize.sh" "$extension" "$extension_dir"
-      fi
     done
   fi
   run_hook update_projects
