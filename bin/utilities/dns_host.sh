@@ -31,25 +31,23 @@ function dns_records () {
 
 function save_dns_records_host () {
   # Runs on host machine (must be run after Kubernetes tunnel created)
-  info "Saving DNS records (hosts.txt):"
+  remove_dns_records_host
+
+  info "Saving DNS records (requires sudo):"
   dns_records="$(dns_records)"
   printf "$dns_records" | sudo tee "$HOSTS_MANIFEST_FILE" >/dev/null 2>&1
 
-  # Runs on host machine (requires sudo)
-  if [ -f "${HOSTS_MANIFEST_FILE:-}" ]; then
-    remove_dns_records_host
+  dns_records="$(cat "$HOSTS_MANIFEST_FILE")"
 
-    dns_records="$(cat "$HOSTS_MANIFEST_FILE")"
-
-    info "Saving DNS records (requires sudo):"
-    info "$dns_records"
-    printf "\n$dns_records" | sudo tee -a "$HOSTS_FILE" >/dev/null 2>&1
-  fi
+  info "$dns_records"
+  printf "\n$dns_records" | sudo tee -a "$HOSTS_FILE" >/dev/null 2>&1
 }
 
 function remove_dns_records_host () {
   # Runs on host machine (requires sudo)
-  rm -f "$HOSTS_MANIFEST_FILE"
+  if [ -f "${HOSTS_MANIFEST_FILE:-}" ]; then
+    rm -f "$HOSTS_MANIFEST_FILE"
+  fi
 
   if [ -f "${HOSTS_FILE:-}" ]; then
     info "Removing existing DNS records (requires sudo)"
