@@ -125,9 +125,6 @@ fi
 
 if [ -z "${HOME_SHARES:-}" ]; then
   export HOME_SHARES=(
-    ".bashrc"
-    ".bash_profile"
-    ".profile"
     ".ssh"
     ".git"
   )
