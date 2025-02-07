@@ -80,12 +80,12 @@ function start_kubernetes_minikube () {
 
 function provision_kubernetes_applications_minikube () {
   info "Managing ArgoCD Applications ..."
-  run_provisioner "${PROVISIONER_GATEWAY}" minikube_applications
+  run_provisioner "${PROVISIONER_GATEWAY}" minikube_applications local
 }
 
 function destroy_kubernetes_applications_minikube () {
   info "Destroying ArgoCD Applications ..."
-  run_provisioner_destroy "${PROVISIONER_GATEWAY}" minikube_applications
+  run_provisioner_destroy "${PROVISIONER_GATEWAY}" minikube_applications local
 }
 
 

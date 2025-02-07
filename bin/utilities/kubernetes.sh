@@ -73,6 +73,8 @@ function kubernetes_status () {
 
 
 function start_kubernetes () {
+  provisioner_environment
+
   info "Starting Kubernetes ..."
   run_kube_function start_kubernetes
   add_container_environment
@@ -80,6 +82,7 @@ function start_kubernetes () {
 
 
 function provision_kubernetes_applications () {
+  provisioner_environment
   kubernetes_environment
   kubernetes_application_environment
 
@@ -89,6 +92,7 @@ function provision_kubernetes_applications () {
 }
 
 function destroy_kubernetes_applications () {
+  provisioner_environment
   kubernetes_environment
   kubernetes_application_environment
 
@@ -99,6 +103,8 @@ function destroy_kubernetes_applications () {
 
 
 function stop_kubernetes () {
+  provisioner_environment
+
   info "Stopping Kubernetes environment ..."
   if kubernetes_status; then
     run_kube_function stop_kubernetes
@@ -115,9 +121,10 @@ function stop_host_kubernetes () {
 }
 
 function destroy_kubernetes () {
-  info "Destroying Kubernetes environment ..."
+  provisioner_environment
   kubernetes_environment
 
+  info "Destroying Kubernetes environment ..."
   export TF_VAR_project_path="${__project_dir}"
   export TF_VAR_project_wait="$PROJECT_UPDATE_WAIT"
   export TF_VAR_argocd_admin_password="$("${__bin_dir}/argocd" account bcrypt --password "${ARGOCD_ADMIN_PASSWORD:-admin}")"
@@ -142,6 +149,8 @@ function destroy_host_kubernetes () {
 }
 
 function delete_kubernetes_kubeconfig () {
+  kubernetes_environment
+
   if [ -f "$KUBECONFIG" ]; then
     info "Deleting Kubernetes kubeconfig file ..."
     rm -f "$KUBECONFIG"
