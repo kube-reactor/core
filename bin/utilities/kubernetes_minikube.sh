@@ -85,7 +85,11 @@ function provision_kubernetes_applications_minikube () {
 
 function destroy_kubernetes_applications_minikube () {
   info "Destroying ArgoCD Applications ..."
-  run_provisioner_destroy "${PROVISIONER_GATEWAY}" minikube_applications local
+  if [ "${PROVISIONER_FORCE_DELETE_APPLICATIONS:-}" ]; then
+    run_provisioner_delete "${PROVISIONER_GATEWAY}" minikube_applications local
+  else
+    run_provisioner_destroy "${PROVISIONER_GATEWAY}" minikube_applications local
+  fi
 }
 
 
