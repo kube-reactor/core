@@ -69,6 +69,7 @@ elif function_exists "${__command_name}_command"; then
   if [ ! "${REACTOR_NO_DOCKER:-}" ]; then
     run_docker
   else
+    # Local execution (only use this option when running a local Ubuntu OS)
     run_local
   fi
 elif [ "${__command_name}" == "enter" ]; then
