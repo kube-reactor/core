@@ -227,7 +227,7 @@ function verify_helm_deployed () {
 function verify_argocd_synced () {
   local apps="$@"
   function check_apps () {
-    run reactor argocd app list
+    run_reactor argocd app list
     for app_name in ${apps[@]}; do
       verify_output "^${app_name}\s+.+\s+Synced\s+"
     done
@@ -238,7 +238,7 @@ function verify_argocd_synced () {
 function verify_argocd_healthy () {
   local apps="$@"
   function check_apps () {
-    run reactor argocd app list
+    run_reactor argocd app list
     for app_name in ${apps[@]}; do
       verify_output "^${app_name}\s+.+\s+Synced\s+Healthy\s+"
     done
