@@ -134,9 +134,6 @@ function destroy_kubernetes () {
   fi
 
   run_kube_function destroy_kubernetes
-
-  delete_kubernetes_kubeconfig
-  delete_kubernetes_storage
   delete_container_environment
 }
 
@@ -146,6 +143,9 @@ function destroy_host_kubernetes () {
 
   terminate_host_kubernetes_tunnel
   terminate_host_kubernetes_dashboard
+
+  delete_kubernetes_kubeconfig
+  delete_kubernetes_storage
 }
 
 function delete_kubernetes_kubeconfig () {
