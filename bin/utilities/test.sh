@@ -105,19 +105,8 @@ function run () {
   local test_command="${test_args[0]}"
   shift
 
-  echo "*@*@*@*@*@*@*"
-  echo "<$test_command>"
-  echo "<$test_args>"
-
   local log_name="test-$(echo "${test_args[*]// /}" | sed -e 's/[\t ]//g')"
-
-  echo "+=+=+=+=+=+="
-  echo "<$log_name>"
-
   local log_file="$(logdir)/${log_name}.log"
-
-  echo "-----------"
-  echo "<${log_file}>"
 
   export TEST_COMMAND="${test_command} ${@}"
 
@@ -126,9 +115,6 @@ function run () {
   debug ""
   debug "Command: ${TEST_COMMAND}"
   debug "Log File: ${log_file}"
-
-  echo "==========="
-  echo "${log_file}"
 
   "$test_command" "$@" 2>&1 | tee "$log_file"
   export TEST_STATUS=$?
@@ -142,6 +128,13 @@ function run () {
     fail "Command failed: ${test_command} ${@} [ ${log_file} ]"
   fi
 }
+
+function run_reactor () {
+  delete_container_environment
+  run reactor "$@"
+  add_container_environment
+}
+
 
 function render_output () {
   render "${TEST_OUTPUT:-}"
@@ -218,7 +211,9 @@ function run_test () {
     if declare -F "$test_function" >/dev/null; then
       render " ** Executing test function: $(value_color ${test_function})"
       export TEST_NAME="$test_function"
+      add_container_environment
       "$test_function" "$@"
+      delete_container_environment
       export TEST_NAME=""
       export TEST_COMMAND=""
     else
