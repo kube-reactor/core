@@ -217,6 +217,7 @@ debug "Project directory: $(pwd)"
 add_space
 render " * Sourcing development environment"
 source reactor
+delete_container_environment
 
 if [ "$arg_d" ]; then
   render_environment
@@ -257,7 +258,7 @@ if [ ! "$NO_UP" ]; then
   fi
 
   function test_up () {
-    run reactor up --debug
+    run reactor up
 
     verify_dir "${__project_dir}/cache"
     verify_dir "${__project_dir}/certs"
