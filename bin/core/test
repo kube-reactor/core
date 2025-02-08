@@ -223,7 +223,7 @@ if [ "$arg_d" ]; then
   render_environment
 fi
 if [ "$CLEAN_PROJECT" ]; then
-  reactor clean --force
+  reactor clean --force --debug
 fi
 
 #
@@ -258,7 +258,7 @@ if [ ! "$NO_UP" ]; then
   fi
 
   function test_up () {
-    run_reactor up
+    run_reactor up --debug
 
     verify_dir "${__project_dir}/cache"
     verify_dir "${__project_dir}/certs"
@@ -303,7 +303,7 @@ if [[ ! "$NO_DOWN" ]] && [[ ! "$ENSURE_RUNNING" ]]; then
   fi
 
   function test_down () {
-    run_reactor down
+    run_reactor down --debug
 
     verify_no_file "${__project_dir}/env/local/.kubeconfig"
     verify_no_file "${__project_dir}/logs/tunnel.kpid"
@@ -341,7 +341,7 @@ if [[ ! "$NO_DOWN" ]] && [[ ! "$ENSURE_RUNNING" ]]; then
   fi
 
   function test_destroy () {
-    run_reactor destroy --force
+    run_reactor destroy --force --debug
 
     verify_no_dir "${__project_dir}/.minikube"
     verify_no_dir "${__project_dir}/.terraform"
@@ -350,7 +350,7 @@ if [[ ! "$NO_DOWN" ]] && [[ ! "$ENSURE_RUNNING" ]]; then
   }
 
   function test_clean () {
-    run_reactor clean --force
+    run_reactor clean --force --debug
 
     verify_no_dir "${__project_dir}/cache"
     verify_no_dir "${__project_dir}/certs"
