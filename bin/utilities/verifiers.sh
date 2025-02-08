@@ -134,7 +134,7 @@ function verify_config () {
   local actual_value="$(get_config_value "$namespace" "$name" "$property")"
 
   if [ "$actual_value" != "$value" ]; then
-    fail "ConfigMap value ${namespace} ${name} is ${value} not the same as: ${actual_value}"
+    fail "ConfigMap value ${namespace} ${name} is ${value} not the same as actual: ${actual_value}"
   fi
 }
 
@@ -147,7 +147,7 @@ function verify_secret () {
   local actual_value="$(get_secret_value "$namespace" "$name" "$property")"
 
   if [ "$actual_value" != "$value" ]; then
-    fail "Secret value ${namespace} ${name} is ${value} not the same as: ${actual_value}"
+    fail "Secret value ${namespace} ${name} is ${value} not the same as actual: ${actual_value}"
   fi
 }
 

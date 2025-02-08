@@ -202,8 +202,7 @@ function get_secret_value () {
   local namespace="$1"
   local name="$2"
   local property="$3"
-  echo "$(kubectl view-secret -n "$namespace"  "$name" "$property")"
-  #echo -n "$(kubectl get secret "$name" -n "$namespace" -o jsonpath="{.data.${property//./\\.}}" | base64 --decode)"
+  echo "$(kubectl get secret "$name" -n "$namespace" -o go-template="{{ index .data "\"$property\"" | base64decode }}")"
 }
 
 function get_pods () {
