@@ -27,9 +27,10 @@ function destroy_command () {
 }
 
 function destroy_host_command () {
-  destroy_host_kubernetes
   remove_dns_records
 
   run_hook destroy_host
+
+  destroy_host_kubernetes
   info "Kubernetes environment has been destroyed"
 }
