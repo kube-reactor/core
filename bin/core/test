@@ -260,17 +260,19 @@ if [ ! "$NO_UP" ]; then
   function test_up () {
     run_reactor up
 
+    provisioner_environment
+
     verify_dir "${__project_dir}/cache"
     verify_dir "${__project_dir}/certs"
     verify_dir "${__project_dir}/docker"
     verify_dir "${__project_dir}/charts"
     verify_dir "${__project_dir}/.minikube"
-    verify_file "${__project_dir}/env/local/.kubeconfig"
-    verify_file "${__project_dir}/logs/tunnel.kpid"
     verify_dir "${__project_dir}/.terraform"
-    verify_file "${__project_dir}/terraform/argocd-apps/gateway/.terraform.lock.hcl"
-    verify_file "${__project_dir}/terraform/argocd-apps/gateway/terraform.tfstate"
-    verify_file "${__project_dir}/logs/hosts.txt"
+    verify_file "${__env_dir}/.kubeconfig"
+    verify_file "${__log_dir}/hosts.txt"
+    verify_file "${__log_dir}/tunnel.kpid"
+    verify_file "${PROVISIONER_GATEWAY}/.terraform.lock.hcl"
+    verify_file "${PROVISIONER_GATEWAY}/terraform.tfstate"
 
     function verify_argocd_domain () {
       verify_host "$ARGOCD_DOMAIN"
@@ -309,10 +311,10 @@ if [[ ! "$NO_DOWN" ]] && [[ ! "$ENSURE_RUNNING" ]]; then
   function test_down () {
     run_reactor down
 
-    verify_no_file "${__project_dir}/env/local/.kubeconfig"
-    verify_no_file "${__project_dir}/logs/tunnel.kpid"
-    verify_no_file "${__project_dir}/logs/dashboard.kpid"
-    verify_no_file "${__project_dir}/logs/hosts.txt"
+    verify_no_file "${__log_dir}/tunnel.kpid"
+    verify_no_file "${__log_dir}/dashboard.kpid"
+    verify_no_file "${__log_dir}/hosts.txt"
+    verify_no_file "${__env_dir}/.kubeconfig"
     verify_no_host "$ARGOCD_DOMAIN"
   }
 
@@ -347,10 +349,12 @@ if [[ ! "$NO_DOWN" ]] && [[ ! "$ENSURE_RUNNING" ]]; then
   function test_destroy () {
     run_reactor destroy --force
 
+    provisioner_environment
+
     verify_no_dir "${__project_dir}/.minikube"
     verify_no_dir "${__project_dir}/.terraform"
-    verify_no_file "${__project_dir}/terraform/argocd-apps/gateway/.terraform.lock.hcl"
-    verify_no_file "${__project_dir}/terraform/argocd-apps/gateway/terraform.tfstate"
+    verify_no_file "${PROVISIONER_GATEWAY}/.terraform.lock.hcl"
+    verify_no_file "${PROVISIONER_GATEWAY}/terraform.tfstate"
   }
 
   function test_clean () {
