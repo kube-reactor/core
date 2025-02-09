@@ -132,7 +132,6 @@ function run () {
 function run_reactor () {
   delete_container_environment
   run reactor "$@"
-  add_container_environment
 }
 
 
