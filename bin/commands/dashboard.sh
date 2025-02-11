@@ -11,7 +11,7 @@ function dashboard_host_command () {
   if ! kubernetes_status; then
     emergency "Kubernetes is not running"
   fi
-  if [ "$REACTOR_ENVIRONMENT" == "local" ]; then
+  if [ "${__environment}" == "local" ]; then
     launch_host_kubernetes_dashboard
   else
     if ! "${__bin_dir}/kubectl" describe serviceaccount -n kube-system admin-user 1>/dev/null 2>&1; then
