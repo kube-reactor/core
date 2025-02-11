@@ -9,12 +9,15 @@
 #=========================================================================================
 # Initialization
 #
-# Error handling
+# Shell options
 set -e
 set -o errtrace
 set -o nounset
 
 shopt -s globstar
+
+# System configurations
+ulimit -s 65536
 
 
 function init_core () {
