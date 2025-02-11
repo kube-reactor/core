@@ -262,6 +262,11 @@ if [ ! "$NO_UP" ]; then
 
     provisioner_environment
 
+    function verify_argocd_domain () {
+      verify_host "$ARGOCD_DOMAIN"
+    }
+    wait verify_argocd_domain 30
+
     verify_dir "${__project_dir}/cache"
     verify_dir "${__project_dir}/certs"
     verify_dir "${__project_dir}/docker"
@@ -273,11 +278,6 @@ if [ ! "$NO_UP" ]; then
     verify_file "${__log_dir}/tunnel.kpid"
     verify_file "${PROVISIONER_GATEWAY}/.terraform.lock.hcl"
     verify_file "${PROVISIONER_GATEWAY}/terraform.tfstate"
-
-    function verify_argocd_domain () {
-      verify_host "$ARGOCD_DOMAIN"
-    }
-    wait verify_argocd_domain 30
   }
 
   start_test lifecycle start build
@@ -311,11 +311,15 @@ if [[ ! "$NO_DOWN" ]] && [[ ! "$ENSURE_RUNNING" ]]; then
   function test_down () {
     run_reactor down
 
+    function verify_argocd_domain () {
+      verify_no_host "$ARGOCD_DOMAIN"
+    }
+    wait verify_argocd_domain 30
+
     verify_no_file "${__log_dir}/tunnel.kpid"
     verify_no_file "${__log_dir}/dashboard.kpid"
     verify_no_file "${__log_dir}/hosts.txt"
     verify_no_file "${__env_dir}/.kubeconfig"
-    verify_no_host "$ARGOCD_DOMAIN"
   }
 
   start_test lifecycle clean
