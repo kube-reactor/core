@@ -23,12 +23,7 @@ session_env: &session_env
   REACTOR_SHELL_OUTPUT: true
 
   MINIKUBE_CPUS: 2
-  MINIKUBE_MEMORY: 4096
-
-dump_log: &dump_log
-  name: Dump reactor command log
-  when: always
-  command: test ! -f ./tests/project/logs/reactor.log || cat ./tests/project/logs/reactor.log
+  MINIKUBE_MEMORY: 6144
 
 test_bash: &test_bash
   steps:
@@ -41,7 +36,6 @@ test_bash: &test_bash
         <<: *session
         shell: /usr/bin/bash
         environment: *session_env
-    - run: *dump_log
 
 test_package: &test_package
   steps:
