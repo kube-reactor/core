@@ -117,7 +117,7 @@ function run () {
   info "Log File: ${log_file}"
 
   export TEST_OUTPUT="$log_file"
-  "$test_command" "$@" 2>&1 | tee "$log_file"
+  "$test_command" "$@" > >(tee "$log_file") 2>&1
   export TEST_STATUS=$?
   sleep 0.1
 
