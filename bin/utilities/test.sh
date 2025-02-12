@@ -116,14 +116,9 @@ function run () {
   info "Command: ${TEST_COMMAND}"
   info "Log File: ${log_file}"
 
-  "$test_command" "$@" >"$log_file" 2>&1
+  export TEST_OUTPUT="$log_file"
+  "$test_command" "$@" 2>&1 | tee "$log_file"
   export TEST_STATUS=$?
-  echo "-done"
-  export TEST_OUTPUT="$(cat "$log_file")"
-
-  info "Output: ${TEST_OUTPUT}"
-  info "Status:  ${TEST_STATUS}"
-  info ""
 
   if [ $TEST_STATUS -ne 0 ]; then
     fail "Command failed: ${test_command} ${@} [ ${log_file} ]"
@@ -138,7 +133,9 @@ function run_reactor () {
 
 
 function render_output () {
-  render "${TEST_OUTPUT:-}"
+  if [ "${TEST_OUTPUT:-}" -a -f "$TEST_OUTPUT" ]; then
+    cat "$TEST_OUTPUT"
+  fi
 }
 
 function wait () {
