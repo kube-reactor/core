@@ -108,7 +108,7 @@ function run () {
   echo "$test_command"
   echo "${test_args[*]}"
 
-  local log_name="test-$(echo "${test_args[*]// /}" | sed -e 's/[\t ]//g')"
+  local log_name="test-$(echo "${test_args[*]}" | sed -e 's/[\t ]//g')"
   local log_file="$(logdir)/${log_name}.log"
 
   export TEST_COMMAND="${test_command} ${@}"
