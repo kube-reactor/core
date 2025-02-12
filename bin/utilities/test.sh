@@ -105,6 +105,9 @@ function run () {
   local test_command="${test_args[0]}"
   shift
 
+  echo "$test_command"
+  echo "${test_args[*]}"
+
   local log_name="test-$(echo "${test_args[*]// /}" | sed -e 's/[\t ]//g')"
   local log_file="$(logdir)/${log_name}.log"
 
