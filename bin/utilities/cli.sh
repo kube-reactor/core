@@ -165,10 +165,10 @@ function __log () {
   fi
 
   while IFS=$'\n' read -r log_line; do
-    local date_time="$(date -u +"%Y-%m-%d %H:%M:%S-UTC")"
+    #local date_time="$(date -u +"%Y-%m-%d %H:%M:%S-UTC")"
     local log_info="$($color_function "$(printf "[%s]%s" "${log_level}" "${local_indicator}")")"
 
-    echo -e "${date_time} ${log_info} ${log_line}" 1>&2
+    echo -e "${log_info} ${log_line}" 1>&2
     # if [ ! "${REACTOR_SHELL_OUTPUT:-}" ]; then
     #   echo "===================================================="
     #   echo "Log directory: '${__log_dir:-}'"
