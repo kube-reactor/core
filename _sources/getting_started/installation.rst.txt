@@ -78,3 +78,21 @@ Installation Steps
       reactor --version
 
 Reactor is now installed as a standalone CLI tool and can be run using the `reactor` command from any terminal session.
+
+Core Environment Variables
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+ * **LOG_LEVEL**: Logging level 1 _(alerts only)_ - 7 _(debugging)_
+
+ * **REACTOR_ENVIRONMENT**: Environment name _(default **local**)_
+ * **REACTOR_PROJECT_NAME**: Reactor project name _(when in core or template development modes)_
+
+ * **DEFAULT_REACTOR_TEMPLATE_URL**: Default template to use in create command _(git url)_
+ * **DEFAULT_REACTOR_TEMPLATE_REMOTE**: Default template to use in create command _(git remote)_
+ * **DEFAULT_REACTOR_TEMPLATE_REFERENCE**: Default template to use in create command _(get branch or tag)_
+ * **PROJECT_TEMPLATE_DIRECTORY**: Specific template directory _(used in test command)_
+
+ * **REACTOR_DOCKER_SOCKET_FILE**: Docker socket file location if different than default for Linux or Mac
+ * **REACTOR_RUNTIME_IMAGE**: Runtime image name and version for reactor image command
+ * **REACTOR_DOCKER_RUN_ARGS**: Array of optional arguments to pass to docker run command execution
+ * **HOME_SHARES**: Array of directories and files to share with Docker runtime container

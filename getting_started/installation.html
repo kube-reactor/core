@@ -122,6 +122,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#option-2-install-reactor-as-a-local-script-library">Option 2: Install Reactor as a Local Script Library</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#id1">Prerequisites</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#id2">Installation Steps</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#core-environment-variables">Core Environment Variables</a></li>
 </ul>
 </li>
 </ul>
@@ -341,6 +342,24 @@
 </li>
 </ol>
 <p>Reactor is now installed as a standalone CLI tool and can be run using the <cite>reactor</cite> command from any terminal session.</p>
+</section>
+<section id="core-environment-variables">
+<h3>Core Environment Variables<a class="headerlink" href="#core-environment-variables" title="Permalink to this heading">¶</a></h3>
+<blockquote>
+<div><ul class="simple">
+<li><p><strong>LOG_LEVEL</strong>: Logging level 1 _(alerts only)_ - 7 _(debugging)_</p></li>
+<li><p><strong>REACTOR_ENVIRONMENT</strong>: Environment name _(default <strong>local</strong>)_</p></li>
+<li><p><strong>REACTOR_PROJECT_NAME</strong>: Reactor project name _(when in core or template development modes)_</p></li>
+<li><p><strong>DEFAULT_REACTOR_TEMPLATE_URL</strong>: Default template to use in create command _(git url)_</p></li>
+<li><p><strong>DEFAULT_REACTOR_TEMPLATE_REMOTE</strong>: Default template to use in create command _(git remote)_</p></li>
+<li><p><strong>DEFAULT_REACTOR_TEMPLATE_REFERENCE</strong>: Default template to use in create command _(get branch or tag)_</p></li>
+<li><p><strong>PROJECT_TEMPLATE_DIRECTORY</strong>: Specific template directory _(used in test command)_</p></li>
+<li><p><strong>REACTOR_DOCKER_SOCKET_FILE</strong>: Docker socket file location if different than default for Linux or Mac</p></li>
+<li><p><strong>REACTOR_RUNTIME_IMAGE</strong>: Runtime image name and version for reactor image command</p></li>
+<li><p><strong>REACTOR_DOCKER_RUN_ARGS</strong>: Array of optional arguments to pass to docker run command execution</p></li>
+<li><p><strong>HOME_SHARES</strong>: Array of directories and files to share with Docker runtime container</p></li>
+</ul>
+</div></blockquote>
 </section>
 </section>
 </section>
