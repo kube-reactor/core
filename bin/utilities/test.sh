@@ -110,19 +110,20 @@ function run () {
 
   export TEST_COMMAND="${test_command} ${@}"
 
-  echo ""
-  echo "Running:"
-  echo ""
-  echo "Command: ${TEST_COMMAND}"
-  echo "Log File: ${log_file}"
+  info ""
+  info "Running:"
+  info ""
+  info "Command: ${TEST_COMMAND}"
+  info "Log File: ${log_file}"
 
   "$test_command" "$@" 2>&1 | tee "$log_file"
+  echo "-done"
   export TEST_STATUS=$?
   export TEST_OUTPUT="$(cat "$log_file")"
 
-  echo "Output: ${TEST_OUTPUT}"
-  echo "Status:  ${TEST_STATUS}"
-  echo ""
+  info "Output: ${TEST_OUTPUT}"
+  info "Status:  ${TEST_STATUS}"
+  info ""
 
   if [ $TEST_STATUS -ne 0 ]; then
     fail "Command failed: ${test_command} ${@} [ ${log_file} ]"
@@ -132,6 +133,7 @@ function run () {
 function run_reactor () {
   delete_container_environment
   run reactor "$@"
+  echo "--DONE"
 }
 
 
