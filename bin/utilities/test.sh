@@ -116,9 +116,9 @@ function run () {
   info "Command: ${TEST_COMMAND}"
   info "Log File: ${log_file}"
 
-  "$test_command" "$@" 2>&1 | tee "$log_file"
-  echo "-done"
+  "$test_command" "$@" >"$log_file" 2>&1
   export TEST_STATUS=$?
+  echo "-done"
   export TEST_OUTPUT="$(cat "$log_file")"
 
   info "Output: ${TEST_OUTPUT}"
