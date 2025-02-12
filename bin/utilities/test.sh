@@ -110,19 +110,19 @@ function run () {
 
   export TEST_COMMAND="${test_command} ${@}"
 
-  debug ""
-  debug "Running:"
-  debug ""
-  debug "Command: ${TEST_COMMAND}"
-  debug "Log File: ${log_file}"
+  echo ""
+  echo "Running:"
+  echo ""
+  echo "Command: ${TEST_COMMAND}"
+  echo "Log File: ${log_file}"
 
   "$test_command" "$@" 2>&1 | tee "$log_file"
   export TEST_STATUS=$?
   export TEST_OUTPUT="$(cat "$log_file")"
 
-  debug "Output: ${TEST_OUTPUT}"
-  debug "Status:  ${TEST_STATUS}"
-  debug ""
+  echo "Output: ${TEST_OUTPUT}"
+  echo "Status:  ${TEST_STATUS}"
+  echo ""
 
   if [ $TEST_STATUS -ne 0 ]; then
     fail "Command failed: ${test_command} ${@} [ ${log_file} ]"
