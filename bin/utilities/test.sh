@@ -119,7 +119,6 @@ function run () {
   export TEST_OUTPUT="$log_file"
   "$test_command" "$@" > >(tee "$log_file") 2>&1
   export TEST_STATUS=$?
-  sleep 0.1
 
   if [ $TEST_STATUS -ne 0 ]; then
     fail "Command failed: ${test_command} ${@} [ ${log_file} ]"
@@ -129,7 +128,6 @@ function run () {
 function run_reactor () {
   delete_container_environment
   run reactor "$@"
-  echo "--DONE"
 }
 
 

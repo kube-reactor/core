@@ -293,11 +293,8 @@ if [ ! "$NO_UP" ]; then
   }
 
   start_test lifecycle start build
-  echo "-1"
   run_test test_up
-  echo "-2"
   verify_test
-  echo "-3"
 fi
 
 if [[ " ${PROJECT_PHASES[*]} " =~ [[:space:]]running[[:space:]] ]]; then
