@@ -119,6 +119,7 @@ function run () {
   export TEST_OUTPUT="$log_file"
   "$test_command" "$@" 2>&1 | tee "$log_file"
   export TEST_STATUS=$?
+  sleep 0.1
 
   if [ $TEST_STATUS -ne 0 ]; then
     fail "Command failed: ${test_command} ${@} [ ${log_file} ]"
