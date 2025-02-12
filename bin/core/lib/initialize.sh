@@ -13,5 +13,4 @@ if check_project; then
   mkdir -p "${__docker_dir}"
   mkdir -p "${__charts_dir}"
   mkdir -p "${__extension_dir}"
-  mkdir -p "${__log_dir}"
 fi

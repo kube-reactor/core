@@ -28,38 +28,25 @@ ENV LANG=C.UTF-8
 ENV PYTHONUNBUFFERED=1
 ENV REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
 #
-# Application environment variables
-#
-ENV PATH="/reactor/bin:${PATH}"
-#
 # Shell environment
 #
 SHELL ["/bin/bash", "--login", "-c"]
 RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
 #
-# Package repository management
+# Docker installation
 #
-COPY ./docker/packages.core.txt /root/packages.core.txt
 RUN apt-get update -y \
   && apt-get upgrade -y \
-  && sed '/^\s*\#.*$/d' /root/packages.core.txt | xargs -r apt-get install -y --no-install-recommends \
+  && apt-get install -y lsb-release software-properties-common apt-transport-https apt-utils sudo curl gnupg2 git \
   && rm -rf /var/lib/apt/lists/*
 
 RUN curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg \
   && echo "deb [signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] \
   https://download.docker.com/linux/ubuntu/ $(lsb_release -cs) stable" > /etc/apt/sources.list.d/docker.list
-#
-# System dependencies
-#
-COPY ./docker/packages.app.txt /root/packages.app.txt
+
 RUN apt-get update -y \
-  && sed '/^\s*\#.*$/d' /root/packages.app.txt | xargs -r apt-get install -y --no-install-recommends \
+  && apt-get install -y docker-ce \
   && rm -rf /var/lib/apt/lists/*
-#
-# Reactor core Python packages
-#
-COPY ./requirements.txt /root/requirements.txt
-RUN pip3 install --no-cache-dir -r /root/requirements.txt
 #
 # User initialization
 #
@@ -75,6 +62,7 @@ RUN groupmod --gid ${REACTOR_DOCKER_GID} docker \
   --groups sudo,docker \
   ${REACTOR_USER_NAME} \
   && echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers \
+  && echo 'export PATH="/reactor/bin:$PATH"' >> /etc/bash.bashrc \
   && echo 'alias reactor="/reactor/bin/core/exec"' >> /etc/bash.bashrc
 #
 #====================================================================
@@ -91,8 +79,8 @@ RUN ln -s /reactor/VERSION /REACTOR.txt
 #
 # Project customization
 #
-RUN /reactor/docker/install.sh
-
+RUN /reactor/requirements/install.sh \
+  && rm -rf /var/lib/apt/lists/*
 #
 # Execution gateway
 #

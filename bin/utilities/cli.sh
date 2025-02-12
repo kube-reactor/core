@@ -5,8 +5,15 @@
 load_utilities disk
 
 
-export TERMINAL_COLUMNS="$(stty -a | grep -Po '(?<=columns )\d+')"
-export TERMINAL_ROWS="$(stty -a | grep -Po '(?<=rows )\d+')"
+if tty -s; then
+  TERMINAL_COLUMNS="$(stty -a | grep -Po '(?<=columns )\d+')"
+  TERMINAL_ROWS="$(stty -a | grep -Po '(?<=rows )\d+')"
+else
+  TERMINAL_COLUMNS="50"
+  TERMINAL_ROWS="50"
+fi
+export TERMINAL_COLUMNS
+export TERMINAL_ROWS
 
 export COLOR_DEBUG="${COLOR_DEBUG:-"\\x1b[1;35m"}"
 export COLOR_INFO="${COLOR_INFO:-"\\x1b[1;32m"}"
@@ -150,7 +157,6 @@ function __log () {
 
   # all remaining arguments are to be printed
   local log_line=""
-  local date_time="$(date -u +"%Y-%m-%d %H:%M:%S UTC")"
 
   if [ ${REACTOR_LOCAL:-0} -ne 0 ]; then
     local local_indicator="*"
@@ -159,10 +165,13 @@ function __log () {
   fi
 
   while IFS=$'\n' read -r log_line; do
+    local date_time="$(date -u +"%Y-%m-%d %H:%M:%S-UTC")"
     local log_info="$($color_function "$(printf "[%s]%s" "${log_level}" "${local_indicator}")")"
 
     echo -e "${date_time} ${log_info} ${log_line}" 1>&2
-    echo "${date_time} [${log_level}] ${log_line}" >>"$(logfile)"
+    if [ ! "${REACTOR_SHELL_OUTPUT:-}" ]; then
+      echo "${date_time} [${log_level}] ${log_line}" >>"$(logfile)"
+    fi
   done <<< "${@:-}"
 }
 

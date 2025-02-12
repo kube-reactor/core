@@ -24,13 +24,13 @@
 #
 
 function verify_output () {
-  if ! echo "${TEST_OUTPUT:-}" | grep -P "$1" 1>/dev/null 2>&1; then
+  if [[ "${TEST_OUTPUT:-}" ]] && ! grep -P "$1" "$TEST_OUTPUT" 1>/dev/null 2>&1; then
     fail "Searched value ${1} was not found in command output"
   fi
 }
 
 function verify_no_output () {
-  if echo "${TEST_OUTPUT:-}" | grep -P "$1" 1>/dev/null 2>&1; then
+  if [[ "${TEST_OUTPUT:-}" ]] && ! grep -P "$1" "$TEST_OUTPUT" 1>/dev/null 2>&1; then
     fail "Searched value ${1} was found in command output"
   fi
 }
@@ -134,7 +134,7 @@ function verify_config () {
   local actual_value="$(get_config_value "$namespace" "$name" "$property")"
 
   if [ "$actual_value" != "$value" ]; then
-    fail "ConfigMap value is ${value} not the same as: ${actual_value}"
+    fail "ConfigMap value ${namespace} ${name} is ${value} not the same as actual: ${actual_value}"
   fi
 }
 
@@ -147,7 +147,7 @@ function verify_secret () {
   local actual_value="$(get_secret_value "$namespace" "$name" "$property")"
 
   if [ "$actual_value" != "$value" ]; then
-    fail "Secret value is ${value} not the same as: ${actual_value}"
+    fail "Secret value ${namespace} ${name} is ${value} not the same as actual: ${actual_value}"
   fi
 }
 
@@ -227,7 +227,7 @@ function verify_helm_deployed () {
 function verify_argocd_synced () {
   local apps="$@"
   function check_apps () {
-    run reactor argocd app list
+    run_reactor argocd app list
     for app_name in ${apps[@]}; do
       verify_output "^${app_name}\s+.+\s+Synced\s+"
     done
@@ -238,7 +238,7 @@ function verify_argocd_synced () {
 function verify_argocd_healthy () {
   local apps="$@"
   function check_apps () {
-    run reactor argocd app list
+    run_reactor argocd app list
     for app_name in ${apps[@]}; do
       verify_output "^${app_name}\s+.+\s+Synced\s+Healthy\s+"
     done
