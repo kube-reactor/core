@@ -110,14 +110,8 @@ function stop_kubernetes () {
     run_kube_function stop_kubernetes
     delete_kubernetes_kubeconfig
   fi
-}
-
-function stop_host_kubernetes () {
-  # Runs on host machine
-  run_kube_function stop_host_kubernetes
-
-  terminate_host_kubernetes_tunnel
-  terminate_host_kubernetes_dashboard
+  terminate_kubernetes_tunnel
+  terminate_kubernetes_dashboard
 }
 
 function destroy_kubernetes () {
@@ -134,18 +128,13 @@ function destroy_kubernetes () {
   fi
 
   run_kube_function destroy_kubernetes
-  delete_container_environment
-}
 
-function destroy_host_kubernetes () {
-  # Runs on host machine
-  run_kube_function destroy_host_kubernetes
-
-  terminate_host_kubernetes_tunnel
-  terminate_host_kubernetes_dashboard
+  terminate_kubernetes_tunnel
+  terminate_kubernetes_dashboard
 
   delete_kubernetes_kubeconfig
   delete_kubernetes_storage
+  delete_container_environment
 }
 
 function delete_kubernetes_kubeconfig () {
@@ -162,32 +151,30 @@ function delete_kubernetes_storage () {
 }
 
 
-function launch_host_kubernetes_tunnel () {
-  # Runs on host machine
+function launch_kubernetes_tunnel () {
   if kubernetes_status; then
-    terminate_host_kubernetes_tunnel
-    run_kube_function launch_host_kubernetes_tunnel
+    terminate_kubernetes_tunnel
+    run_kube_function launch_kubernetes_tunnel
   fi
 }
 
-function terminate_host_kubernetes_tunnel () {
-  # Runs on host machine
+function terminate_kubernetes_tunnel () {
   info "Terminating existing Kubernetes tunnel ..."
-  run_kube_function terminate_host_kubernetes_tunnel
+  run_kube_function terminate_kubernetes_tunnel
 }
 
-function launch_host_kubernetes_dashboard () {
+function launch_kubernetes_dashboard () {
   # Runs on host machine
   if kubernetes_status; then
-    terminate_host_kubernetes_dashboard
-    run_kube_function launch_host_kubernetes_dashboard
+    terminate_kubernetes_dashboard
+    run_kube_function launch_kubernetes_dashboard
   fi
 }
 
-function terminate_host_kubernetes_dashboard () {
+function terminate_kubernetes_dashboard () {
   # Runs on host machine
   info "Terminating existing Kubernetes dashboard ..."
-  run_kube_function terminate_host_kubernetes_dashboard
+  run_kube_function terminate_kubernetes_dashboard
 }
 
 
