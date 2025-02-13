@@ -17,10 +17,6 @@ set -o nounset
 shopt -s expand_aliases
 shopt -s globstar
 
-# System configurations
-ulimit -s 65536
-
-
 #
 # Reactor Core Initialization
 #
@@ -150,13 +146,17 @@ if ! is_setup_complete; then
   check_binary git 1>>"$(logfile)" 2>&1
   check_binary docker 1>>"$(logfile)" 2>&1
 
-  if [ "${__os}" == "darwin" ]; then 
+  if [ "${__os}" == "darwin" ]; then
     check_binary brew 1>>"$(logfile)" 2>&1
     brew install openssl 1>>"$(logfile)" 2>&1
     brew install grep 1>>"$(logfile)" 2>&1
 
     if ! check_binary python3 1>>"$(logfile)" 2>&1; then 
       brew install python 1>>"$(logfile)" 2>&1
+    fi
+    if ! check_binary terraform 1>>"$(logfile)" 2>&1; then 
+      brew tap hashicorp/tap 1>>"$(logfile)" 2>&1
+      brew install hashicorp/tap/terraform 1>>"$(logfile)" 2>&1
     fi
   else
     check_binary openssl 1>>"$(logfile)" 2>&1
