@@ -9,9 +9,6 @@
 #
 # Initialize top level directories and load bootstrap functions
 SCRIPT_PATH="${BASH_SOURCE[0]}" # bash
-if [[ -z "$SCRIPT_PATH" ]]; then
-  SCRIPT_PATH="${(%):-%N}" # zsh
-fi
 
 ((return 0 2>/dev/null) || [[ $ZSH_EVAL_CONTEXT =~ :file$ ]]) && SOURCED=1 || SOURCED=0
 
@@ -38,7 +35,7 @@ export __init_args=("${__app_args[@]}")
 
 # Debug mode
 if [ "$arg_d" ]; then
-  set -o xtrace
+  #set -o xtrace
   PS4='+(${BASH_SOURCE}:${LINENO}): ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
   LOG_LEVEL="7"
   # Enable error backtracing
@@ -57,10 +54,13 @@ fi
 
 warn_no_project "${__command_name}"
 
+if [ "${__os}" == "darwin" ]; then 
+  export REACTOR_NO_DOCKER=true
+fi
+
 if [[ "$arg_h" ]] || [[ "${__command_name}" == "help" ]]; then
   run_local
 elif ! requires_project "${__command_name}"; then
-  # Local execution (use sparingly)
   run_local
 elif ! check_project; then
   debug "Exiting due to no project and no help option specified"
@@ -69,10 +69,9 @@ elif function_exists "${__command_name}_command"; then
   if [ ! "${REACTOR_NO_DOCKER:-}" ]; then
     run_docker
   else
-    # Local execution (only use this option when running a local Ubuntu OS)
     run_local
   fi
-elif [ "${__command_name}" == "enter" ]; then
+elif [[ "${__os}" != "darwin" ]] && [[ "${__command_name}" == "enter" ]]; then
   run_docker
 fi
 
