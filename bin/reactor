@@ -54,10 +54,6 @@ fi
 
 warn_no_project "${__command_name}"
 
-if [ "${__os}" == "darwin" ]; then 
-  export REACTOR_NO_DOCKER=true
-fi
-
 if [[ "$arg_h" ]] || [[ "${__command_name}" == "help" ]]; then
   run_local
 elif ! requires_project "${__command_name}"; then
@@ -66,24 +62,7 @@ elif ! check_project; then
   debug "Exiting due to no project and no help option specified"
   exit 1
 elif function_exists "${__command_name}_command"; then
-  if [ ! "${REACTOR_NO_DOCKER:-}" ]; then
-    run_docker
-  else
-    run_local
-  fi
-elif [[ "${__os}" != "darwin" ]] && [[ "${__command_name}" == "enter" ]]; then
+  run_local
+elif [ "${__command_name}" == "enter" ]; then
   run_docker
 fi
-
-if [ $? -eq 0 ]; then
-  # Local execution (use sparingly)
-  COMMAND_ARGS=("${__init_args[@]:1}")
-
-  if kubernetes_status; then
-    add_container_environment
-  fi
-  reactor_args "${COMMAND_ARGS[@]}"
-  run_command "${__command_name}" host_command "${COMMAND_ARGS[@]}"
-fi
-
-run_hook finalize
