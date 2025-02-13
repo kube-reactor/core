@@ -76,12 +76,7 @@ case $(uname -m) in
 esac
 export __architecture
 
-if [ "${__os}" == "darwin" ]; then
-  __bash_version="$(echo "$BASH_VERSION" | sed -E 's/^([0-9]+).*/\1/')"
-else
-  __bash_version="$(echo "$BASH_VERSION" | sed 's/^([0-9]+).*/\1/')"
-fi
-export __bash_version
+export __bash_version="$(echo "$BASH_VERSION" | sed -E 's/^([0-9]+).*/\1/')"
 
 export __user_id="$(id -u)"
 export __user_name="$(id -nu)"
@@ -102,7 +97,11 @@ export __docker_group_id
 if [ "${HOME:-}" ]; then
   export __home_dir="$HOME"
 else
-  export __home_dir="/home/${__user_name}"
+  if [ "${__os}" == "darwin" ]; then 
+    export __home_dir="/Users/${__user_name}"
+  else 
+    export __home_dir="/home/${__user_name}"
+  fi
   export HOME="${__home_dir}"
 fi
 
@@ -168,14 +167,16 @@ if ! is_setup_complete; then
   python3 -m venv "${HOME}/.reactor/python" 1>>"$(logfile)" 2>&1
 fi
 
-export PATH="${HOME}/.reactor/python/bin:${PATH}"
-source "${HOME}/.reactor/python/bin/activate" 1>>"$(logfile)" 2>&1
+if [[ $REACTOR_LOCAL -eq 1 ]]; then 
+  export PATH="${HOME}/.reactor/python/bin:${PATH}"
+  source "${HOME}/.reactor/python/bin/activate"
+fi
 
 if ! is_setup_complete; then
   python3 -m pip install -U pip setuptools wheel --ignore-installed 1>>"$(logfile)" 2>&1
   python3 -m pip install -r "${__reactor_dir}/requirements.txt" 1>>"$(logfile)" 2>&1
+  mark_setup_complete
 fi
-
 
 if [ "${__bash_version}" -lt "4" ]; then 
   echo "Reactor requires Bash version 4+"
@@ -191,10 +192,13 @@ if [ "${__bash_version}" -lt "4" ]; then
   exit 1  
 fi
 
+#
+# Setting shell options
+#
 shopt -s globstar
 
 #
-# Template Development Mode
+# Initializing template development mode
 #
 if [ "${__template_manifest}" ]; then
   init_template "${__template_manifest}"
@@ -204,7 +208,7 @@ if [ "${__template_manifest}" ]; then
 fi
 
 #
-# Project Development Mode
+# Initializing project development mode
 #
 if [ "${__project_manifest}" ]; then
   init_project "${__project_manifest}"
@@ -214,4 +218,3 @@ fi
 # Initialize the command and utility file indexes
 #
 init_loader
-mark_setup_complete
