@@ -50,13 +50,13 @@
 
 # Initialize top level directories and load bootstrap functions
 SCRIPT_PATH="${BASH_SOURCE[0]}" # bash
-if [[ -z "$SCRIPT_PATH" ]]; then
-  SCRIPT_PATH="${(%):-%N}" # zsh
-fi
 
 export __script_name="reactor test"
 export __core_dir="$(cd "$(dirname "${SCRIPT_PATH}")" && pwd)"
 export __bin_dir="$(dirname "${__core_dir}")"
+
+export REACTOR_SHELL_OUTPUT="true"
+
 source "${__core_dir}/loader.sh"
 load_utilities test
 
@@ -142,10 +142,6 @@ function test_params () {
   parse_flag --clean \
     CLEAN_PROJECT \
     "Ensure project is shutdown and completely cleaned before beginning tests"
-
-  parse_flag --cicd \
-    CICD_EXEC \
-    "Execute test command in CI/CD mode (without Docker execution and reactor file output)"
 }
 parse_cli test_params "$@"
 
@@ -167,14 +163,6 @@ add_space
 render " -> this includes commands for: tunneling and local DNS"
 add_space
 check_admin
-
-if [ "$CICD_EXEC" ]; then
-  export REACTOR_NO_DOCKER="true"
-  export REACTOR_SHELL_OUTPUT="true"
-fi
-
-debug "Reactor local execution: ${REACTOR_NO_DOCKER:-}"
-debug "Reactor shell output: ${REACTOR_SHELL_OUTPUT:-}"
 
 if [[ "$CLEAN_PROJECT" ]] && [[ ! "$FORCE" ]]; then
   render "The --clean option will completely destroy and cleanup all project files before testing"
