@@ -8,7 +8,7 @@ export ARGOCD_APPS_VERSION="${ARGOCD_APPS_VERSION:-main}"
 
 function install_argocd () {
   download_binary argocd \
-    "https://github.com/argoproj/argo-cd/releases/latest/download/argocd-${__os}-${__architecture}" \
+    "https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-${__architecture}" \
     "${__bin_dir}"
 
   info "Initializing ArgoCD application repository ..."
