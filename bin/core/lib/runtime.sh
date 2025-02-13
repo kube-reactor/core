@@ -8,26 +8,28 @@ function init_loader () {
   export UTILITY_INDEX=()
 
   load_utilities cli
+  update_projects
 }
 
 
 function load_hook () {
   local lib_name="$1"
-  if [[ ! " ${CORE_INDEX[*]:-} " =~ [[:space:]]${lib_name}[[:space:]] ]]; then
+  if [[ "${2:-}" ]] || [[ ! " ${CORE_INDEX[*]} " =~ [[:space:]]${lib_name}[[:space:]] ]]; then
     local lib_script="${__core_lib_dir}/${lib_name}.sh"
     if [ -f "$lib_script" ]; then
       source "$lib_script"
     fi
     source_hook "$lib_name"
-    export CORE_INDEX=("${CORE_INDEX[@]+"${CORE_INDEX[@]}"}" "$lib_name")
+    export CORE_INDEX=("${CORE_INDEX[@]}" "$lib_name")
   fi
 }
 
+
 function load_utility () {
   local utility_name="$1"
-  if [[ ! " ${UTILITY_INDEX[*]-} " =~ [[:space:]]${utility_name}[[:space:]] ]]; then
+  if [[ "${2:-}" ]] || [[ ! " ${UTILITY_INDEX[*]} " =~ [[:space:]]${utility_name}[[:space:]] ]]; then
     source_utility "$utility_name"
-    export UTILITY_INDEX=("${UTILITY_INDEX[@]+"${UTILITY_INDEX[@]}"}" "$utility_name")
+    export UTILITY_INDEX=("${UTILITY_INDEX[@]}" "$utility_name")
   fi
 }
 
@@ -44,10 +46,10 @@ function load_utilities () {
 
 
 function load_command () {
-  local command_name="$1"
-  if [[ ! " ${COMMAND_INDEX[*]:-} " =~ [[:space:]]${command_name}[[:space:]] ]]; then
+ local command_name="$1"
+  if [[ "${2:-}" ]] || [[ ! " ${COMMAND_INDEX[*]} " =~ [[:space:]]${command_name}[[:space:]] ]]; then
     source "${__commands_dir}/${command_name}.sh"
-    export COMMAND_INDEX=("${COMMAND_INDEX[@]+"${COMMAND_INDEX[@]}"}" "$command_name")
+    export COMMAND_INDEX=("${COMMAND_INDEX[@]}" "$command_name")
   fi
 }
 

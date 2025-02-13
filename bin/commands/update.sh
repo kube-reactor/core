@@ -39,7 +39,7 @@ function update_command_environment () {
 
 function update_command () {
   if [ "$UPDATE_ALL" -o "$UPDATE_APPS" ]; then
-    provision_terraform
+    provision_kubernetes_applications
   fi
   if [ "$HOOKS" -o ! "$NO_HOOKS" ]; then
     run_hook update
@@ -50,11 +50,12 @@ function update_host_command () {
   launch_host_kubernetes_tunnel
 
   if [ "$UPDATE_ALL" -o "$UPDATE_DNS" ]; then
-    create_host_dns_records
-    save_host_dns_records
+    save_dns_records
   fi
   if [ "$UPDATE_ALL" -o "$UPDATE_CHARTS" ]; then
-    sync_argocd_charts
+    if [ "${__environment}" == "local" ]; then
+      sync_argocd_charts
+    fi
   fi
 
   if [ "$HOOKS" -o ! "$NO_HOOKS" ]; then

@@ -16,13 +16,12 @@ function clean_command () {
     confirm
   fi
 
+  destroy_kubernetes_applications
   destroy_kubernetes
 
   rm -f "${__init_file}"
 
-  remove_dns_records
-
-  clean_terraform
+  clean_provisioner
   clean_certs
   clean_cache
 
@@ -31,7 +30,7 @@ function clean_command () {
 
 function clean_host_command () {
   destroy_host_kubernetes
-  remove_host_dns_records
+  remove_dns_records
 
   run_hook clean_host
   info "Reactor development environment has been cleaned"

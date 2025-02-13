@@ -28,8 +28,8 @@ function minikube_environment () {
   fi
 }
 
-function add_docker_environment_minikube () {
-  if [[ "${APP_NAME:-}" ]] && kubernetes_status_minikube; then
+function add_container_environment_minikube () {
+  if kubernetes_status_minikube; then
     eval $("${__bin_dir}/minikube" docker-env --profile="${APP_NAME}")
 
     debug "DOCKER_TLS_VERIFY=${DOCKER_TLS_VERIFY}"
@@ -75,8 +75,24 @@ function start_kubernetes_minikube () {
     --embed-certs \
     --dns-domain="${PRIMARY_DOMAIN}" 1>>"$(logfile)" 2>&1
 
+  "${__bin_dir}/minikube" --profile="${APP_NAME}" ssh "sudo apt-get update;sudo apt-get install -y open-iscsi" 1>>"$(logfile)" 2>&1
   "${__bin_dir}/minikube" --profile="${APP_NAME}" update-context 1>>"$(logfile)" 2>&1
 }
+
+function provision_kubernetes_applications_minikube () {
+  info "Managing ArgoCD Applications ..."
+  run_provisioner "${PROVISIONER_GATEWAY}" minikube_applications local
+}
+
+function destroy_kubernetes_applications_minikube () {
+  info "Destroying ArgoCD Applications ..."
+  if [ "${PROVISIONER_FORCE_DELETE_APPLICATIONS:-}" ]; then
+    run_provisioner_delete "${PROVISIONER_GATEWAY}" minikube_applications local
+  else
+    run_provisioner_destroy "${PROVISIONER_GATEWAY}" minikube_applications local
+  fi
+}
+
 
 function stop_kubernetes_minikube () {
   "${__bin_dir}/minikube" stop --profile="${APP_NAME}" 1>>"$(logfile)" 2>&1

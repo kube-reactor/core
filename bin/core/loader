@@ -9,11 +9,17 @@
 #=========================================================================================
 # Initialization
 #
-# Error handling
+# Shell options
+set -e
 set -o errtrace
 set -o nounset
 
 shopt -s expand_aliases
+shopt -s globstar
+
+# System configurations
+ulimit -s 65536
+
 
 #
 # Reactor Core Initialization
@@ -47,10 +53,6 @@ function init_core () {
 #
 # >>> Startup
 #
-export CORE_INDEX=()
-export COMMAND_INDEX=()
-export UTILITY_INDEX=()
-
 export INITIALIZED=""
 export LOG_LEVEL="${LOG_LEVEL:-6}" # 7 = debug -> 0 = emergency
 
@@ -108,9 +110,6 @@ fi
 
 if [ -z "${HOME_SHARES:-}" ]; then
   export HOME_SHARES=(
-    ".bashrc"
-    ".bash_profile"
-    ".profile"
     ".ssh"
     ".git"
   )
@@ -190,8 +189,6 @@ if [ "${__bash_version}" -lt "4" ]; then
   fi
   exit 1  
 fi
-
-shopt -s globstar
 
 #
 # Template Development Mode

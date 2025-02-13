@@ -33,24 +33,24 @@ function verify_cert_headers () {
 
 
 function display_empty_certs () {
-  run reactor certs --debug
+  run_reactor certs
   verify_no_certs
   verify_cert_headers
 }
 
 function display_certs () {
-  run reactor certs --debug
+  run_reactor certs
   verify_certs
   verify_cert_headers
 }
 
 function generate_default_certs () {
-  run reactor certs --debug --generate
+  run_reactor certs --generate
   verify_certs
 }
 
 function generate_custom_certs () {
-  run reactor certs --debug --generate --subject="/C=US/ST=NY/L=New York/O=My Project" --days 90
+  run_reactor certs --generate --subject="/C=US/ST=NY/L=New York/O=My Project" --days 90
   verify_certs
 }
 

@@ -142,6 +142,10 @@ function test_params () {
   parse_flag --clean \
     CLEAN_PROJECT \
     "Ensure project is shutdown and completely cleaned before beginning tests"
+
+  parse_flag --cicd \
+    CICD_EXEC \
+    "Execute test command in CI/CD mode (without Docker execution and reactor file output)"
 }
 parse_cli test_params "$@"
 
@@ -163,6 +167,14 @@ add_space
 render " -> this includes commands for: tunneling and local DNS"
 add_space
 check_admin
+
+if [ "$CICD_EXEC" ]; then
+  export REACTOR_NO_DOCKER="true"
+  export REACTOR_SHELL_OUTPUT="true"
+fi
+
+debug "Reactor local execution: ${REACTOR_NO_DOCKER:-}"
+debug "Reactor shell output: ${REACTOR_SHELL_OUTPUT:-}"
 
 if [[ "$CLEAN_PROJECT" ]] && [[ ! "$FORCE" ]]; then
   render "The --clean option will completely destroy and cleanup all project files before testing"
@@ -217,12 +229,13 @@ debug "Project directory: $(pwd)"
 add_space
 render " * Sourcing development environment"
 source reactor
+delete_container_environment
 
 if [ "$arg_d" ]; then
   render_environment
 fi
 if [ "$CLEAN_PROJECT" ]; then
-  reactor clean --force
+  reactor clean --force --debug
 fi
 
 #
@@ -257,20 +270,26 @@ if [ ! "$NO_UP" ]; then
   fi
 
   function test_up () {
-    run reactor up --debug
+    run_reactor up
+
+    provisioner_environment
+
+    function verify_argocd_domain () {
+      verify_host "$ARGOCD_DOMAIN"
+    }
+    wait verify_argocd_domain 30
 
     verify_dir "${__project_dir}/cache"
     verify_dir "${__project_dir}/certs"
     verify_dir "${__project_dir}/docker"
     verify_dir "${__project_dir}/charts"
     verify_dir "${__project_dir}/.minikube"
-    verify_file "${__project_dir}/env/local/.kubeconfig"
-    verify_file "${__project_dir}/logs/tunnel.kpid"
     verify_dir "${__project_dir}/.terraform"
-    verify_file "${__project_dir}/terraform/argocd-apps/gateway/.terraform.lock.hcl"
-    verify_file "${__project_dir}/terraform/argocd-apps/gateway/terraform.tfstate"
-    verify_file "${__project_dir}/logs/hosts.txt"
-    verify_host "$ARGOCD_DOMAIN"
+    verify_file "${__env_dir}/.kubeconfig"
+    verify_file "${__log_dir}/hosts.txt"
+    verify_file "${__log_dir}/tunnel.kpid"
+    verify_file "${PROVISIONER_GATEWAY}/.terraform.lock.hcl"
+    verify_file "${PROVISIONER_GATEWAY}/terraform.tfstate"
   }
 
   start_test lifecycle start build
@@ -302,13 +321,17 @@ if [[ ! "$NO_DOWN" ]] && [[ ! "$ENSURE_RUNNING" ]]; then
   fi
 
   function test_down () {
-    run reactor down --debug
+    run_reactor down
 
-    verify_no_file "${__project_dir}/env/local/.kubeconfig"
-    verify_no_file "${__project_dir}/logs/tunnel.kpid"
-    verify_no_file "${__project_dir}/logs/dashboard.kpid"
-    verify_no_file "${__project_dir}/logs/hosts.txt"
-    verify_no_host "$ARGOCD_DOMAIN"
+    function verify_argocd_domain () {
+      verify_no_host "$ARGOCD_DOMAIN"
+    }
+    wait verify_argocd_domain 30
+
+    verify_no_file "${__log_dir}/tunnel.kpid"
+    verify_no_file "${__log_dir}/dashboard.kpid"
+    verify_no_file "${__log_dir}/hosts.txt"
+    verify_no_file "${__env_dir}/.kubeconfig"
   }
 
   start_test lifecycle clean
@@ -340,16 +363,18 @@ if [[ ! "$NO_DOWN" ]] && [[ ! "$ENSURE_RUNNING" ]]; then
   fi
 
   function test_destroy () {
-    run reactor destroy --force --debug
+    run_reactor destroy --force
+
+    provisioner_environment
 
     verify_no_dir "${__project_dir}/.minikube"
     verify_no_dir "${__project_dir}/.terraform"
-    verify_no_file "${__project_dir}/terraform/argocd-apps/gateway/.terraform.lock.hcl"
-    verify_no_file "${__project_dir}/terraform/argocd-apps/gateway/terraform.tfstate"
+    verify_no_file "${PROVISIONER_GATEWAY}/.terraform.lock.hcl"
+    verify_no_file "${PROVISIONER_GATEWAY}/terraform.tfstate"
   }
 
   function test_clean () {
-    run reactor clean --force --debug
+    run_reactor clean --force
 
     verify_no_dir "${__project_dir}/cache"
     verify_no_dir "${__project_dir}/certs"
