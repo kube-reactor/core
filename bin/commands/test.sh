@@ -13,6 +13,6 @@ function test_requires_project () {
 }
 
 function test_host_command () {
-  env -i "${__core_dir}/test" "$@"
+  env -i PATH="$PATH" HOME="$HOME" "${__core_dir}/test" "$@"
   exit $?
 }
