@@ -44,7 +44,7 @@ function install_kubernetes_minikube () {
   minikube_environment
 
   download_binary minikube \
-    "https://storage.googleapis.com/minikube/releases/latest/minikube-${__os}-${__architecture}" \
+    "https://storage.googleapis.com/minikube/releases/latest/minikube-linux-${__architecture}" \
     "${__bin_dir}"
 }
 
