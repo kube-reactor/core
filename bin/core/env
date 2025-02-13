@@ -12,17 +12,33 @@
 #
 export SOURCED="$1"
 
+#
+# Loading environment
+#
 source "${__bin_dir}/core/loader"
+
+#
+# Loading utilities
+#
 load_hook initialize
 load_utilities
 
+#
+# Initializing Docker environment
+#
 if [[ $REACTOR_LOCAL -eq 0 ]] || [[ $SOURCED -eq 1 ]]; then
   if kubernetes_status; then
     add_docker_environment
   fi
 fi
 
+#
+# Loading commands
+#
 load_commands
-set_initialized
 
+#
+# Finalizing environment initialization
+#
+set_initialized
 run_hook initialize
