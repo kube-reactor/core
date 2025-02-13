@@ -167,7 +167,7 @@ if ! is_setup_complete; then
 fi
 
 if [[ $REACTOR_LOCAL -eq 1 ]]; then 
-  export PATH="${HOME}/.reactor/python/bin:${PATH}"
+  export PATH="${__bin_dir}:${HOME}/.reactor/python/bin:${PATH}"
   source "${HOME}/.reactor/python/bin/activate"
 fi
 
