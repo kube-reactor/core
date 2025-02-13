@@ -2,9 +2,6 @@
 #=========================================================================================
 # CLI Utilities
 #
-load_utilities disk
-
-
 export TERMINAL_COLUMNS="$(stty -a | grep -Po '(?<=columns )\d+')"
 export TERMINAL_ROWS="$(stty -a | grep -Po '(?<=rows )\d+')"
 
