@@ -13,6 +13,6 @@ function reimage_requires_project () {
 }
 
 function reimage_host_command () {
-  env -i "${__core_dir}/image" "$@"
+  env -i PATH="$PATH" HOME="$HOME" "${__core_dir}/image" "$@"
   exit $?
 }
