@@ -58,7 +58,7 @@ export __script_name="reactor test"
 export __core_dir="$(cd "$(dirname "${SCRIPT_PATH}")" && pwd)"
 export __bin_dir="$(dirname "${__core_dir}")"
 source "${__core_dir}/loader.sh"
-load_utilities test cli
+load_utilities test
 
 #=========================================================================================
 # Parameter processing
@@ -208,11 +208,11 @@ export PATH="${__bin_dir}:${PATH}"
 #
 if ! check_project; then
   if check_template; then
-    reactor create "$PROJECT_NAME" --ignore --defaults --debug
+    reactor create "$PROJECT_NAME" --ignore --defaults
     cd "${__template_dir}/${PROJECT_NAME}"
 
   elif check_core; then
-    reactor create "$PROJECT_NAME" --ignore --defaults --debug \
+    reactor create "$PROJECT_NAME" --ignore --defaults \
       --url="$PROJECT_URL" \
       --remote="$PROJECT_REMOTE" \
       --reference="$PROJECT_REFERENCE"
@@ -231,11 +231,12 @@ render " * Sourcing development environment"
 source reactor
 delete_container_environment
 
+
 if [ "$arg_d" ]; then
   render_environment
 fi
 if [ "$CLEAN_PROJECT" ]; then
-  reactor clean --force --debug
+  reactor clean --force
 fi
 
 #
