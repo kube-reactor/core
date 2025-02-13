@@ -65,14 +65,14 @@ RUN pip3 install --no-cache-dir -r /root/requirements.txt
 #
 ENV HOME_DIR=/home/${REACTOR_USER_NAME}
 
-RUN groupmod --gid ${REACTOR_DOCKER_GID} docker \
+RUN ((getent group ${REACTOR_DOCKER_GID} && newgrp docker) || groupmod --gid ${REACTOR_DOCKER_GID} docker) \
   && groupadd -f --system --gid ${REACTOR_USER_UID} ${REACTOR_USER_NAME} \
   && useradd --system --create-home \
   --home-dir ${HOME_DIR} \
   --shell /bin/bash \
   --uid ${REACTOR_USER_UID} \
   --gid ${REACTOR_USER_NAME} \
-  --groups sudo,docker \
+  --groups root,sudo,docker,$(getent group ${REACTOR_DOCKER_GID} | cut -d: -f1) \
   ${REACTOR_USER_NAME} \
   && echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers \
   && echo 'alias reactor="/reactor/bin/core/exec"' >> /etc/bash.bashrc
