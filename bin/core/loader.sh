@@ -173,7 +173,7 @@ fi
 
 if ! is_setup_complete; then
   python3 -m pip install -U pip setuptools wheel --ignore-installed 1>>"$(logfile)" 2>&1
-  python3 -m pip install -r "${__reactor_dir}/requirements.txt" 1>>"$(logfile)" 2>&1
+  python3 -m pip install -r "${__reactor_dir}/requirements/requirements.txt" 1>>"$(logfile)" 2>&1
   mark_setup_complete
 fi
 
