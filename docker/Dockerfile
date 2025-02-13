@@ -63,7 +63,7 @@ RUN ((getent group ${REACTOR_DOCKER_GID} && newgrp docker) || groupmod --gid ${R
   ${REACTOR_USER_NAME} \
   && echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers \
   && echo 'export PATH="/reactor/bin:$PATH"' >> /etc/bash.bashrc \
-  && echo 'alias reactor="/reactor/bin/core/exec"' >> /etc/bash.bashrc
+  && echo 'alias reactor="/reactor/bin/core/exec.sh"' >> /etc/bash.bashrc
 #
 #====================================================================
 # Application configuration
@@ -86,4 +86,4 @@ RUN /reactor/requirements/install.sh \
 #
 USER ${REACTOR_USER_NAME}
 WORKDIR ${HOME_DIR}
-ENTRYPOINT ["/reactor/bin/core/exec"]
+ENTRYPOINT ["/reactor/bin/core/exec.sh"]

@@ -18,7 +18,7 @@ fi
 export __script_name="${__script_name:-$(basename "${SCRIPT_PATH//-/ }")}"
 export __command_name="$1"
 export __bin_dir="$(cd "$(dirname "${SCRIPT_PATH}")" && pwd)"
-source "${__bin_dir}/core/env" $SOURCED
+source "${__bin_dir}/core/env.sh" $SOURCED
 
 if [ $SOURCED -eq 1 ]; then
   # script is being sourced

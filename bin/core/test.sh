@@ -2,7 +2,7 @@
 #
 # Usage:
 #
-#  "${__bin_dir}/core/test" [flags] <command> [args] [flags/options]
+#  "${__bin_dir}/core/test.sh" [flags] <command> [args] [flags/options]
 #
 #=========================================================================================
 # Initialization
@@ -57,7 +57,7 @@ fi
 export __script_name="reactor test"
 export __core_dir="$(cd "$(dirname "${SCRIPT_PATH}")" && pwd)"
 export __bin_dir="$(dirname "${__core_dir}")"
-source "${__core_dir}/loader"
+source "${__core_dir}/loader.sh"
 load_utilities test cli
 
 #=========================================================================================

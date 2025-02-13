@@ -2,7 +2,7 @@
 #
 # Usage:
 #
-#  "${__bin_dir}/core/exec" [flags] <command> [args] [flags/options]
+#  "${__bin_dir}/core/exec.sh" [flags] <command> [args] [flags/options]
 #
 #=========================================================================================
 # Initialization
@@ -21,7 +21,7 @@ export __script_name="${__script_name:-$(basename "${SCRIPT_PATH//-/ }")}"
 export __core_dir="$(cd "$(dirname "${SCRIPT_PATH}")" && pwd)"
 export __bin_dir="$(dirname "${__core_dir}")"
 
-source "${__core_dir}/env" 0
+source "${__core_dir}/env.sh" 0
 reactor_args "$@"
 
 echo "" >"$(logfile)"

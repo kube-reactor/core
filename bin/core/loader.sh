@@ -2,7 +2,7 @@
 #
 # Usage:
 #
-#  source "${__bin_dir}/core/loader"
+#  source "${__bin_dir}/core/loader.sh"
 #
 #  > Requires: ${__bin_dir}
 #

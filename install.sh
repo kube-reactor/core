@@ -8,7 +8,7 @@ export __bin_dir="${__reactor_dir}/bin"
 #
 # Collect and Check Dependencies
 #
-source "${__bin_dir}/core/loader"
+source "${__bin_dir}/core/loader.sh"
 
 #
 # Collect and Check Dependencies

@@ -13,6 +13,6 @@ function test_requires_project () {
 }
 
 function test_host_command () {
-  "${__core_dir}/test" "$@"
+  "${__core_dir}/test.sh" "$@"
   exit $?
 }

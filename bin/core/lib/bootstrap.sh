@@ -4,7 +4,7 @@
 #
 
 function run_local () {
-  "${__bin_dir}/core/exec" "${__app_args[@]}"
+  "${__bin_dir}/core/exec.sh" "${__app_args[@]}"
 }
 
 function run_docker () {
@@ -48,7 +48,7 @@ function run_docker () {
 
   if ! docker inspect "$REACTOR_RUNTIME_IMAGE" >/dev/null 2>&1; then
     debug "Building local virtualization container"
-    "${__bin_dir}/core/image"
+    "${__bin_dir}/core/image.sh"
     REACTOR_RUNTIME_IMAGE="${APP_NAME}:${__reactor_version}"
   fi
   REACTOR_ARGS=(

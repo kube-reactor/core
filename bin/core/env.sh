@@ -2,7 +2,7 @@
 #
 # Usage:
 #
-#  source "${__bin_dir}/core/env" $SOURCED
+#  source "${__bin_dir}/core/env.sh" $SOURCED
 #
 #  > Requires: ${__bin_dir}
 #  > Optional: $SOURCED => [ 1, 0 ]
@@ -15,7 +15,7 @@ export SOURCED="$1"
 #
 # Loading environment
 #
-source "${__bin_dir}/core/loader"
+source "${__bin_dir}/core/loader.sh"
 
 #
 # Loading utilities

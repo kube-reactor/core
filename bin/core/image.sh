@@ -2,7 +2,7 @@
 #
 # Usage:
 #
-#  "${__bin_dir}/core/image"
+#  "${__bin_dir}/core/image.sh"
 #
 #=========================================================================================
 # Initialization
@@ -20,7 +20,7 @@ export __core_dir="$(cd "$(dirname "${SCRIPT_PATH}")" && pwd)"
 export __bin_dir="$(dirname "${__core_dir}")"
 export __reactor_dir="$(dirname "${__bin_dir}")"
 export __reactor_docker_dir="${__reactor_dir}/docker"
-source "${__core_dir}/loader"
+source "${__core_dir}/loader.sh"
 
 #=========================================================================================
 # Parameter processing
