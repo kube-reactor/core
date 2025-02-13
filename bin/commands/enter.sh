@@ -9,6 +9,8 @@
 #       of enter is in this command script?
 #
 
-function enter_description () {
-  render "Launch a reactor container session"
-}
+if [ "${__os}" != "darwin" ]; then 
+  function enter_description () {
+    render "Launch a reactor container session"
+  }
+fi
