@@ -20,9 +20,9 @@ function install_helm () {
   helm_environment
 
   download_binary helm \
-    "https://get.helm.sh/helm-v${HELM_VERSION}-linux-${__architecture}.tar.gz" \
+    "https://get.helm.sh/helm-v${HELM_VERSION}-${__os}-${__architecture}.tar.gz" \
     "${__bin_dir}" \
-    "linux-${__architecture}"
+    "${__os}-${__architecture}"
 }
 
 

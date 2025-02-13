@@ -56,7 +56,7 @@ function run_kube_function () {
 
 function install_kubernetes () {
   download_binary kubectl \
-    "https://dl.k8s.io/release/v${KUBECTL_VERSION}/bin/linux/${__architecture}/kubectl" \
+    "https://dl.k8s.io/release/v${KUBECTL_VERSION}/bin/${__os}/${__architecture}/kubectl" \
     "${__bin_dir}"
 
   install_helm

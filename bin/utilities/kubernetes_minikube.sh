@@ -5,7 +5,7 @@
 export DEFAULT_MINIKUBE_DRIVER="docker"
 export DEFAULT_MINIKUBE_NODES=1
 export DEFAULT_MINIKUBE_CPUS=2
-export DEFAULT_MINIKUBE_MEMORY=8192
+export DEFAULT_MINIKUBE_MEMORY=6144
 export DEFAULT_MINIKUBE_CONTAINER_RUNTIME="docker"
 
 
@@ -44,7 +44,7 @@ function install_kubernetes_minikube () {
   minikube_environment
 
   download_binary minikube \
-    "https://storage.googleapis.com/minikube/releases/latest/minikube-linux-${__architecture}" \
+    "https://storage.googleapis.com/minikube/releases/latest/minikube-${__os}-${__architecture}" \
     "${__bin_dir}"
 }
 
