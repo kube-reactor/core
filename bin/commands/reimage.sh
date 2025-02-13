@@ -12,7 +12,7 @@ function reimage_requires_project () {
   return 1
 }
 
-function reimage_host_command () {
+function reimage_command () {
   "${__core_dir}/image.sh" "$@"
   exit $?
 }

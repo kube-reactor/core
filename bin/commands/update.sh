@@ -41,13 +41,8 @@ function update_command () {
   if [ "$UPDATE_ALL" -o "$UPDATE_APPS" ]; then
     provision_kubernetes_applications
   fi
-  if [ "$HOOKS" -o ! "$NO_HOOKS" ]; then
-    run_hook update
-  fi
-}
 
-function update_host_command () {
-  launch_host_kubernetes_tunnel
+  launch_kubernetes_tunnel
 
   if [ "$UPDATE_ALL" -o "$UPDATE_DNS" ]; then
     save_dns_records
@@ -59,7 +54,7 @@ function update_host_command () {
   fi
 
   if [ "$HOOKS" -o ! "$NO_HOOKS" ]; then
-    run_hook update_host
+    run_hook update
   fi
   info "Kubernetes environment has been updated"
 }

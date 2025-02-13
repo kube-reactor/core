@@ -48,13 +48,8 @@ function up_command () {
     run_subcommand build "${BUILD_ARGS[@]}"
   fi
   touch "${__init_file}"
+  
+  launch_kubernetes_tunnel
   run_subcommand update
   run_hook up
-}
-
-function up_host_command () {
-  launch_host_kubernetes_tunnel
-
-  run_host_subcommand update
-  run_hook up_host
 }
