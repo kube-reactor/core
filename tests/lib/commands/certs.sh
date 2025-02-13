@@ -54,10 +54,26 @@ function generate_custom_certs () {
   verify_certs
 }
 
-function test_seq () {
+function test_startup () {
   tag certs build
+
+  rm -Rf "${__certs_dir}"
   run_test display_empty_certs
   run_test generate_default_certs
   run_test generate_custom_certs
+}
+
+function test_running () {
+  tag certs display
   run_test display_certs
+}
+
+function test_shutdown () {
+  tag certs display
+  run_test display_certs
+}
+
+function test_exit () {
+  tag certs display
+  run_test display_empty_certs
 }
