@@ -20,20 +20,7 @@ session_env: &session_env
   MINIKUBE_CPUS: 2
   MINIKUBE_MEMORY: 6144
 
-test_docker_default: &test_docker_default
-  steps:
-    - checkout
-    - run:
-        <<: *bootstrap
-        shell: /usr/bin/bash
-        environment: *session_env
-    - run:
-        name: Test Containerized Reactor Deployment Lifecycle
-        command: ./bin/reactor test --name=test --debug
-        shell: /usr/bin/bash
-        environment: *session_env
-
-test_local_default: &test_local_default
+test_default: &test_default
   steps:
     - checkout
     - run:
@@ -42,7 +29,7 @@ test_local_default: &test_local_default
         environment: *session_env
     - run:
         name: Test Local Reactor Deployment Lifecycle
-        command: ./bin/reactor test --name=test --cicd --debug
+        command: ./bin/reactor test --name=test --debug
         shell: /usr/bin/bash
         environment: *session_env
 
@@ -78,17 +65,11 @@ test_package: &test_package
           ./tests/test_package.sh
 
 jobs:
-  test-amd64-ubuntu-docker-default:
-    <<: [*ubuntu_amd64, *test_docker_default]
+  test-amd64-ubuntu-default:
+    <<: [*ubuntu_amd64, *test_default]
 
-  test-arm64-ubuntu-docker-default:
-    <<: [*ubuntu_arm64, *test_docker_default]
-
-  test-amd64-ubuntu-local-default:
-    <<: [*ubuntu_amd64, *test_local_default]
-
-  test-arm64-ubuntu-local-default:
-    <<: [*ubuntu_arm64, *test_local_default]
+  test-arm64-ubuntu-default:
+    <<: [*ubuntu_arm64, *test_default]
 
   test-amd64-ubuntu-package:
     <<: [*ubuntu_amd64, *test_package]
@@ -251,22 +232,12 @@ workflows:
   version: 2
   deploy:
     jobs:
-      - test-amd64-ubuntu-docker-default:
+      - test-amd64-ubuntu-default:
           filters:
             tags:
               only: /.*/
 
-      - test-arm64-ubuntu-docker-default:
-          filters:
-            tags:
-              only: /.*/
-
-      - test-amd64-ubuntu-local-default:
-          filters:
-            tags:
-              only: /.*/
-
-      - test-arm64-ubuntu-local-default:
+      - test-arm64-ubuntu-default:
           filters:
             tags:
               only: /.*/
@@ -288,10 +259,8 @@ workflows:
             branches:
               ignore: /.*/
           requires:
-            - test-amd64-ubuntu-docker-default
-            - test-arm64-ubuntu-docker-default
-            - test-amd64-ubuntu-local-default
-            - test-arm64-ubuntu-local-default
+            - test-amd64-ubuntu-default
+            - test-arm64-ubuntu-default
             - test-amd64-ubuntu-package
             - test-arm64-ubuntu-package
 
@@ -302,10 +271,8 @@ workflows:
             branches:
               ignore: /.*/
           requires:
-            - test-amd64-ubuntu-docker-default
-            - test-arm64-ubuntu-docker-default
-            - test-amd64-ubuntu-local-default
-            - test-arm64-ubuntu-local-default
+            - test-amd64-ubuntu-default
+            - test-arm64-ubuntu-default
             - test-amd64-ubuntu-package
             - test-arm64-ubuntu-package
 
@@ -316,10 +283,8 @@ workflows:
             branches:
               only: main
           requires:
-            - test-amd64-ubuntu-docker-default
-            - test-arm64-ubuntu-docker-default
-            - test-amd64-ubuntu-local-default
-            - test-arm64-ubuntu-local-default
+            - test-amd64-ubuntu-default
+            - test-arm64-ubuntu-default
             - test-amd64-ubuntu-package
             - test-arm64-ubuntu-package
 
@@ -330,10 +295,8 @@ workflows:
             branches:
               only: main
           requires:
-            - test-amd64-ubuntu-docker-default
-            - test-arm64-ubuntu-docker-default
-            - test-amd64-ubuntu-local-default
-            - test-arm64-ubuntu-local-default
+            - test-amd64-ubuntu-default
+            - test-arm64-ubuntu-default
             - test-amd64-ubuntu-package
             - test-arm64-ubuntu-package
 
@@ -354,10 +317,8 @@ workflows:
             branches:
               only: main
           requires:
-            - test-amd64-ubuntu-docker-default
-            - test-arm64-ubuntu-docker-default
-            - test-amd64-ubuntu-local-default
-            - test-arm64-ubuntu-local-default
+            - test-amd64-ubuntu-default
+            - test-arm64-ubuntu-default
             - test-amd64-ubuntu-package
             - test-arm64-ubuntu-package
 
@@ -377,10 +338,8 @@ workflows:
             branches:
               ignore: /.*/
           requires:
-            - test-amd64-ubuntu-docker-default
-            - test-arm64-ubuntu-docker-default
-            - test-amd64-ubuntu-local-default
-            - test-arm64-ubuntu-local-default
+            - test-amd64-ubuntu-default
+            - test-arm64-ubuntu-default
             - test-amd64-ubuntu-package
             - test-arm64-ubuntu-package
 
@@ -391,10 +350,8 @@ workflows:
             branches:
               ignore: /.*/
           requires:
-            - test-amd64-ubuntu-docker-default
-            - test-arm64-ubuntu-docker-default
-            - test-amd64-ubuntu-local-default
-            - test-arm64-ubuntu-local-default
+            - test-amd64-ubuntu-default
+            - test-arm64-ubuntu-default
             - test-amd64-ubuntu-package
             - test-arm64-ubuntu-package
 
@@ -415,10 +372,8 @@ workflows:
             branches:
               ignore: /.*/
           requires:
-            - test-amd64-ubuntu-docker-default
-            - test-arm64-ubuntu-docker-default
-            - test-amd64-ubuntu-local-default
-            - test-arm64-ubuntu-local-default
+            - test-amd64-ubuntu-default
+            - test-arm64-ubuntu-default
             - test-amd64-ubuntu-package
             - test-arm64-ubuntu-package
 
