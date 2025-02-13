@@ -5,6 +5,7 @@
 
 function run_local () {
   "${__bin_dir}/core/exec.sh" "${__app_args[@]}"
+  run_hook finalize
 }
 
 function run_docker () {
