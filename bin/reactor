@@ -38,7 +38,7 @@ export __init_args=("${__app_args[@]}")
 
 # Debug mode
 if [ "$arg_d" ]; then
-  #set -o xtrace
+  set -o xtrace
   PS4='+(${BASH_SOURCE}:${LINENO}): ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
   LOG_LEVEL="7"
   # Enable error backtracing
