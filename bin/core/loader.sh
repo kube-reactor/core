@@ -37,10 +37,7 @@ function init_core () {
   export __projects_dir="${__reactor_dir}/projects"
 
   export __reactor_version="$(cat -s "${__reactor_dir}/VERSION")"
-  export __reactor_command_functions=(
-    command
-    host_command
-  )
+  
   source "${__core_lib_dir}/bootstrap.sh"
   source "${__core_lib_dir}/aliases.sh"
 }
