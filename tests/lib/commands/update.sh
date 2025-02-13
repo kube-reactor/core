@@ -9,4 +9,4 @@
 # Test execution
 #
 
-#reactor update --debug
+#reactor update

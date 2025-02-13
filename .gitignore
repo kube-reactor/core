@@ -8,7 +8,7 @@
 .initialized
 /templates/
 /projects/
-/share/
+/installer/
 /package/
 /bin/*
 !/bin/*/

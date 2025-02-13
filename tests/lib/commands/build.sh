@@ -15,12 +15,12 @@ function verify_build () {
 }
 
 function build_no_cache () {
-  run reactor build --debug --no-cache
+  run_reactor build --no-cache
   verify_build
 }
 
 function build_cache () {
-  run reactor build --debug
+  run_reactor build
   verify_build
 }
 

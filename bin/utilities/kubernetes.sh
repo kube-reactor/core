@@ -23,6 +23,20 @@ function kubernetes_environment () {
   debug "KUBECTL_VERSION: ${KUBECTL_VERSION}"
 }
 
+function kubernetes_application_environment () {
+  export TF_VAR_project_path="${__project_dir}"
+  export TF_VAR_project_wait="$PROJECT_UPDATE_WAIT"
+  export TF_VAR_argocd_admin_password="$("${__bin_dir}/argocd" account bcrypt --password "${ARGOCD_ADMIN_PASSWORD:-admin}")"
+
+  if [ ! -z "${ARGOCD_PROJECT_SEQUENCE}" ]; then
+    export TF_VAR_argocd_project_sequence="${ARGOCD_PROJECT_SEQUENCE}"
+  fi
+  debug "TF_VAR_project_path: ${TF_VAR_project_path}"
+  debug "TF_VAR_project_wait: ${TF_VAR_project_wait}"
+  debug "TF_VAR_argocd_admin_password: ${TF_VAR_argocd_admin_password}"
+  debug "TF_VAR_argocd_project_sequence: ${TF_VAR_argocd_project_sequence:-}"
+}
+
 
 function run_kube_function () {
   kubernetes_environment
@@ -35,22 +49,20 @@ function run_kube_function () {
 
   if function_exists "$provider_name"; then
     "$provider_name" "$@"
-    return $?
   fi
-  return 1
+  return $?
 }
 
 
 function install_kubernetes () {
-  kubernetes_environment
-  run_kube_function install_kubernetes
-
   download_binary kubectl \
     "https://dl.k8s.io/release/v${KUBECTL_VERSION}/bin/linux/${__architecture}/kubectl" \
     "${__bin_dir}"
 
   install_helm
   install_argocd
+
+  run_kube_function install_kubernetes
 }
 
 
@@ -61,14 +73,38 @@ function kubernetes_status () {
 
 
 function start_kubernetes () {
-  if ! kubernetes_status; then
-    info "Starting Kubernetes ..."
-    run_kube_function start_kubernetes
-  fi
-  add_docker_environment
+  provisioner_environment
+
+  info "Starting Kubernetes ..."
+  run_kube_function start_kubernetes
+  add_container_environment
 }
 
+
+function provision_kubernetes_applications () {
+  provisioner_environment
+  kubernetes_environment
+  kubernetes_application_environment
+
+  if kubernetes_status; then
+    run_kube_function provision_kubernetes_applications
+  fi
+}
+
+function destroy_kubernetes_applications () {
+  provisioner_environment
+  kubernetes_environment
+  kubernetes_application_environment
+
+  if kubernetes_status; then
+    run_kube_function destroy_kubernetes_applications
+  fi
+}
+
+
 function stop_kubernetes () {
+  provisioner_environment
+
   info "Stopping Kubernetes environment ..."
   if kubernetes_status; then
     run_kube_function stop_kubernetes
@@ -85,12 +121,20 @@ function stop_host_kubernetes () {
 }
 
 function destroy_kubernetes () {
-  info "Destroying Kubernetes environment ..."
-  run_kube_function destroy_kubernetes
+  provisioner_environment
+  kubernetes_environment
 
-  delete_kubernetes_kubeconfig
-  delete_kubernetes_storage
-  delete_docker_environment
+  info "Destroying Kubernetes environment ..."
+  export TF_VAR_project_path="${__project_dir}"
+  export TF_VAR_project_wait="$PROJECT_UPDATE_WAIT"
+  export TF_VAR_argocd_admin_password="$("${__bin_dir}/argocd" account bcrypt --password "${ARGOCD_ADMIN_PASSWORD:-admin}")"
+
+  if [ ! -z "${ARGOCD_PROJECT_SEQUENCE}" ]; then
+    export TF_VAR_argocd_project_sequence="${ARGOCD_PROJECT_SEQUENCE}"
+  fi
+
+  run_kube_function destroy_kubernetes
+  delete_container_environment
 }
 
 function destroy_host_kubernetes () {
@@ -99,9 +143,14 @@ function destroy_host_kubernetes () {
 
   terminate_host_kubernetes_tunnel
   terminate_host_kubernetes_dashboard
+
+  delete_kubernetes_kubeconfig
+  delete_kubernetes_storage
 }
 
 function delete_kubernetes_kubeconfig () {
+  kubernetes_environment
+
   if [ -f "$KUBECONFIG" ]; then
     info "Deleting Kubernetes kubeconfig file ..."
     rm -f "$KUBECONFIG"
@@ -153,8 +202,7 @@ function get_secret_value () {
   local namespace="$1"
   local name="$2"
   local property="$3"
-  echo "$(kubectl view-secret -n "$namespace"  "$name" "$property")"
-  #echo -n "$(kubectl get secret "$name" -n "$namespace" -o jsonpath="{.data.${property//./\\.}}" | base64 --decode)"
+  echo "$(kubectl get secret "$name" -n "$namespace" -o go-template="{{ index .data "\"$property\"" | base64decode }}")"
 }
 
 function get_pods () {

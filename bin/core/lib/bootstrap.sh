@@ -4,9 +4,6 @@
 #
 
 function run_local () {
-  if kubernetes_status; then
-    add_docker_environment
-  fi
   "${__bin_dir}/core/exec" "${__app_args[@]}"
 }
 
@@ -28,8 +25,8 @@ function run_docker () {
 
   REACTOR_ARGS=(
     "--rm"
-    "--interactive"
     "--tty"
+    "--interactive"
     "--network" "host"
     "--volume" "${REACTOR_DOCKER_SOCKET_FILE}:/var/run/docker.sock"
     "--volume" "${__reactor_dir}:/reactor"
@@ -112,6 +109,64 @@ function is_initialized () {
 #=========================================================================================
 # Manifest functions
 #
+
+function check_dependencies () {
+  info "Checking development software requirements ..."
+  check_binary python3 1>>"$(logfile)" 2>&1
+  check_binary docker 1>>"$(logfile)" 2>&1
+  check_binary git 1>>"$(logfile)" 2>&1
+  check_binary curl 1>>"$(logfile)" 2>&1
+  check_binary openssl 1>>"$(logfile)" 2>&1
+}
+
+function setup_installer () {
+  clean_installer
+
+  mkdir -p "${__reactor_dir}/installer"
+
+  if [ -f "${__project_dir}/reactor/requirements.txt" ]; then
+    cp -f "${__project_dir}/reactor/requirements.txt" "${__reactor_dir}/installer/requirements.txt"
+  fi
+  if [ -f "${__project_dir}/reactor/install.sh" ]; then
+    cp -f "${__project_dir}/reactor/install.sh" "${__reactor_dir}/installer/install.sh"
+    chmod 755 "${__reactor_dir}/installer/install.sh"
+  fi
+  for docker in $(config docker); do
+    docker_dir="${__docker_dir}/$(config docker.docker.project $docker)"
+    if [ -f "${docker_dir}/reactor/requirements.txt" ]; then
+      cp -f "${docker_dir}/reactor/requirements.txt" "${__reactor_dir}/installer/requirements.docker.${docker}.txt"
+    fi
+    if [ -f "${docker_dir}/reactor/install.sh" ]; then
+      cp -f "${docker_dir}/reactor/install.sh" "${__reactor_dir}/installer/docker.${docker}.sh"
+      chmod 755 "${__reactor_dir}/installer/docker.${docker}.sh"
+    fi
+  done
+  for chart in $(config charts); do
+    chart_dir="${__charts_dir}/$(config charts.$chart.project $chart)"
+    if [ -f "${chart_dir}/reactor/requirements.txt" ]; then
+      cp -f "${chart_dir}/reactor/requirements.txt" "${__reactor_dir}/installer/requirements.chart.${chart}.txt"
+    fi
+    if [ -f "${chart_dir}/reactor/install.sh" ]; then
+      cp -f "${chart_dir}/reactor/install.sh" "${__reactor_dir}/installer/chart.${chart}.sh"
+      chmod 755 "${__reactor_dir}/installer/chart.${chart}.sh"
+    fi
+  done
+  for extension in $(config extensions); do
+    extension_dir="${__extension_dir}/${extension}"
+    if [ -f "${extension_dir}/reactor/requirements.txt" ]; then
+      cp -f "${extension_dir}/reactor/requirements.txt" "${__reactor_dir}/installer/requirements.ext.${extension}.txt"
+    fi
+    if [ -f "${extension_dir}/reactor/install.sh" ]; then
+      cp -f "${extension_dir}/reactor/install.sh" "${__reactor_dir}/installer/ext.${extension}.sh"
+      chmod 755 "${__reactor_dir}/installer/ext.${extension}.sh"
+    fi
+  done
+}
+
+function clean_installer () {
+  rm -Rf "${__reactor_dir}/installer"
+}
+
 
 function core_manifest () {
   krew_manifest_template="${1}/reactor.template.yaml"
@@ -319,6 +374,7 @@ function download_binary () {
 
 function logdir () {
   if check_project && [[ "${__log_dir:-}" ]]; then
+    mkdir -p "${__log_dir}"
     echo "${__log_dir}"
   else
     echo "/tmp"
@@ -326,5 +382,9 @@ function logdir () {
 }
 
 function logfile () {
+  if [ "${REACTOR_SHELL_OUTPUT:-}" ]; then
+    echo "/dev/stdout"
+  else
     echo "$(logdir)/reactor.log"
+  fi
 }

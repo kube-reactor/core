@@ -12,4 +12,4 @@
 #
 # Launch Kubernetes Dashboard Web Interface
 #
-#reactor dashboard --debug
+#reactor dashboard

@@ -17,9 +17,9 @@
 #
 # Run container command without image available
 #
-#reactor exec ubuntu:22.04 ls -al --debug --wait=10
+#reactor exec ubuntu:22.04 ls -al --wait=10
 
 #
 # Run container command with image and default timeout
 #
-#reactor exec ubuntu:22.04 ls -al --debug
+#reactor exec ubuntu:22.04 ls -al

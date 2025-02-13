@@ -9,6 +9,7 @@ function modified_description () {
 
 function modified_command () {
   check_git_status "project" "${__project_name}" "${__project_dir}"
+  check_git_status "provisioner" "argocd-apps" "${__argocd_apps_dir}"
 
   for project in $(config docker); do
     check_git_status "docker" "${project}" "${__docker_dir}/${project}"
