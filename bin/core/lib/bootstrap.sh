@@ -16,10 +16,8 @@ function run_docker () {
     if [ ! -e "$REACTOR_DOCKER_SOCKET_FILE" ]; then
       REACTOR_DOCKER_SOCKET_FILE="/var/run/docker.sock"
     fi
-    REACTOR_DOCKER_GROUP="0"
   else
     REACTOR_DOCKER_SOCKET_FILE="${REACTOR_DOCKER_SOCKET_FILE:-/var/run/docker.sock}"
-    REACTOR_DOCKER_GROUP="$(stat -L -c '%g' /var/run/docker.sock)"
   fi
   export REACTOR_DOCKER_SOCKET_FILE
   export REACTOR_RUNTIME_IMAGE="${REACTOR_RUNTIME_IMAGE:-"${APP_NAME}:${__reactor_version}"}"
