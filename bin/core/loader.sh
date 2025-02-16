@@ -147,11 +147,12 @@ fi
 #
 # Load Runtime dependencies
 #
-source "${__core_lib_dir}/runtime.sh"
 source "${__utilities_dir}/env.sh"
 source "${__utilities_dir}/hooks.sh"
 source "${__utilities_dir}/disk.sh"
 source "${__utilities_dir}/cli.sh"
+source "${__core_lib_dir}/runtime.sh"
+source "${__core_lib_dir}/install.sh"
 
 #
 # Checking application requirements
@@ -160,11 +161,11 @@ if ! is_setup_complete; then
   echo "" >"$(logfile)"
   check_dependencies
 
-  if [ -f "${__reactor_dir}/requirements/install.${__os_type}.sh" ]; then
-    "${__reactor_dir}/requirements/install.${__os_type}.sh"
+  if function_exists "install_${__os_type}"; then
+    "install_${__os_type}"
   fi
-  if [[ "${__os_type}" != "${__os_dist}" ]] && [[ -f "${__reactor_dir}/requirements/install.${__os_dist}.sh" ]]; then
-    "${__reactor_dir}/requirements/install.${__os_dist}.sh"
+  if [[ "${__os_type}" != "${__os_dist}" ]] && function_exists "install_${__os_dist}"; then
+    "install_${__os_dist}"
   fi
   python3 -m venv "${HOME}/.reactor/python" 1>>"$(logfile)" 2>&1
 fi

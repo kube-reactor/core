@@ -122,40 +122,71 @@ function check_dependencies () {
 
 function install_os_requirements () {
   if check_project; then
-    if [ -f "${__project_dir}/reactor/install.${__os_type}.sh" ]; then
-      "${__project_dir}/reactor/install.${__os_type}.sh"
-    fi
-    if [[ "${__os_type}" != "${__os_dist}" ]] && [[ -f "${__project_dir}/reactor/install.${__os_dist}.sh" ]]; then
-      "${__project_dir}/reactor/install.${__os_dist}.sh"
+    if [ -f "${__project_dir}/reactor/install.sh" ]; then
+      unset "install_${__os_type}"
+      unset "install_${__os_dist}"
+
+      source "${__project_dir}/reactor/install.sh"
+
+      if function_exists "install_${__os_type}"; then
+        "install_project_${__os_type}"
+      fi
+      if [[ "${__os_type}" != "${__os_dist}" ]] && function_exists "install_${__os_dist}"; then
+        "install_project_${__os_dist}"
+      fi
     fi
 
     for docker in $(config docker); do
       docker_dir="${__docker_dir}/$(config docker.docker.project $docker)"
-      if [ -f "${docker_dir}/reactor/install.${__os_type}.sh" ]; then
-        "${docker_dir}/reactor/install.${__os_type}.sh"
-      fi
-      if [[ "${__os_type}" != "${__os_dist}" ]] && [[ -f "${docker_dir}/reactor/install.${__os_dist}.sh" ]]; then
-        "${docker_dir}/reactor/install.${__os_dist}.sh"
+
+      if [ -f "${docker_dir}/reactor/install.sh" ]; then
+        unset "install_${__os_type}"
+        unset "install_${__os_dist}"
+
+        source "${docker_dir}/reactor/install.sh"
+
+        if function_exists "install_${__os_type}"; then
+          "install_${__os_type}"
+        fi
+        if [[ "${__os_type}" != "${__os_dist}" ]] && function_exists "install_${__os_dist}"; then
+          "install_${__os_dist}"
+        fi
       fi
     done
 
     for chart in $(config charts); do
       chart_dir="${__charts_dir}/$(config charts.$chart.project $chart)"
-      if [ -f "${chart_dir}/reactor/install.${__os_type}.sh" ]; then
-        "${chart_dir}/reactor/install.${__os_type}.sh"
-      fi
-      if [[ "${__os_type}" != "${__os_dist}" ]] && [[ -f "${chart_dir}/reactor/install.${__os_dist}.sh" ]]; then
-        "${chart_dir}/reactor/install.${__os_dist}.sh"
+
+      if [ -f "${chart_dir}/reactor/install.sh" ]; then
+        unset "install_${__os_type}"
+        unset "install_${__os_dist}"
+
+        source "${chart_dir}/reactor/install.sh"
+
+        if function_exists "install_${__os_type}"; then
+          "install_${__os_type}"
+        fi
+        if [[ "${__os_type}" != "${__os_dist}" ]] && function_exists "install_${__os_dist}"; then
+          "install_${__os_dist}"
+        fi
       fi
     done
 
     for extension in $(config extensions); do
       extension_dir="${__extension_dir}/${extension}"
-      if [ -f "${extension_dir}/reactor/install.${__os_type}.sh" ]; then
-        "${extension_dir}/reactor/install.${__os_type}.sh"
-      fi
-      if [[ "${__os_type}" != "${__os_dist}" ]] && [[ -f "${extension_dir}/reactor/install.${__os_dist}.sh" ]]; then
-        "${extension_dir}/reactor/install.${__os_dist}.sh" 
+
+      if [ -f "${extension_dir}/reactor/install.sh" ]; then
+        unset "install_${__os_type}"
+        unset "install_${__os_dist}"
+
+        source "${extension_dir}/reactor/install.sh"
+
+        if function_exists "install_${__os_type}"; then
+          "install_${__os_type}"
+        fi
+        if [[ "${__os_type}" != "${__os_dist}" ]] && function_exists "install_${__os_dist}"; then
+          "install_${__os_dist}"
+        fi
       fi
     done
   fi
