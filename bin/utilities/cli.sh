@@ -148,15 +148,9 @@ function __log () {
   # all remaining arguments are to be printed
   local log_line=""
 
-  if [ ${REACTOR_LOCAL:-0} -ne 0 ]; then
-    local local_indicator="*"
-  else
-    local local_indicator=""
-  fi
-
   while IFS=$'\n' read -r log_line; do
     local date_time="$(date -u +"%Y-%m-%d %H:%M:%S-UTC")"
-    local log_info="$($color_function "$(printf "[%s]%s" "${log_level}" "${local_indicator}")")"
+    local log_info="$($color_function "$(printf "[%s]" "${log_level}")")"
 
     echo -e "${date_time} ${log_info} ${log_line}" 1>&2
     if [ ! "${REACTOR_SHELL_OUTPUT:-}" ]; then
