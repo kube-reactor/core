@@ -217,7 +217,9 @@ debug "Project directory: $(pwd)"
 add_space
 render " * Sourcing development environment"
 source reactor
+echo "-1"
 delete_container_environment
+echo "-2"
 
 
 if [ "$arg_d" ]; then
@@ -226,6 +228,7 @@ fi
 if [ "$CLEAN_PROJECT" ]; then
   reactor clean --force
 fi
+echo "-3"
 
 #
 # Project test initialization
