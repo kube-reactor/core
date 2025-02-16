@@ -148,6 +148,10 @@ fi
 # Load Runtime dependencies
 #
 source "${__core_lib_dir}/runtime.sh"
+source "${__utilities_dir}/env.sh"
+source "${__utilities_dir}/hooks.sh"
+source "${__utilities_dir}/disk.sh"
+source "${__utilities_dir}/cli.sh"
 
 #
 # Checking application requirements
