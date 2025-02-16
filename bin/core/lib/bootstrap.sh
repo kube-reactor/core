@@ -83,11 +83,11 @@ function run_docker () {
 #
 
 function mark_setup_complete () {
-  touch "${__reactor_dir}/.initialized"
+  touch "${__project_dir}/.initialized"
 }
 
 function is_setup_complete () {
-  if [ -f "${__reactor_dir}/.initialized" ]; then
+  if [ -f "${__project_dir}/.initialized" ]; then
     return 0
   else
     return 1
@@ -112,60 +112,80 @@ function is_initialized () {
 #
 
 function check_dependencies () {
-  info "Checking development software requirements ..."
-  check_binary python3 1>>"$(logfile)" 2>&1
+  info "Checking core software requirements ..."
   check_binary docker 1>>"$(logfile)" 2>&1
   check_binary git 1>>"$(logfile)" 2>&1
-  check_binary curl 1>>"$(logfile)" 2>&1
-  check_binary openssl 1>>"$(logfile)" 2>&1
 }
 
-function setup_installer () {
-  clean_installer
 
-  mkdir -p "${__reactor_dir}/installer"
+function install_os_requirements () {
+  if check_project; then
+    if [ -f "${__project_dir}/reactor/install.${__os_type}.sh" ]; then
+      "${__project_dir}/reactor/install.${__os_type}.sh"
+    fi
+    if [[ "${__os_type}" != "${__os_dist}" ]] && [[ -f "${__project_dir}/reactor/install.${__os_dist}.sh" ]]; then
+      "${__project_dir}/reactor/install.${__os_dist}.sh"
+    fi
 
-  if [ -f "${__project_dir}/reactor/requirements.txt" ]; then
-    cp -f "${__project_dir}/reactor/requirements.txt" "${__reactor_dir}/installer/requirements.txt"
+    for docker in $(config docker); do
+      docker_dir="${__docker_dir}/$(config docker.docker.project $docker)"
+      if [ -f "${docker_dir}/reactor/install.${__os_type}.sh" ]; then
+        "${docker_dir}/reactor/install.${__os_type}.sh"
+      fi
+      if [[ "${__os_type}" != "${__os_dist}" ]] && [[ -f "${docker_dir}/reactor/install.${__os_dist}.sh" ]]; then
+        "${docker_dir}/reactor/install.${__os_dist}.sh"
+      fi
+    done
+
+    for chart in $(config charts); do
+      chart_dir="${__charts_dir}/$(config charts.$chart.project $chart)"
+      if [ -f "${chart_dir}/reactor/install.${__os_type}.sh" ]; then
+        "${chart_dir}/reactor/install.${__os_type}.sh"
+      fi
+      if [[ "${__os_type}" != "${__os_dist}" ]] && [[ -f "${chart_dir}/reactor/install.${__os_dist}.sh" ]]; then
+        "${chart_dir}/reactor/install.${__os_dist}.sh"
+      fi
+    done
+
+    for extension in $(config extensions); do
+      extension_dir="${__extension_dir}/${extension}"
+      if [ -f "${extension_dir}/reactor/install.${__os_type}.sh" ]; then
+        "${extension_dir}/reactor/install.${__os_type}.sh"
+      fi
+      if [[ "${__os_type}" != "${__os_dist}" ]] && [[ -f "${extension_dir}/reactor/install.${__os_dist}.sh" ]]; then
+        "${extension_dir}/reactor/install.${__os_dist}.sh" 
+      fi
+    done
   fi
-  if [ -f "${__project_dir}/reactor/install.sh" ]; then
-    cp -f "${__project_dir}/reactor/install.sh" "${__reactor_dir}/installer/install.sh"
-    chmod 755 "${__reactor_dir}/installer/install.sh"
-  fi
-  for docker in $(config docker); do
-    docker_dir="${__docker_dir}/$(config docker.docker.project $docker)"
-    if [ -f "${docker_dir}/reactor/requirements.txt" ]; then
-      cp -f "${docker_dir}/reactor/requirements.txt" "${__reactor_dir}/installer/requirements.docker.${docker}.txt"
-    fi
-    if [ -f "${docker_dir}/reactor/install.sh" ]; then
-      cp -f "${docker_dir}/reactor/install.sh" "${__reactor_dir}/installer/docker.${docker}.sh"
-      chmod 755 "${__reactor_dir}/installer/docker.${docker}.sh"
-    fi
-  done
-  for chart in $(config charts); do
-    chart_dir="${__charts_dir}/$(config charts.$chart.project $chart)"
-    if [ -f "${chart_dir}/reactor/requirements.txt" ]; then
-      cp -f "${chart_dir}/reactor/requirements.txt" "${__reactor_dir}/installer/requirements.chart.${chart}.txt"
-    fi
-    if [ -f "${chart_dir}/reactor/install.sh" ]; then
-      cp -f "${chart_dir}/reactor/install.sh" "${__reactor_dir}/installer/chart.${chart}.sh"
-      chmod 755 "${__reactor_dir}/installer/chart.${chart}.sh"
-    fi
-  done
-  for extension in $(config extensions); do
-    extension_dir="${__extension_dir}/${extension}"
-    if [ -f "${extension_dir}/reactor/requirements.txt" ]; then
-      cp -f "${extension_dir}/reactor/requirements.txt" "${__reactor_dir}/installer/requirements.ext.${extension}.txt"
-    fi
-    if [ -f "${extension_dir}/reactor/install.sh" ]; then
-      cp -f "${extension_dir}/reactor/install.sh" "${__reactor_dir}/installer/ext.${extension}.sh"
-      chmod 755 "${__reactor_dir}/installer/ext.${extension}.sh"
-    fi
-  done
 }
 
-function clean_installer () {
-  rm -Rf "${__reactor_dir}/installer"
+function install_python_requirements () {
+  if check_project; then
+    if [ -f "${__project_dir}/reactor/requirements.txt" ]; then
+      pip3 install --no-cache-dir -r "${__project_dir}/reactor/requirements.txt"
+    fi
+
+    for docker in $(config docker); do
+      docker_dir="${__docker_dir}/$(config docker.docker.project $docker)"
+      if [ -f "${docker_dir}/reactor/requirements.txt" ]; then
+        pip3 install --no-cache-dir -r "${docker_dir}/reactor/requirements.txt"
+      fi
+    done
+
+    for chart in $(config charts); do
+      chart_dir="${__charts_dir}/$(config charts.$chart.project $chart)"
+      if [ -f "${chart_dir}/reactor/requirements.txt" ]; then
+        pip3 install --no-cache-dir -r "${chart_dir}/reactor/requirements.txt"
+      fi
+    done
+
+    for extension in $(config extensions); do
+      extension_dir="${__extension_dir}/${extension}"
+      if [ -f "${extension_dir}/reactor/requirements.txt" ]; then
+        pip3 install --no-cache-dir -r "${extension_dir}/reactor/requirements.txt"
+      fi
+    done
+  fi
 }
 
 

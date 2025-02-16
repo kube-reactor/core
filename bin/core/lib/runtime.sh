@@ -10,6 +10,12 @@ function init_loader () {
   export UTILITY_INDEX=()
 
   update_projects
+
+  if ! is_setup_complete; then
+    install_os_requirements
+    install_python_requirements
+    mark_setup_complete
+  fi
 }
 
 

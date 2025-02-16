@@ -49,20 +49,36 @@ function init_core () {
 export INITIALIZED=""
 export LOG_LEVEL="${LOG_LEVEL:-6}" # 7 = debug -> 0 = emergency
 
-if [ -f /REACTOR.txt ]; then
-  REACTOR_LOCAL=0
-else
-  REACTOR_LOCAL=1
-fi
-export REACTOR_LOCAL
-
 # Set OS and system architecture variables.
 case "$OSTYPE" in
-  darwin*) __os="darwin" ;;
-  linux*) __os="linux" ;;
+  darwin*) 
+    __os="darwin"
+    __os_type="mac"
+    __os_dist="mac"
+    ;;
+  linux*) 
+    __os="linux"
+
+    source /etc/os-release
+    __os_dist="$ID"
+
+    case $ID in
+      debian) __os_type="debian" ;;
+      ubuntu) __os_type="debian" ;;
+      linuxmint) __os_type="debian" ;;
+      arch) __os_type="arch" ;;
+      centos) __os_type="redhat" ;;
+      fedora) __os_type="redhat" ;;
+      rhel) __os_type="redhat" ;;
+      amzn) __os_type="redhat" ;;
+      *) render "Unsupported OS: $OSTYPE $ID"; exit 1 ;;
+    esac
+    ;;
   *) render "Unsupported OS: $OSTYPE"; exit 1 ;;
 esac
 export __os
+export __os_type
+export __os_dist
 
 case $(uname -m) in
     x86_64 | amd64) __architecture="amd64" ;;
@@ -138,54 +154,23 @@ source "${__core_lib_dir}/runtime.sh"
 #
 if ! is_setup_complete; then
   echo "" >"$(logfile)"
+  check_dependencies
 
-  check_binary curl 1>>"$(logfile)" 2>&1
-  check_binary git 1>>"$(logfile)" 2>&1
-  check_binary docker 1>>"$(logfile)" 2>&1
-
-  if [ "${__os}" == "darwin" ]; then
-    check_binary brew 1>>"$(logfile)" 2>&1
-    brew install openssl 1>>"$(logfile)" 2>&1
-    brew install grep 1>>"$(logfile)" 2>&1
-
-    if ! check_binary python3 1>>"$(logfile)" 2>&1; then 
-      brew install python 1>>"$(logfile)" 2>&1
-    fi
-    if ! check_binary terraform 1>>"$(logfile)" 2>&1; then 
-      brew tap hashicorp/tap 1>>"$(logfile)" 2>&1
-      brew install hashicorp/tap/terraform 1>>"$(logfile)" 2>&1
-    fi
-  else
-    check_binary openssl 1>>"$(logfile)" 2>&1
-    check_binary python3 1>>"$(logfile)" 2>&1
+  if [ -f "${__reactor_dir}/requirements/install.${__os_type}.sh" ]; then
+    "${__reactor_dir}/requirements/install.${__os_type}.sh"
   fi
-
+  if [[ "${__os_type}" != "${__os_dist}" ]] && [[ -f "${__reactor_dir}/requirements/install.${__os_dist}.sh" ]]; then
+    "${__reactor_dir}/requirements/install.${__os_dist}.sh"
+  fi
   python3 -m venv "${HOME}/.reactor/python" 1>>"$(logfile)" 2>&1
 fi
 
-if [[ $REACTOR_LOCAL -eq 1 ]]; then 
-  export PATH="${__bin_dir}:${HOME}/.reactor/python/bin:${PATH}"
-  source "${HOME}/.reactor/python/bin/activate"
-fi
+export PATH="${__bin_dir}:${HOME}/.reactor/python/bin:${PATH}"
+source "${HOME}/.reactor/python/bin/activate"
 
 if ! is_setup_complete; then
   python3 -m pip install -U pip setuptools wheel --ignore-installed 1>>"$(logfile)" 2>&1
-  python3 -m pip install -r "${__reactor_dir}/requirements/requirements.txt" 1>>"$(logfile)" 2>&1
-  mark_setup_complete
-fi
-
-if [ "${__bash_version}" -lt "4" ]; then 
-  echo "Reactor requires Bash version 4+"
-  if [ "${__os}" == "darwin" ]; then
-    echo "Upgrading Bash version ..."
-    brew install bash 1>>"$(logfile)" 2>&1
-    echo ""
-    echo "Your Bash version has been upgraded.  Please rerun this command"
-  else
-    echo ""
-    echo "Please upgrade your Bash version and rerun this command"
-  fi
-  exit 1  
+  pip3 install --no-cache-dir -r "${__reactor_dir}/requirements/requirements.txt"
 fi
 
 #
