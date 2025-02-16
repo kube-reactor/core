@@ -26,10 +26,8 @@ load_utilities
 #
 # Initializing Docker environment
 #
-if [[ $REACTOR_LOCAL -eq 0 ]] || [[ $SOURCED -eq 1 ]]; then
-  if kubernetes_status; then
-    add_container_environment
-  fi
+if kubernetes_status; then
+  add_container_environment
 fi
 
 #
