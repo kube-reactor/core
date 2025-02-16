@@ -301,7 +301,6 @@ function check_project () {
 }
 
 function init_project() {
-  export __project_dir="$(dirname "$1")"
   export __env_dir="${__project_dir}/env/${__environment}"
   export __init_file="${__env_dir}/.initialized"
 

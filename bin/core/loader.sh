@@ -136,6 +136,7 @@ echo "13"
 export __core_manifest="$(core_manifest "$(pwd)")"
 export __template_manifest="$(template_manifest "$(pwd)")"
 export __project_manifest="$(project_manifest "$(pwd)")"
+export __project_dir="$(dirname "${__project_manifest}")"
 export __project_name="${REACTOR_PROJECT_NAME:-$(date +%Y%m%d_%H%M%S)}"
 
 echo "14"
