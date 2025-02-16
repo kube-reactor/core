@@ -5,7 +5,7 @@
 export DEFAULT_MINIKUBE_DRIVER="docker"
 export DEFAULT_MINIKUBE_NODES=1
 export DEFAULT_MINIKUBE_CPUS=2
-export DEFAULT_MINIKUBE_MEMORY=8192
+export DEFAULT_MINIKUBE_MEMORY=6144
 export DEFAULT_MINIKUBE_CONTAINER_RUNTIME="docker"
 
 
@@ -111,7 +111,7 @@ function delete_kubernetes_storage_minikube () {
 }
 
 
-function launch_host_kubernetes_tunnel_minikube () {
+function launch_kubernetes_tunnel_minikube () {
   # Runs on host machine
   PID_FILE="$(logdir)/tunnel.kpid"
 
@@ -121,7 +121,7 @@ function launch_host_kubernetes_tunnel_minikube () {
   echo "$!" >"$PID_FILE"
 }
 
-function terminate_host_kubernetes_tunnel_minikube () {
+function terminate_kubernetes_tunnel_minikube () {
   # Runs on host machine
   PID_FILE="$(logdir)/tunnel.kpid"
 
@@ -134,7 +134,7 @@ function terminate_host_kubernetes_tunnel_minikube () {
 }
 
 
-function launch_host_kubernetes_dashboard_minikube () {
+function launch_kubernetes_dashboard_minikube () {
   # Runs on host machine
   PID_FILE="$(logdir)/dashboard.kpid"
 
@@ -143,7 +143,7 @@ function launch_host_kubernetes_dashboard_minikube () {
   echo "$!" >"$PID_FILE"
 }
 
-function terminate_host_kubernetes_dashboard_minikube () {
+function terminate_kubernetes_dashboard_minikube () {
   # Runs on host machine
   PID_FILE="$(logdir)/dashboard.kpid"
 

@@ -18,6 +18,7 @@ function clean_command () {
 
   destroy_kubernetes_applications
   destroy_kubernetes
+  remove_dns_records
 
   rm -f "${__init_file}"
 
@@ -26,12 +27,5 @@ function clean_command () {
   clean_cache
 
   run_hook clean
-}
-
-function clean_host_command () {
-  destroy_host_kubernetes
-  remove_dns_records
-
-  run_hook clean_host
   info "Reactor development environment has been cleaned"
 }

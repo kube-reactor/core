@@ -12,7 +12,7 @@ function test_requires_project () {
   return 1
 }
 
-function test_host_command () {
-  "${__core_dir}/test" "$@"
+function test_command () {
+  "${__core_dir}/test.sh" "$@"
   exit $?
 }

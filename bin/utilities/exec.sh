@@ -15,13 +15,10 @@ function export_functions () {
 
 function check_command () {
   local command="$1"
-
-  for function_suffix in ${__reactor_command_functions[@]}; do
-    local function="${command}_${function_suffix}"
-    if function_exists "$function"; then
-      return 0
-    fi
-  done
+  local function="${command}_command"
+  if function_exists "$function"; then
+    return 0
+  fi
   return 1
 }
 
@@ -62,14 +59,4 @@ function run_subcommand () {
 
   parse_environment "$command"
   "${command}_command" "${args[@]}"
-}
-
-function run_host_subcommand () {
-  local command="$1"
-  local args=("${@:2}")
-
-  export __normalized_params="$(normalize_params "${args[@]}")"
-
-  parse_environment "$command"
-  "${command}_host_command" "${args[@]}"
 }

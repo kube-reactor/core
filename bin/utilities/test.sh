@@ -14,7 +14,7 @@
 # * __project_dir
 # * __project_test_dir
 #
-load_utilities cli verifiers
+load_utilities verifiers
 
 
 function test_phase () {
@@ -105,7 +105,7 @@ function run () {
   local test_command="${test_args[0]}"
   shift
 
-  local log_name="test-$(echo "${test_args[*]}" | sed -e 's/[\t ]//g')"
+  local log_name="test-$(echo "${test_args[*]}" | sed -e 's/[ ]//g')"
   local log_file="$(logdir)/${log_name}.log"
 
   export TEST_COMMAND="${test_command} ${@}"

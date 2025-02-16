@@ -2,7 +2,7 @@
 #
 # Usage:
 #
-#  "${__bin_dir}/core/exec" [flags] <command> [args] [flags/options]
+#  "${__bin_dir}/core/exec.sh" [flags] <command> [args] [flags/options]
 #
 #=========================================================================================
 # Initialization
@@ -12,16 +12,13 @@
 set -o errexit
 
 # Initialize top level directories and load bootstrap functions
-SCRIPT_PATH="${BASH_SOURCE[0]}" # bash
-if [[ -z "$SCRIPT_PATH" ]]; then
-  SCRIPT_PATH="${(%):-%N}" # zsh
-fi
+SCRIPT_PATH="${BASH_SOURCE[0]}"
 
 export __script_name="${__script_name:-$(basename "${SCRIPT_PATH//-/ }")}"
 export __core_dir="$(cd "$(dirname "${SCRIPT_PATH}")" && pwd)"
 export __bin_dir="$(dirname "${__core_dir}")"
 
-source "${__core_dir}/env" 0
+source "${__core_dir}/env.sh" 0
 reactor_args "$@"
 
 echo "" >"$(logfile)"
@@ -38,7 +35,6 @@ debug ""
 #=========================================================================================
 # Execution
 #
-
 if [[ "$arg_h" ]] || [[ ${#__app_args[@]} -eq 0 ]]; then
   if [[ ${#__app_args[@]} -gt 0 ]] && [[ "${__app_args[0]}" =~ ^[^-] ]]; then
     if function_exists "${__app_args[0]}_description"; then

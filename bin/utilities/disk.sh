@@ -5,57 +5,6 @@
 
 #
 #=========================================================================================
-# Logging Utilities
-#
-
-function logdir () {
-  if check_project; then
-    mkdir -p "${__log_dir}"
-    echo "${__log_dir}"
-  else
-    echo "/tmp"
-  fi
-}
-
-function logfile () {
-  if [ "${REACTOR_SHELL_OUTPUT:-}" ]; then
-    echo "/dev/stdout"
-  else
-    echo "$(logdir)/reactor.log"
-  fi
-}
-
-#
-#=========================================================================================
-# Installation and Execution Utilities
-#
-
-function check_binary () {
-  if ! command -v "$1" > /dev/null; then
-    emergency "Install binary: \"$1\""
-  fi
-}
-
-function download_binary () {
-  if ! command -v "$3/$1" > /dev/null; then
-    debug "Download binary: \"$1\" from url: \"$2\""
-    if [[ "$2" == *.tar.gz ]]; then
-      curl -sLo "/tmp/$1.tar.gz" "$2" 1>>"$(logfile)" 2>&1
-      tar -xzf "/tmp/$1.tar.gz" -C "/tmp" 1>>"$(logfile)" 2>&1
-      mv "/tmp/$4/$1" "/tmp/$1" 1>>"$(logfile)" 2>&1
-      rm -f "/tmp/$1.tar.gz" 1>>"$(logfile)" 2>&1
-      rm -Rf "/tmp/$4" 1>>"$(logfile)" 2>&1
-    else
-      curl -sLo "/tmp/$1" "$2" 1>>"$(logfile)" 2>&1
-    fi
-    install "/tmp/$1" "$3" 1>>"$(logfile)" 2>&1
-    rm -f "/tmp/$1" 1>>"$(logfile)" 2>&1
-    debug "\"$1\" was downloaded install binary into folder: \"$3\""
-  fi
-}
-
-#
-#=========================================================================================
 # Folder and File Utilities
 #
 

@@ -8,7 +8,6 @@
 # TODO: Perhaps there is a better way to do this so that implementation
 #       of enter is in this command script?
 #
-
 function enter_description () {
   render "Launch a reactor container session"
 }

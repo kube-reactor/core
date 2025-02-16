@@ -8,17 +8,15 @@
 # Initialization
 #
 # Initialize top level directories and load bootstrap functions
-SCRIPT_PATH="${BASH_SOURCE[0]}" # bash
-if [[ -z "$SCRIPT_PATH" ]]; then
-  SCRIPT_PATH="${(%):-%N}" # zsh
-fi
+SCRIPT_PATH="${BASH_SOURCE[0]}"
 
 ((return 0 2>/dev/null) || [[ $ZSH_EVAL_CONTEXT =~ :file$ ]]) && SOURCED=1 || SOURCED=0
 
 export __script_name="${__script_name:-$(basename "${SCRIPT_PATH//-/ }")}"
 export __command_name="$1"
 export __bin_dir="$(cd "$(dirname "${SCRIPT_PATH}")" && pwd)"
-source "${__bin_dir}/core/env" $SOURCED
+
+source "${__bin_dir}/core/env.sh" $SOURCED
 
 if [ $SOURCED -eq 1 ]; then
   # script is being sourced
@@ -60,31 +58,12 @@ warn_no_project "${__command_name}"
 if [[ "$arg_h" ]] || [[ "${__command_name}" == "help" ]]; then
   run_local
 elif ! requires_project "${__command_name}"; then
-  # Local execution (use sparingly)
   run_local
 elif ! check_project; then
   debug "Exiting due to no project and no help option specified"
   exit 1
 elif function_exists "${__command_name}_command"; then
-  if [ ! "${REACTOR_NO_DOCKER:-}" ]; then
-    run_docker
-  else
-    # Local execution (only use this option when running a local Ubuntu OS)
-    run_local
-  fi
+  run_local
 elif [ "${__command_name}" == "enter" ]; then
   run_docker
 fi
-
-if [ $? -eq 0 ]; then
-  # Local execution (use sparingly)
-  COMMAND_ARGS=("${__init_args[@]:1}")
-
-  if kubernetes_status; then
-    add_container_environment
-  fi
-  reactor_args "${COMMAND_ARGS[@]}"
-  run_command "${__command_name}" host_command "${COMMAND_ARGS[@]}"
-fi
-
-run_hook finalize

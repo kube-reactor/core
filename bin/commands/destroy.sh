@@ -18,19 +18,12 @@ function destroy_command () {
 
   destroy_kubernetes_applications
   destroy_kubernetes
+  remove_dns_records
 
   rm -f "${__init_file}"
 
   clean_provisioner
 
   run_hook destroy
-}
-
-function destroy_host_command () {
-  remove_dns_records
-
-  run_hook destroy_host
-
-  destroy_host_kubernetes
   info "Kubernetes environment has been destroyed"
 }

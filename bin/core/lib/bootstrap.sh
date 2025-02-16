@@ -4,16 +4,18 @@
 #
 
 function run_local () {
-  "${__bin_dir}/core/exec" "${__app_args[@]}"
+  "${__bin_dir}/core/exec.sh" "${__app_args[@]}"
+  run_hook finalize
 }
 
 function run_docker () {
   if [[ "$__os" == "darwin" ]]; then
     REACTOR_DOCKER_SOCKET_FILE="${REACTOR_DOCKER_SOCKET_FILE:-/var/run/docker.sock.raw}"
-    REACTOR_DOCKER_GROUP="0"
+    if [ ! -e "$REACTOR_DOCKER_SOCKET_FILE" ]; then
+      REACTOR_DOCKER_SOCKET_FILE="/var/run/docker.sock"
+    fi
   else
     REACTOR_DOCKER_SOCKET_FILE="${REACTOR_DOCKER_SOCKET_FILE:-/var/run/docker.sock}"
-    REACTOR_DOCKER_GROUP="$(stat -L -c '%g' /var/run/docker.sock)"
   fi
   export REACTOR_DOCKER_SOCKET_FILE
   export REACTOR_RUNTIME_IMAGE="${REACTOR_RUNTIME_IMAGE:-"${APP_NAME}:${__reactor_version}"}"
@@ -47,7 +49,7 @@ function run_docker () {
 
   if ! docker inspect "$REACTOR_RUNTIME_IMAGE" >/dev/null 2>&1; then
     debug "Building local virtualization container"
-    "${__bin_dir}/core/image"
+    "${__bin_dir}/core/image.sh"
     REACTOR_RUNTIME_IMAGE="${APP_NAME}:${__reactor_version}"
   fi
   REACTOR_ARGS=(
@@ -75,62 +77,148 @@ function run_docker () {
   docker run "${REACTOR_ARGS[@]}" "${__app_args[@]}"
 }
 
+#
+#=========================================================================================
+# Initialization functions
+#
+
+function mark_setup_complete () {
+  if check_project; then
+    touch "${__project_dir}/.initialized"
+  fi
+}
+
+function is_setup_complete () {
+  if check_project && [[ -f "${__project_dir}/.initialized" ]]; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+function set_initialized () {
+  export INITIALIZED="1"
+}
+
+function is_initialized () {
+  if [ "$INITIALIZED" ]; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+#
+#=========================================================================================
+# Manifest functions
+#
 
 function check_dependencies () {
-  info "Checking development software requirements ..."
-  check_binary python3 1>>"$(logfile)" 2>&1
+  info "Checking core software requirements ..."
   check_binary docker 1>>"$(logfile)" 2>&1
   check_binary git 1>>"$(logfile)" 2>&1
-  check_binary curl 1>>"$(logfile)" 2>&1
-  check_binary openssl 1>>"$(logfile)" 2>&1
 }
 
-function setup_installer () {
-  clean_installer
 
-  mkdir -p "${__reactor_dir}/installer"
+function install_os_requirements () {
+  if check_project; then
+    if [ -f "${__project_dir}/reactor/install.sh" ]; then
+      unset "install_${__os_type}"
+      unset "install_${__os_dist}"
 
-  if [ -f "${__project_dir}/reactor/requirements.txt" ]; then
-    cp -f "${__project_dir}/reactor/requirements.txt" "${__reactor_dir}/installer/requirements.txt"
+      source "${__project_dir}/reactor/install.sh"
+
+      if function_exists "install_${__os_type}"; then
+        "install_project_${__os_type}"
+      fi
+      if [[ "${__os_type}" != "${__os_dist}" ]] && function_exists "install_${__os_dist}"; then
+        "install_project_${__os_dist}"
+      fi
+    fi
+
+    for docker in $(config docker); do
+      docker_dir="${__docker_dir}/$(config docker.docker.project $docker)"
+
+      if [ -f "${docker_dir}/reactor/install.sh" ]; then
+        unset "install_${__os_type}"
+        unset "install_${__os_dist}"
+
+        source "${docker_dir}/reactor/install.sh"
+
+        if function_exists "install_${__os_type}"; then
+          "install_${__os_type}"
+        fi
+        if [[ "${__os_type}" != "${__os_dist}" ]] && function_exists "install_${__os_dist}"; then
+          "install_${__os_dist}"
+        fi
+      fi
+    done
+
+    for chart in $(config charts); do
+      chart_dir="${__charts_dir}/$(config charts.$chart.project $chart)"
+
+      if [ -f "${chart_dir}/reactor/install.sh" ]; then
+        unset "install_${__os_type}"
+        unset "install_${__os_dist}"
+
+        source "${chart_dir}/reactor/install.sh"
+
+        if function_exists "install_${__os_type}"; then
+          "install_${__os_type}"
+        fi
+        if [[ "${__os_type}" != "${__os_dist}" ]] && function_exists "install_${__os_dist}"; then
+          "install_${__os_dist}"
+        fi
+      fi
+    done
+
+    for extension in $(config extensions); do
+      extension_dir="${__extension_dir}/${extension}"
+
+      if [ -f "${extension_dir}/reactor/install.sh" ]; then
+        unset "install_${__os_type}"
+        unset "install_${__os_dist}"
+
+        source "${extension_dir}/reactor/install.sh"
+
+        if function_exists "install_${__os_type}"; then
+          "install_${__os_type}"
+        fi
+        if [[ "${__os_type}" != "${__os_dist}" ]] && function_exists "install_${__os_dist}"; then
+          "install_${__os_dist}"
+        fi
+      fi
+    done
   fi
-  if [ -f "${__project_dir}/reactor/install.sh" ]; then
-    cp -f "${__project_dir}/reactor/install.sh" "${__reactor_dir}/installer/install.sh"
-    chmod 755 "${__reactor_dir}/installer/install.sh"
-  fi
-  for docker in $(config docker); do
-    docker_dir="${__docker_dir}/$(config docker.docker.project $docker)"
-    if [ -f "${docker_dir}/reactor/requirements.txt" ]; then
-      cp -f "${docker_dir}/reactor/requirements.txt" "${__reactor_dir}/installer/requirements.docker.${docker}.txt"
-    fi
-    if [ -f "${docker_dir}/reactor/install.sh" ]; then
-      cp -f "${docker_dir}/reactor/install.sh" "${__reactor_dir}/installer/docker.${docker}.sh"
-      chmod 755 "${__reactor_dir}/installer/docker.${docker}.sh"
-    fi
-  done
-  for chart in $(config charts); do
-    chart_dir="${__charts_dir}/$(config charts.$chart.project $chart)"
-    if [ -f "${chart_dir}/reactor/requirements.txt" ]; then
-      cp -f "${chart_dir}/reactor/requirements.txt" "${__reactor_dir}/installer/requirements.chart.${chart}.txt"
-    fi
-    if [ -f "${chart_dir}/reactor/install.sh" ]; then
-      cp -f "${chart_dir}/reactor/install.sh" "${__reactor_dir}/installer/chart.${chart}.sh"
-      chmod 755 "${__reactor_dir}/installer/chart.${chart}.sh"
-    fi
-  done
-  for extension in $(config extensions); do
-    extension_dir="${__extension_dir}/${extension}"
-    if [ -f "${extension_dir}/reactor/requirements.txt" ]; then
-      cp -f "${extension_dir}/reactor/requirements.txt" "${__reactor_dir}/installer/requirements.ext.${extension}.txt"
-    fi
-    if [ -f "${extension_dir}/reactor/install.sh" ]; then
-      cp -f "${extension_dir}/reactor/install.sh" "${__reactor_dir}/installer/ext.${extension}.sh"
-      chmod 755 "${__reactor_dir}/installer/ext.${extension}.sh"
-    fi
-  done
 }
 
-function clean_installer () {
-  rm -Rf "${__reactor_dir}/installer"
+function install_python_requirements () {
+  if check_project; then
+    if [ -f "${__project_dir}/reactor/requirements.txt" ]; then
+      pip3 install --no-cache-dir -r "${__project_dir}/reactor/requirements.txt"
+    fi
+
+    for docker in $(config docker); do
+      docker_dir="${__docker_dir}/$(config docker.docker.project $docker)"
+      if [ -f "${docker_dir}/reactor/requirements.txt" ]; then
+        pip3 install --no-cache-dir -r "${docker_dir}/reactor/requirements.txt"
+      fi
+    done
+
+    for chart in $(config charts); do
+      chart_dir="${__charts_dir}/$(config charts.$chart.project $chart)"
+      if [ -f "${chart_dir}/reactor/requirements.txt" ]; then
+        pip3 install --no-cache-dir -r "${chart_dir}/reactor/requirements.txt"
+      fi
+    done
+
+    for extension in $(config extensions); do
+      extension_dir="${__extension_dir}/${extension}"
+      if [ -f "${extension_dir}/reactor/requirements.txt" ]; then
+        pip3 install --no-cache-dir -r "${extension_dir}/reactor/requirements.txt"
+      fi
+    done
+  fi
 }
 
 
@@ -150,6 +238,15 @@ function core_manifest () {
   fi
 }
 
+function check_core () {
+  if [ ! "${__core_manifest}" ]; then
+    return 1
+  else
+    return 0
+  fi
+}
+
+
 function template_manifest () {
   cookiecutter_manifest="${1}/cookiecutter.json"
 
@@ -165,6 +262,19 @@ function template_manifest () {
     template_manifest "$parent_dir"
   fi
 }
+
+function check_template () {
+  if [ ! "${__template_manifest}" ]; then
+    return 1
+  else
+    return 0
+  fi
+}
+
+function init_template () {
+  export __template_dir="$(dirname "$1")"
+}
+
 
 function project_manifest () {
   project_manifest="${1}/reactor.yml"
@@ -182,6 +292,91 @@ function project_manifest () {
   fi
 }
 
+function check_project () {
+  if [ ! "${__project_manifest}" ]; then
+    return 1
+  else
+    return 0
+  fi
+}
+
+function init_project() {
+  export __env_dir="${__project_dir}/env/${__environment}"
+  export __init_file="${__env_dir}/.initialized"
+
+  export __project_reactor_dir="${__project_dir}/reactor"
+  export __project_utilities_dir="${__project_reactor_dir}/utilities"
+  export __project_test_dir="${__project_reactor_dir}/tests"
+
+  export __app_dir="${__project_dir}/projects"
+  export __certs_dir="${__project_dir}/certs"
+  export __cache_dir="${__project_dir}/cache"
+  export __log_dir="${__project_dir}/logs"
+
+  export __docker_dir="${__project_dir}/docker"
+  export __charts_dir="${__project_dir}/charts"
+  export __extension_dir="${__project_dir}/extensions"
+
+  export __terraform_dir="${__project_dir}/terraform"
+  export __argocd_apps_dir="${__terraform_dir}/argocd-apps"
+
+  export __project_name="$(config short_name)"
+
+  # Load environment configuration
+  if [ -f "${__env_dir}/public.sh" ]; then
+    source "${__env_dir}/public.sh"
+  fi
+
+  if [[ ! -f "${__env_dir}/secret.sh" ]] && [[ -f "${__env_dir}/secret.example.sh" ]]; then 
+    cp -f "${__env_dir}/secret.example.sh" "${__env_dir}/secret.sh"
+  fi
+  if [ -f "${__env_dir}/secret.sh" ]; then
+    source "${__env_dir}/secret.sh"
+  fi
+
+  export APP_NAME="${__project_name//_/-}"
+  export APP_LABEL="$(config name)"
+
+  export PRIMARY_DOMAIN="$(config "domain.${__environment}" "$(echo "$APP_NAME" | tr '_' '-').local")"
+  export PROJECT_UPDATE_WAIT="${PROJECT_UPDATE_WAIT:-"30s"}"
+
+  export ARGOCD_DOMAIN="${ARGOCD_DOMAIN:-"argocd.${PRIMARY_DOMAIN}"}"
+}
+
+function requires_project () {
+  local command="$1"
+  local check_function="${command}_requires_project"
+
+  if [[ "$command" =~ ^- ]]; then
+    # No valid command specifed so pass back to parent as normal
+    return 0
+  fi
+
+  if function_exists "$check_function"; then
+    # Farm it off to a command level processor (create and test ...)
+    "$check_function"
+    return $?
+  else
+    # All commands by default run in containers before host execution
+    return 0
+  fi
+}
+
+function warn_no_project () {
+  local command="${1:--}"
+
+  if ! check_project && requires_project "$command"; then
+    # Display error message (no project)
+    add_space
+    error "Project directory with a 'reactor.yml' file does not exist in current or parent directories (set project name with REACTOR_PROJECT_NAME)"
+    add_space
+  fi
+}
+
+#
+#=========================================================================================
+# Configuration Lookup functions
+#
 
 function config () {
   "${__bin_dir}/utilities/locator.py" "$1" "${2-}"
@@ -191,7 +386,58 @@ function env_json () {
   "${__bin_dir}/utilities/env_json.py"
 }
 
+#
+#=========================================================================================
+# Installation and Execution functions
+#
+
 function function_exists () {
   debug "Checking function: ${1}"
   declare -F "$1" > /dev/null;
+}
+
+function check_binary () {
+  if ! command -v "$1" > /dev/null; then
+    emergency "Install binary: \"$1\""
+  fi
+}
+
+function download_binary () {
+  if ! command -v "$3/$1" > /dev/null; then
+    debug "Download binary: \"$1\" from url: \"$2\""
+    if [[ "$2" == *.tar.gz ]]; then
+      curl -sLo "/tmp/$1.tar.gz" "$2" 1>>"$(logfile)" 2>&1
+      tar -xzf "/tmp/$1.tar.gz" -C "/tmp" 1>>"$(logfile)" 2>&1
+      mv "/tmp/$4/$1" "/tmp/$1" 1>>"$(logfile)" 2>&1
+      rm -f "/tmp/$1.tar.gz" 1>>"$(logfile)" 2>&1
+      rm -Rf "/tmp/$4" 1>>"$(logfile)" 2>&1
+    else
+      curl -sLo "/tmp/$1" "$2" 1>>"$(logfile)" 2>&1
+    fi
+    install "/tmp/$1" "$3" 1>>"$(logfile)" 2>&1
+    rm -f "/tmp/$1" 1>>"$(logfile)" 2>&1
+    debug "\"$1\" was downloaded install binary into folder: \"$3\""
+  fi
+}
+
+#
+#=========================================================================================
+# Logging functions
+#
+
+function logdir () {
+  if check_project && [[ "${__log_dir:-}" ]]; then
+    mkdir -p "${__log_dir}"
+    echo "${__log_dir}"
+  else
+    echo "/tmp"
+  fi
+}
+
+function logfile () {
+  if [ "${REACTOR_SHELL_OUTPUT:-}" ]; then
+    echo "/dev/stdout"
+  else
+    echo "$(logdir)/reactor.log"
+  fi
 }
