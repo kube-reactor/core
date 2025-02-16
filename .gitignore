@@ -5,10 +5,8 @@
 /docs/_build/
 
 # Project files
-.initialized
 /templates/
 /projects/
-/installer/
 /package/
 /bin/*
 !/bin/*/
