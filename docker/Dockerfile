@@ -75,12 +75,6 @@ RUN ((getent group ${REACTOR_DOCKER_GID} && newgrp docker) || groupmod --gid ${R
 COPY --chown=${REACTOR_USER_NAME}:${REACTOR_USER_NAME} ./ /reactor
 VOLUME /reactor
 
-RUN ln -s /reactor/VERSION /REACTOR.txt
-#
-# Project customization
-#
-RUN /reactor/requirements/install.sh \
-  && rm -rf /var/lib/apt/lists/*
 #
 # Execution gateway
 #
