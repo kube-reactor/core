@@ -2,7 +2,7 @@
 #
 # Usage:
 #
-#  "${__bin_dir}/core/image.sh"
+#  "${__bin_dir}/core/image.sh" "$OPERATING_SYSTEM"
 #
 #=========================================================================================
 # Initialization
@@ -10,16 +10,14 @@
 set -e
 
 # Initialize top level directories and load bootstrap functions
-SCRIPT_PATH="${BASH_SOURCE[0]}" # bash
-if [[ -z "$SCRIPT_PATH" ]]; then
-  SCRIPT_PATH="${(%):-%N}" # zsh
-fi
+SCRIPT_PATH="${BASH_SOURCE[0]}"
 
 export __script_name="reactor reimage"
 export __core_dir="$(cd "$(dirname "${SCRIPT_PATH}")" && pwd)"
 export __bin_dir="$(dirname "${__core_dir}")"
 export __reactor_dir="$(dirname "${__bin_dir}")"
 export __reactor_docker_dir="${__reactor_dir}/docker"
+
 source "${__core_dir}/loader.sh"
 
 #=========================================================================================
@@ -42,9 +40,6 @@ if ! check_project; then
   add_space
   exit 1
 fi
-
-check_dependencies
-setup_installer
 
 export REACTOR_IMAGE="${REACTOR_IMAGE:-$APP_NAME}"
 export REACTOR_TAG="${REACTOR_TAG:-"${__reactor_version}"}"
@@ -85,6 +80,3 @@ REACTOR_ARGS=(
 
 debug "Reactor Arguments: ${REACTOR_ARGS[@]}"
 docker build "${REACTOR_ARGS[@]}"
-
-echo "Cleaning installer"
-clean_installer
