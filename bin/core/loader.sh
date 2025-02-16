@@ -42,7 +42,7 @@ function init_core () {
   source "${__core_lib_dir}/aliases.sh"
 }
 
-
+echo "11"
 #
 # >>> Startup
 #
@@ -127,12 +127,18 @@ export DEFAULT_PROJECT_URL="${DEFAULT_REACTOR_URL:-https://github.com/kube-react
 export DEFAULT_PROJECT_REMOTE="${DEFAULT_REACTOR_REMOTE:-origin}"
 export DEFAULT_PROJECT_REFERENCE="${DEFAULT_REACTOR_REFERENCE:-main}"
 
+echo "12"
+
 init_core "${__bin_dir}"
+
+echo "13"
 
 export __core_manifest="$(core_manifest "$(pwd)")"
 export __template_manifest="$(template_manifest "$(pwd)")"
 export __project_manifest="$(project_manifest "$(pwd)")"
 export __project_name="${REACTOR_PROJECT_NAME:-$(date +%Y%m%d_%H%M%S)}"
+
+echo "14"
 
 #
 # Core Development Mode
@@ -144,6 +150,8 @@ if [ "${__core_manifest}" ]; then
   fi
 fi
 
+echo "15"
+
 #
 # Load Runtime dependencies
 #
@@ -154,12 +162,17 @@ source "${__utilities_dir}/cli.sh"
 source "${__core_lib_dir}/runtime.sh"
 source "${__core_lib_dir}/install.sh"
 
+echo "16"
+
 #
 # Checking application requirements
 #
 if ! is_setup_complete; then
+  echo "17"
   echo "" >"$(logfile)"
+  echo "18"
   check_dependencies
+  echo "19"
 
   if function_exists "install_${__os_type}"; then
     "install_${__os_type}"
