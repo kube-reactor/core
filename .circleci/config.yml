@@ -10,23 +10,13 @@ ubuntu_arm64: &ubuntu_arm64
   machine:
     image: ubuntu-2404:current
 
-bootstrap: &bootstrap
-  name: Bootstrap test OS
-  command: ./install.sh
-
 session_env: &session_env
-  REACTOR_SHELL_OUTPUT: true
-
   MINIKUBE_CPUS: 2
   MINIKUBE_MEMORY: 6144
 
 test_default: &test_default
   steps:
     - checkout
-    - run:
-        <<: *bootstrap
-        shell: /usr/bin/bash
-        environment: *session_env
     - run:
         name: Test Local Reactor Deployment Lifecycle
         command: ./bin/reactor test --name=test --debug
