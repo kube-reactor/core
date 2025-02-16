@@ -83,11 +83,13 @@ function run_docker () {
 #
 
 function mark_setup_complete () {
-  touch "${__project_dir}/.initialized"
+  if check_project; then
+    touch "${__project_dir}/.initialized"
+  fi
 }
 
 function is_setup_complete () {
-  if [ -f "${__project_dir}/.initialized" ]; then
+  if check_project && [[ -f "${__project_dir}/.initialized" ]]; then
     return 0
   else
     return 1
