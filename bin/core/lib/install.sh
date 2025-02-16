@@ -51,11 +51,3 @@ function install_mac () {
     exit 1  
   fi
 }
-
-function install_redhat () {
-
-}
-
-function install_arch () {
-
-}
