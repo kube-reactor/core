@@ -12,10 +12,7 @@
 set -o errexit
 
 # Initialize top level directories and load bootstrap functions
-SCRIPT_PATH="${BASH_SOURCE[0]}" # bash
-if [[ -z "$SCRIPT_PATH" ]]; then
-  SCRIPT_PATH="${(%):-%N}" # zsh
-fi
+SCRIPT_PATH="${BASH_SOURCE[0]}"
 
 export __script_name="${__script_name:-$(basename "${SCRIPT_PATH//-/ }")}"
 export __core_dir="$(cd "$(dirname "${SCRIPT_PATH}")" && pwd)"
