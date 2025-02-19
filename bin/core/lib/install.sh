@@ -29,7 +29,6 @@ function install_debian () {
     python3-dev \
     python3-pip \
     git \
-    openssh-client \
     sshpass \
     jq
 
