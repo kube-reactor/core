@@ -15,7 +15,6 @@ set -o errtrace
 set -o nounset
 
 shopt -s expand_aliases
-shopt -s globstar
 
 #
 # Reactor Core Initialization
@@ -37,7 +36,7 @@ function init_core () {
   export __projects_dir="${__reactor_dir}/projects"
 
   export __reactor_version="$(cat -s "${__reactor_dir}/VERSION")"
-  
+
   source "${__core_lib_dir}/bootstrap.sh"
   source "${__core_lib_dir}/aliases.sh"
 }
@@ -50,12 +49,12 @@ export LOG_LEVEL="${LOG_LEVEL:-6}" # 7 = debug -> 0 = emergency
 
 # Set OS and system architecture variables.
 case "$OSTYPE" in
-  darwin*) 
+  darwin*)
     __os="darwin"
     __os_type="mac"
     __os_dist="mac"
     ;;
-  linux*) 
+  linux*)
     __os="linux"
 
     source /etc/os-release
@@ -95,8 +94,8 @@ export __group_name="$(id -ng)"
 
 if [ "${__os}" == "darwin" ]; then
   gid="$(awk -F: -v group=docker '$1==group{print $3}' /etc/group)"
-  if [ ! "$gid" ]; then 
-    gid="$(awk -F: -v group=daemon '$1==group{print $3}' /etc/group)"    
+  if [ ! "$gid" ]; then
+    gid="$(awk -F: -v group=daemon '$1==group{print $3}' /etc/group)"
   fi
   __docker_group_id="$gid"
 else
@@ -107,9 +106,9 @@ export __docker_group_id
 if [ "${HOME:-}" ]; then
   export __home_dir="$HOME"
 else
-  if [ "${__os}" == "darwin" ]; then 
+  if [ "${__os}" == "darwin" ]; then
     export __home_dir="/Users/${__user_name}"
-  else 
+  else
     export __home_dir="/home/${__user_name}"
   fi
   export HOME="${__home_dir}"
@@ -160,7 +159,7 @@ source "${__core_lib_dir}/install.sh"
 if ! is_setup_complete; then
   echo "" >"$(logfile)"
   check_dependencies
-  
+
   if function_exists "install_${__os_type}"; then
     "install_${__os_type}"
   fi
@@ -199,3 +198,8 @@ fi
 # Initialize the command and utility file indexes
 #
 init_loader
+
+#
+# Bash options (require Bash v4+)
+#
+shopt -s globstar
