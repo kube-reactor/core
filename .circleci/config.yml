@@ -11,6 +11,8 @@ ubuntu_arm64: &ubuntu_arm64
     image: ubuntu-2404:current
 
 session_env: &session_env
+  REACTOR_SHELL_OUTPUT: true
+
   MINIKUBE_CPUS: 2
   MINIKUBE_MEMORY: 6144
 
