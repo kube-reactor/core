@@ -42,7 +42,7 @@ function install_debian () {
 }
 
 function install_mac () {
-  if ! check_binary brew 1>>"$(logfile)" 2>&1; then
+  if ! which brew 1>>"$(logfile)" 2>&1; then
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
   fi
   brew update 1>>"$(logfile)" 2>&1
@@ -61,11 +61,11 @@ function install_mac () {
 
   echo "-00"
 
-  if ! check_binary python3 1>>"$(logfile)" 2>&1; then
+  if ! which python3 1>>"$(logfile)" 2>&1; then
     brew install python 1>>"$(logfile)" 2>&1
   fi
   echo "-01"
-  if ! check_binary terraform 1>>"$(logfile)" 2>&1; then
+  if ! which terraform 1>>"$(logfile)" 2>&1; then
     echo "-1"
     brew tap hashicorp/tap 1>>"$(logfile)" 2>&1
     echo "-2"
