@@ -11,8 +11,27 @@ function install_debian () {
 
   echo "-1-2"
 
-  sed '/^\s*\#.*$/d' "${__reactor_dir}/requirements/packages_debian.txt" \
-    | xargs -r sudo apt-get install -y --no-install-recommends 1>>"$(logfile)" 2>&1
+  sudo apt-get install -y --no-install-recommends \
+    curl \
+    wget \
+    lsb-release \
+    netbase \
+    gnupg2 \
+    ca-certificates \
+    openssl \
+    vim \
+    gcc \
+    g++ \
+    make \
+    cmake \
+    libssl-dev \
+    unzip \
+    python3-dev \
+    python3-pip \
+    git \
+    openssh-client \
+    sshpass \
+    jq
 
   echo "-1-3"
 
