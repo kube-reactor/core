@@ -59,18 +59,11 @@ function install_mac () {
   brew install openssl 1>>"$(logfile)" 2>&1
   brew install grep 1>>"$(logfile)" 2>&1
 
-  echo "-00"
-
   if ! which python3 1>>"$(logfile)" 2>&1; then
     brew install python 1>>"$(logfile)" 2>&1
   fi
-  echo "-01"
   if ! which terraform 1>>"$(logfile)" 2>&1; then
-    echo "-1"
     brew tap hashicorp/tap 1>>"$(logfile)" 2>&1
-    echo "-2"
     brew install hashicorp/tap/terraform 1>>"$(logfile)" 2>&1
-    echo "-3"
   fi
-  echo "-4"
 }
