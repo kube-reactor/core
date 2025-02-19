@@ -19,7 +19,7 @@ test_default: &test_default
     - checkout
     - run:
         name: Test Local Reactor Deployment Lifecycle
-        command: ./bin/reactor test --name=test --debug
+        command: ./bin/reactor test --name=test
         shell: /usr/bin/bash
         environment: *session_env
 

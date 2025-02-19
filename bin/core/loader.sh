@@ -159,23 +159,35 @@ source "${__core_lib_dir}/install.sh"
 if ! is_setup_complete; then
   echo "" >"$(logfile)"
   check_dependencies
+  echo "-1"
 
   if function_exists "install_${__os_type}"; then
+    echo "-2"
     "install_${__os_type}"
   fi
+  echo "-3"
+
   if [[ "${__os_type}" != "${__os_dist}" ]] && function_exists "install_${__os_dist}"; then
+    echo "-4"
     "install_${__os_dist}"
   fi
+  echo "-5"
   python3 -m venv "${HOME}/.reactor/python" 1>>"$(logfile)" 2>&1
 fi
+echo "-6"
 
 export PATH="${__bin_dir}:${HOME}/.reactor/python/bin:${PATH}"
 source "${HOME}/.reactor/python/bin/activate"
 
+echo "-7"
+
 if ! is_setup_complete; then
+  echo "-8"
   python3 -m pip install -U pip setuptools wheel --ignore-installed 1>>"$(logfile)" 2>&1
+  echo "-9"
   pip3 install --no-cache-dir -r "${__reactor_dir}/requirements/requirements.txt"
 fi
+echo "-10"
 
 #
 # Initializing template development mode
@@ -186,6 +198,7 @@ if [ "${__template_manifest}" ]; then
     export __project_manifest="$(project_manifest "${__template_dir}/${__project_name}")"
   fi
 fi
+echo "-11"
 
 #
 # Initializing project development mode
@@ -193,11 +206,13 @@ fi
 if [ "${__project_manifest}" ]; then
   init_project "${__project_manifest}"
 fi
+echo "-12"
 
 #
 # Initialize the command and utility file indexes
 #
 init_loader
+echo "-13"
 
 #
 # Bash options (require Bash v4+)
