@@ -121,7 +121,7 @@ if [ -z "${HOME_SHARES:-}" ]; then
   )
 fi
 
-export DEFAULT_PROJECT_URL="${DEFAULT_REACTOR_URL:-https://github.com/kube-reactor/cluster-base.git}"
+export DEFAULT_PROJECT_URL="${DEFAULT_REACTOR_URL:-https://github.com/kube-reactor/cluster-base-aws.git}"
 export DEFAULT_PROJECT_REMOTE="${DEFAULT_REACTOR_REMOTE:-origin}"
 export DEFAULT_PROJECT_REFERENCE="${DEFAULT_REACTOR_REFERENCE:-main}"
 
