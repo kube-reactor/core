@@ -114,7 +114,6 @@ function is_initialized () {
 #
 
 function check_dependencies () {
-  info "Checking core software requirements ..."
   check_binary docker 1>>"$(logfile)" 2>&1
   check_binary git 1>>"$(logfile)" 2>&1
 }
@@ -327,7 +326,7 @@ function init_project() {
     source "${__env_dir}/public.sh"
   fi
 
-  if [[ ! -f "${__env_dir}/secret.sh" ]] && [[ -f "${__env_dir}/secret.example.sh" ]]; then 
+  if [[ ! -f "${__env_dir}/secret.sh" ]] && [[ -f "${__env_dir}/secret.example.sh" ]]; then
     cp -f "${__env_dir}/secret.example.sh" "${__env_dir}/secret.sh"
   fi
   if [ -f "${__env_dir}/secret.sh" ]; then
