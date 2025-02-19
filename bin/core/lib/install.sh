@@ -63,7 +63,10 @@ function install_mac () {
     brew install python 1>>"$(logfile)" 2>&1
   fi
   if ! check_binary terraform 1>>"$(logfile)" 2>&1; then
+    echo "-1"
     brew tap hashicorp/tap 1>>"$(logfile)" 2>&1
+    echo "-2"
     brew install hashicorp/tap/terraform 1>>"$(logfile)" 2>&1
+    echo "-3"
   fi
 }
