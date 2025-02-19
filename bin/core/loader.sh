@@ -166,15 +166,22 @@ if ! is_setup_complete; then
   if [[ "${__os_type}" != "${__os_dist}" ]] && function_exists "install_${__os_dist}"; then
     "install_${__os_dist}"
   fi
+  echo "-55"
   python3 -m venv "${HOME}/.reactor/python" 1>>"$(logfile)" 2>&1
 fi
+echo "-66"
 
 export PATH="${__bin_dir}:${HOME}/.reactor/python/bin:${PATH}"
 source "${HOME}/.reactor/python/bin/activate"
 
+echo "-77"
+
 if ! is_setup_complete; then
+  echo "-88"
   python3 -m pip install -U pip setuptools wheel --ignore-installed 1>>"$(logfile)" 2>&1
+  echo "-99"
   pip3 install --no-cache-dir -r "${__reactor_dir}/requirements/requirements.txt"
+  echo "-111"
 fi
 
 #

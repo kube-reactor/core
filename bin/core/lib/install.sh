@@ -69,4 +69,5 @@ function install_mac () {
     brew install hashicorp/tap/terraform 1>>"$(logfile)" 2>&1
     echo "-3"
   fi
+  echo "-4"
 }
