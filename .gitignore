@@ -13,6 +13,9 @@
 !/bin/kubectl-reactor
 !/bin/reactor
 
+# State files
+/.initialized
+
 # Temporary folders
 /logs/
 /tmp/
