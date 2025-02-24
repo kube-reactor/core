@@ -100,7 +100,9 @@ function create_command_environment () {
     "Configuration values for the project template"
 
   parse_arg PROJECT_NAME \
-    "Cookiecutter project_slug value override"
+    "Cookiecutter project_slug value override (must contain only alpha-numeric characters and underscores)"
+
+  export PROJECT_NAME="${PROJECT_NAME//[-.]/_}"
 
   if ! check_template; then
     export TEMPLATES_DIRECTORY="${__templates_dir}"
