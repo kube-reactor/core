@@ -44,8 +44,10 @@ function up_command () {
 
   start_kubernetes
 
-  if [[ "${__environment}" == "local" ]] && [[ "$BUILD" ]] || [[ ! -f "${__init_file}" ]]; then
-    run_subcommand build "${BUILD_ARGS[@]}"
+  if [ "${__environment}" == "local" ]; then
+    if [[ "$BUILD" ]] || [[ ! -f "${__init_file}" ]]; then
+      run_subcommand build "${BUILD_ARGS[@]}"
+    fi
   fi
   touch "${__init_file}"
 
