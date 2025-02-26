@@ -44,11 +44,11 @@ function up_command () {
 
   start_kubernetes
 
-  if [[ "$BUILD" ]] || [[ ! -f "${__init_file}" ]]; then
+  if [[ "${__environment}" == "local" ]] && [[ "$BUILD" ]] || [[ ! -f "${__init_file}" ]]; then
     run_subcommand build "${BUILD_ARGS[@]}"
   fi
   touch "${__init_file}"
-  
+
   launch_kubernetes_tunnel
   run_subcommand update
   run_hook up
