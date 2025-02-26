@@ -272,7 +272,7 @@ if [ ! "$NO_UP" ]; then
     verify_dir "${__project_dir}/docker"
     verify_dir "${__project_dir}/charts"
     verify_dir "${__project_dir}/.minikube"
-    verify_dir "${__project_dir}/.terraform"
+    verify_dir "${__env_dir}/.terraform"
     verify_file "${__env_dir}/.kubeconfig"
     verify_file "${__log_dir}/hosts.txt"
     verify_file "${__log_dir}/tunnel.kpid"
@@ -356,7 +356,7 @@ if [[ ! "$NO_DOWN" ]] && [[ ! "$ENSURE_RUNNING" ]]; then
     provisioner_environment
 
     verify_no_dir "${__project_dir}/.minikube"
-    verify_no_dir "${__project_dir}/.terraform"
+    verify_no_dir "${__env_dir}/.terraform"
     verify_no_file "${PROVISIONER_GATEWAY}/.terraform.lock.hcl"
     verify_no_file "${PROVISIONER_GATEWAY}/terraform.tfstate"
   }

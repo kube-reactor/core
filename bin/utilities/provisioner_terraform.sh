@@ -15,7 +15,7 @@ function terraform_environment () {
     export TF_LOG=DEBUG
   fi
 
-  export TF_DATA_DIR="${__project_dir}/.terraform/${project_type}"
+  export TF_DATA_DIR="${__env_dir}/.terraform/${project_type}"
   export TF_VAR_kube_config="$KUBECONFIG"
   export TF_VAR_domain="$PRIMARY_DOMAIN"
   export TF_VAR_environment="${__environment}"
@@ -149,9 +149,9 @@ function run_provisioner_delete_terraform () {
 function clean_provisioner_terraform () {
   provisioner_environment_terraform
 
-  if [ -d "${__project_dir}/.terraform" ]; then
+  if [ -d "${__env_dir}/.terraform" ]; then
     info "Removing Terraform configuration ..."
-    sudo rm -Rf "${__project_dir}/.terraform"
+    sudo rm -Rf "${__env_dir}/.terraform"
     rm -f "${PROVISIONER_GATEWAY}/.terraform.lock.hcl"
     rm -f "${PROVISIONER_GATEWAY}/terraform.tfvars"
     rm -f "${PROVISIONER_GATEWAY}/terraform.tfstate"*
