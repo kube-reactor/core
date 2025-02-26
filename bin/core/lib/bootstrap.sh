@@ -328,6 +328,14 @@ function init_project() {
 
   export __project_name="$(config short_name)"
 
+  export APP_NAME="${__project_name//_/-}"
+  export APP_LABEL="$(config name)"
+
+  export PRIMARY_DOMAIN="$(config "domain.${__environment}" "$(echo "$APP_NAME" | tr '_' '-').local")"
+  export PROJECT_UPDATE_WAIT="${PROJECT_UPDATE_WAIT:-"30s"}"
+
+  export ARGOCD_DOMAIN="${ARGOCD_DOMAIN:-"argocd.${PRIMARY_DOMAIN}"}"
+
   # Load environment configuration
   if [ -f "${__env_dir}/public.sh" ]; then
     source "${__env_dir}/public.sh"
@@ -339,14 +347,6 @@ function init_project() {
   if [ -f "${__env_dir}/secret.sh" ]; then
     source "${__env_dir}/secret.sh"
   fi
-
-  export APP_NAME="${__project_name//_/-}"
-  export APP_LABEL="$(config name)"
-
-  export PRIMARY_DOMAIN="$(config "domain.${__environment}" "$(echo "$APP_NAME" | tr '_' '-').local")"
-  export PROJECT_UPDATE_WAIT="${PROJECT_UPDATE_WAIT:-"30s"}"
-
-  export ARGOCD_DOMAIN="${ARGOCD_DOMAIN:-"argocd.${PRIMARY_DOMAIN}"}"
 }
 
 function requires_project () {
