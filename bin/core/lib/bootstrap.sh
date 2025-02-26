@@ -341,7 +341,7 @@ function init_project() {
     source "${__env_dir}/public.sh"
   fi
 
-  if [[ ! -f "${__env_dir}/secret.sh" ]] && [[ -f "${__env_dir}/secret.example.sh" ]]; then
+  if [[ "${__environment}" == "local" ]] && [[ ! -f "${__env_dir}/secret.sh" ]] && [[ -f "${__env_dir}/secret.example.sh" ]]; then
     cp -f "${__env_dir}/secret.example.sh" "${__env_dir}/secret.sh"
   fi
   if [ -f "${__env_dir}/secret.sh" ]; then
