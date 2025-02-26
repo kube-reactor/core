@@ -7,20 +7,22 @@ function load_hooks () {
   local hooks_script_name="hooks"
 
   if check_project; then
-    for project in $(config docker); do
-      project_dir="${__docker_dir}/$(config docker.$project.project $project)"
-      hook_script="${project_dir}/reactor/${hooks_script_name}.sh"
-      if [ -f "$hook_script" ]; then
-        source "$hook_script"
-      fi
-    done
-    for chart in $(config charts); do
-      chart_dir="${__charts_dir}/$(config charts.$chart.project $chart)"
-      hook_script="${chart_dir}/reactor/${hooks_script_name}.sh"
-      if [ -f "$hook_script" ]; then
-        source "$hook_script"
-      fi
-    done
+    if [ "${__environment}" == "local" ]; then
+      for project in $(config docker); do
+        project_dir="${__docker_dir}/$(config docker.$project.project $project)"
+        hook_script="${project_dir}/reactor/${hooks_script_name}.sh"
+        if [ -f "$hook_script" ]; then
+          source "$hook_script"
+        fi
+      done
+      for chart in $(config charts); do
+        chart_dir="${__charts_dir}/$(config charts.$chart.project $chart)"
+        hook_script="${chart_dir}/reactor/${hooks_script_name}.sh"
+        if [ -f "$hook_script" ]; then
+          source "$hook_script"
+        fi
+      done
+    fi
     for extension in $(config extensions); do
       extension_dir="${__extension_dir}/${extension}"
       hook_script="${extension_dir}/reactor/${hooks_script_name}.sh"
@@ -45,28 +47,30 @@ function load_library () {
     done
   fi
   if check_project; then
-    for project in $(config docker); do
-      project_dir="${__docker_dir}/$(config docker.$project.project $project)"
-      library_dir="${project_dir}/reactor/${library_type}"
+    if [ "${__environment}" == "local" ]; then
+      for project in $(config docker); do
+        project_dir="${__docker_dir}/$(config docker.$project.project $project)"
+        library_dir="${project_dir}/reactor/${library_type}"
 
-      if [[ -d "$library_dir" ]] \
-        && compgen -G "${library_dir}"/*.sh >/dev/null; then
-        for file in "${library_dir}"/*.sh; do
-          source "$file"
-        done
-      fi
-    done
-    for chart in $(config charts); do
-      chart_dir="${__charts_dir}/$(config charts.$chart.project $chart)"
-      library_dir="${chart_dir}/reactor/${library_type}"
+        if [[ -d "$library_dir" ]] \
+          && compgen -G "${library_dir}"/*.sh >/dev/null; then
+          for file in "${library_dir}"/*.sh; do
+            source "$file"
+          done
+        fi
+      done
+      for chart in $(config charts); do
+        chart_dir="${__charts_dir}/$(config charts.$chart.project $chart)"
+        library_dir="${chart_dir}/reactor/${library_type}"
 
-      if [[ -d "$library_dir" ]] \
-        && compgen -G "${library_dir}"/*.sh >/dev/null; then
-        for file in "${library_dir}"/*.sh; do
-          source "$file"
-        done
-      fi
-    done
+        if [[ -d "$library_dir" ]] \
+          && compgen -G "${library_dir}"/*.sh >/dev/null; then
+          for file in "${library_dir}"/*.sh; do
+            source "$file"
+          done
+        fi
+      done
+    fi
     for extension in $(config extensions); do
       extension_dir="${__extension_dir}/${extension}"
       library_dir="${extension_dir}/reactor/${library_type}"
@@ -90,29 +94,31 @@ function source_hook () {
   hook_name="$1"
 
   if check_project; then
-    # Include dependency hook if it exists
-    for project in $(config docker); do
-      project_dir="${__docker_dir}/$(config docker.$project.project $project)"
-      hook_script="${project_dir}/reactor/${hook_name}.sh"
-      if [ -f "$hook_script" ]; then
-        source "$hook_script" "$project" "$project_dir"
-      fi
-      hook_script="${__project_reactor_dir}/docker/${project}_${hook_name}.sh"
-      if [ -f "$hook_script" ]; then
-        source "$hook_script" "$project" "$project_dir"
-      fi
-    done
-    for chart in $(config charts); do
-      chart_dir="${__charts_dir}/$(config charts.$chart.project $chart)"
-      hook_script="${chart_dir}/reactor/${hook_name}.sh"
-      if [ -f "$hook_script" ]; then
-        source "$hook_script" "$chart" "$chart_dir"
-      fi
-      hook_script="${__project_reactor_dir}/charts/${chart}_${hook_name}.sh"
-      if [ -f "$hook_script" ]; then
-        source "$hook_script" "$project" "$chart_dir"
-      fi
-    done
+    if [ "${__environment}" == "local" ]; then
+      # Include dependency hook if it exists
+      for project in $(config docker); do
+        project_dir="${__docker_dir}/$(config docker.$project.project $project)"
+        hook_script="${project_dir}/reactor/${hook_name}.sh"
+        if [ -f "$hook_script" ]; then
+          source "$hook_script" "$project" "$project_dir"
+        fi
+        hook_script="${__project_reactor_dir}/docker/${project}_${hook_name}.sh"
+        if [ -f "$hook_script" ]; then
+          source "$hook_script" "$project" "$project_dir"
+        fi
+      done
+      for chart in $(config charts); do
+        chart_dir="${__charts_dir}/$(config charts.$chart.project $chart)"
+        hook_script="${chart_dir}/reactor/${hook_name}.sh"
+        if [ -f "$hook_script" ]; then
+          source "$hook_script" "$chart" "$chart_dir"
+        fi
+        hook_script="${__project_reactor_dir}/charts/${chart}_${hook_name}.sh"
+        if [ -f "$hook_script" ]; then
+          source "$hook_script" "$project" "$chart_dir"
+        fi
+      done
+    fi
     for extension in $(config extensions); do
       extension_dir="${__extension_dir}/${extension}"
       hook_script="${extension_dir}/reactor/${hook_name}.sh"
@@ -135,21 +141,23 @@ function source_utility () {
     source "$core_utility_script"
   fi
   if check_project; then
-    # Include dependency utility if it exists
-    for project in $(config docker); do
-      project_dir="${__docker_dir}/$(config docker.$project.project $project)"
-      utility_script="${project_dir}/reactor/utilities/${utility_name}.sh"
-      if [ -f "$utility_script" ]; then
-        source "$utility_script" "$project" "$project_dir"
-      fi
-    done
-    for chart in $(config charts); do
-      chart_dir="${__charts_dir}/$(config charts.$chart.project $chart)"
-      utility_script="${chart_dir}/reactor/utilities/${utility_name}.sh"
-      if [ -f "$utility_script" ]; then
-        source "$utility_script" "$chart" "$chart_dir"
-      fi
-    done
+    if [ "${__environment}" == "local" ]; then
+      # Include dependency utility if it exists
+      for project in $(config docker); do
+        project_dir="${__docker_dir}/$(config docker.$project.project $project)"
+        utility_script="${project_dir}/reactor/utilities/${utility_name}.sh"
+        if [ -f "$utility_script" ]; then
+          source "$utility_script" "$project" "$project_dir"
+        fi
+      done
+      for chart in $(config charts); do
+        chart_dir="${__charts_dir}/$(config charts.$chart.project $chart)"
+        utility_script="${chart_dir}/reactor/utilities/${utility_name}.sh"
+        if [ -f "$utility_script" ]; then
+          source "$utility_script" "$chart" "$chart_dir"
+        fi
+      done
+    fi
     for extension in $(config extensions); do
       extension_dir="${__extension_dir}/${extension}"
       utility_script="${extension_dir}/reactor/utilities/${utility_name}.sh"
@@ -208,14 +216,16 @@ function run_hook () {
   debug "Running hook: ${hook_name} ${@}"
 
   if check_project; then
-    for docker in $(config docker); do
-      docker_dir="${__docker_dir}/$(config docker.docker.project $docker)"
-      run_hook_function "$docker_dir" "$hook_name" "$@"
-    done
-    for chart in $(config charts); do
-      chart_dir="${__charts_dir}/$(config charts.$chart.project $chart)"
-      run_hook_function "$chart_dir" "$hook_name" "$@"
-    done
+    if [ "${__environment}" == "local" ]; then
+      for docker in $(config docker); do
+        docker_dir="${__docker_dir}/$(config docker.docker.project $docker)"
+        run_hook_function "$docker_dir" "$hook_name" "$@"
+      done
+      for chart in $(config charts); do
+        chart_dir="${__charts_dir}/$(config charts.$chart.project $chart)"
+        run_hook_function "$chart_dir" "$hook_name" "$@"
+      done
+    fi
     for extension in $(config extensions); do
       extension_dir="${__extension_dir}/${extension}"
       run_hook_function "$extension_dir" "$hook_name" "$@"

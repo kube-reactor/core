@@ -142,41 +142,43 @@ function install_os_requirements () {
       fi
     fi
 
-    for docker in $(config docker); do
-      docker_dir="${__docker_dir}/$(config docker.docker.project $docker)"
+    if [ "${__environment}" == "local" ]; then
+      for docker in $(config docker); do
+        docker_dir="${__docker_dir}/$(config docker.docker.project $docker)"
 
-      if [ -f "${docker_dir}/reactor/install.sh" ]; then
-        unset "install_${__os_type}"
-        unset "install_${__os_dist}"
+        if [ -f "${docker_dir}/reactor/install.sh" ]; then
+          unset "install_${__os_type}"
+          unset "install_${__os_dist}"
 
-        source "${docker_dir}/reactor/install.sh"
+          source "${docker_dir}/reactor/install.sh"
 
-        if function_exists "install_${__os_type}"; then
-          "install_${__os_type}"
+          if function_exists "install_${__os_type}"; then
+            "install_${__os_type}"
+          fi
+          if [[ "${__os_type}" != "${__os_dist}" ]] && function_exists "install_${__os_dist}"; then
+            "install_${__os_dist}"
+          fi
         fi
-        if [[ "${__os_type}" != "${__os_dist}" ]] && function_exists "install_${__os_dist}"; then
-          "install_${__os_dist}"
+      done
+
+      for chart in $(config charts); do
+        chart_dir="${__charts_dir}/$(config charts.$chart.project $chart)"
+
+        if [ -f "${chart_dir}/reactor/install.sh" ]; then
+          unset "install_${__os_type}"
+          unset "install_${__os_dist}"
+
+          source "${chart_dir}/reactor/install.sh"
+
+          if function_exists "install_${__os_type}"; then
+            "install_${__os_type}"
+          fi
+          if [[ "${__os_type}" != "${__os_dist}" ]] && function_exists "install_${__os_dist}"; then
+            "install_${__os_dist}"
+          fi
         fi
-      fi
-    done
-
-    for chart in $(config charts); do
-      chart_dir="${__charts_dir}/$(config charts.$chart.project $chart)"
-
-      if [ -f "${chart_dir}/reactor/install.sh" ]; then
-        unset "install_${__os_type}"
-        unset "install_${__os_dist}"
-
-        source "${chart_dir}/reactor/install.sh"
-
-        if function_exists "install_${__os_type}"; then
-          "install_${__os_type}"
-        fi
-        if [[ "${__os_type}" != "${__os_dist}" ]] && function_exists "install_${__os_dist}"; then
-          "install_${__os_dist}"
-        fi
-      fi
-    done
+      done
+    fi
 
     for extension in $(config extensions); do
       extension_dir="${__extension_dir}/${extension}"
@@ -204,19 +206,21 @@ function install_python_requirements () {
       pip3 install --no-cache-dir -r "${__project_dir}/reactor/requirements.txt"
     fi
 
-    for docker in $(config docker); do
-      docker_dir="${__docker_dir}/$(config docker.docker.project $docker)"
-      if [ -f "${docker_dir}/reactor/requirements.txt" ]; then
-        pip3 install --no-cache-dir -r "${docker_dir}/reactor/requirements.txt"
-      fi
-    done
+    if [ "${__environment}" == "local" ]; then
+      for docker in $(config docker); do
+        docker_dir="${__docker_dir}/$(config docker.docker.project $docker)"
+        if [ -f "${docker_dir}/reactor/requirements.txt" ]; then
+          pip3 install --no-cache-dir -r "${docker_dir}/reactor/requirements.txt"
+        fi
+      done
 
-    for chart in $(config charts); do
-      chart_dir="${__charts_dir}/$(config charts.$chart.project $chart)"
-      if [ -f "${chart_dir}/reactor/requirements.txt" ]; then
-        pip3 install --no-cache-dir -r "${chart_dir}/reactor/requirements.txt"
-      fi
-    done
+      for chart in $(config charts); do
+        chart_dir="${__charts_dir}/$(config charts.$chart.project $chart)"
+        if [ -f "${chart_dir}/reactor/requirements.txt" ]; then
+          pip3 install --no-cache-dir -r "${chart_dir}/reactor/requirements.txt"
+        fi
+      done
+    fi
 
     for extension in $(config extensions); do
       extension_dir="${__extension_dir}/${extension}"
