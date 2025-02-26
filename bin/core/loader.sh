@@ -140,6 +140,7 @@ if [ "${__core_manifest}" ]; then
   init_core "${__core_manifest}"
   if [ -d "${__projects_dir}/${__project_name}" ]; then
     export __project_manifest="$(project_manifest "${__projects_dir}/${__project_name}")"
+    export __project_dir="$(dirname "${__project_manifest}")"
   fi
 fi
 
@@ -184,6 +185,7 @@ if [ "${__template_manifest}" ]; then
   init_template "${__template_manifest}"
   if [ -d "${__template_dir}/${__project_name}" ]; then
     export __project_manifest="$(project_manifest "${__template_dir}/${__project_name}")"
+    export __project_dir="$(dirname "${__project_manifest}")"
   fi
 fi
 
