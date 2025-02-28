@@ -148,6 +148,8 @@ function create_command () {
   fi
 
   if [ ! -d "$TEMPLATE_DIRECTORY" ]; then
+    rm -Rf "$project_temp_dir"
+
     info "Fetching cluster template ..."
     download_git_repo \
       "$PROJECT_URL" \
