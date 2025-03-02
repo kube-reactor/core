@@ -145,6 +145,17 @@ if [ "${__core_manifest}" ]; then
 fi
 
 #
+# Initializing template development mode
+#
+if [ "${__template_manifest}" ]; then
+  init_template "${__template_manifest}"
+  if [ -d "${__template_dir}/${__project_name}" ]; then
+    export __project_manifest="$(project_manifest "${__template_dir}/${__project_name}")"
+    export __project_dir="$(dirname "${__project_manifest}")"
+  fi
+fi
+
+#
 # Load Runtime dependencies
 #
 source "${__utilities_dir}/env.sh"
@@ -175,18 +186,8 @@ source "${HOME}/.reactor/python/bin/activate"
 
 if ! is_setup_complete; then
   python3 -m pip install -U pip setuptools wheel --ignore-installed 1>>"$(logfile)" 2>&1
-  pip3 install --no-cache-dir -r "${__reactor_dir}/requirements/requirements.txt"
-fi
-
-#
-# Initializing template development mode
-#
-if [ "${__template_manifest}" ]; then
-  init_template "${__template_manifest}"
-  if [ -d "${__template_dir}/${__project_name}" ]; then
-    export __project_manifest="$(project_manifest "${__template_dir}/${__project_name}")"
-    export __project_dir="$(dirname "${__project_manifest}")"
-  fi
+  python3 -m pip install --upgrade pip 1>>"$(logfile)" 2>&1
+  pip3 install --no-cache-dir -r "${__reactor_dir}/requirements/requirements.txt" 1>>"$(logfile)" 2>&1
 fi
 
 #
