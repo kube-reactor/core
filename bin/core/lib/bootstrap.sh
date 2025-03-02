@@ -9,6 +9,8 @@ function run_local () {
 }
 
 function run_docker () {
+  delete_container_environment
+
   if [[ "$__os" == "darwin" ]]; then
     REACTOR_DOCKER_SOCKET_FILE="${REACTOR_DOCKER_SOCKET_FILE:-/var/run/docker.sock.raw}"
     if [ ! -e "$REACTOR_DOCKER_SOCKET_FILE" ]; then
@@ -84,19 +86,19 @@ function run_docker () {
 
 function mark_setup_complete () {
   if check_project; then
-    touch "${__project_dir}/.initialized"
+    touch "${HOME}/.reactor/.initialized_${__project_name}"
   else
-    touch "${__reactor_dir}/.initialized"
+    touch "${HOME}/.reactor/.initialized"
   fi
 }
 
 function is_setup_complete () {
   if check_project; then
-    if [ -f "${__project_dir}/.initialized" ]; then
+    if [ -f "${HOME}/.reactor/.initialized_${__project_name}" ]; then
       return 0
     fi
   else
-    if [ -f "${__reactor_dir}/.initialized" ]; then
+    if [ -f "${HOME}/.reactor/.initialized" ]; then
       return 0
     fi
   fi
