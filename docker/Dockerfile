@@ -80,4 +80,11 @@ VOLUME /reactor
 #
 USER ${REACTOR_USER_NAME}
 WORKDIR ${HOME_DIR}
+
+#
+# Install dependencies
+#
+ENV __bin_dir=/reactor/bin
+RUN /reactor/bin/core/loader.sh
+
 ENTRYPOINT ["/reactor/bin/core/exec.sh"]
