@@ -24,6 +24,7 @@ function install_debian () {
     unzip \
     python3-dev \
     python3-pip \
+    python3-venv \
     git \
     sshpass \
     jq 1>>"$(logfile)" 2>&1
