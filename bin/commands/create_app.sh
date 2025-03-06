@@ -110,21 +110,38 @@ function create_app_command () {
   info "Creating application docker project ..."
   cookiecutter "${TEMPLATE_VARS[@]}"
 
+  if [ -f "${DOCKER_DIRECTORY}/reactor/initialize.sh" ]; then
+    source "${DOCKER_DIRECTORY}/reactor/initialize.sh"
+  fi
   if [ ! -d "${DOCKER_DIRECTORY}/.git" ]; then
     info "Initializing Git repository ..."
     cd "$DOCKER_DIRECTORY"
     git init
     git add .
     git commit -m "Initial commit."
+  else
+    cd "$DOCKER_DIRECTORY"
+  fi
 
-    if [[ "${GITHUB_TOKEN:-}" ]] && [[ "${GITHUB_ORG:-}" ]]; then
-      info "Creating GitHub repository ..."
-      if gh repo view "$GITHUB_PROJECT" 1>/dev/null 2>&1; then
-        rm -Rf "${DOCKER_DIRECTORY}/.git"
-        emergency "Repository ${GITHUB_PROJECT} already exists. Please choose another name"
-      fi
-      gh repo create "$GITHUB_PROJECT" --private --source="$DOCKER_DIRECTORY" --push
+  if [[ "${GITHUB_TOKEN:-}" ]] && [[ "${GITHUB_ORG:-}" ]]; then
+    export GITHUB_REMOTE_URL="git@github.com:${GITHUB_PROJECT}.git"
+
+    info "Creating GitHub repository ..."
+    if gh repo view "$GITHUB_PROJECT" 1>/dev/null 2>&1; then
+      rm -Rf "${DOCKER_DIRECTORY}/.git"
+      emergency "Repository ${GITHUB_PROJECT} already exists. Please choose another name"
     fi
+    gh repo create "$GITHUB_PROJECT" --private --source="$DOCKER_DIRECTORY" --push
+
+    git remote rm origin
+    git remote add origin "$GITHUB_REMOTE_URL"
+
+    add_docker_project \
+      "$PROJECT_NAME" \
+      "$GITHUB_REMOTE_URL" \
+      "$(git var GIT_DEFAULT_BRANCH)" \
+      "${APP_DOCKER_DEV_DIR:-docker}" \
+      "${APP_DOCKER_DEV_TAG:-dev}"
   fi
 
   if [ -d "${__project_dir}/env/prod" ]; then
@@ -136,9 +153,6 @@ function create_app_command () {
     info "Creating cluster ${APP_PARENT_PROJECT} project ..."
     cp -Rf "$CLUSTER_PROJECT_DIRECTORY" "$PROJECT_DIRECTORY"
   fi
-
-  # TODO: Add Docker project to reactor.yml
-  # TODO: Add project to container repository
 
   run_hook create_app
 }
