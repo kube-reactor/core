@@ -46,7 +46,7 @@ function update_command () {
 
   if [ "$UPDATE_ALL" -o "$UPDATE_DNS" ]; then
     if [ "$UPDATE_ALL" ]; then
-      sleep 30
+      sleep 60
     fi
     save_dns_records
   fi
