@@ -51,12 +51,18 @@ fi
 COMMAND="${__app_args[0]}"
 COMMAND_ARGS=("${__app_args[@]:1}")
 
+warn_no_project "${COMMAND}"
+
 if [ "$COMMAND" == "help" ]; then
   if [[ ${#COMMAND_ARGS[@]} -eq 0 ]]; then
     gateway_usage
   else
     generate_command_help "${COMMAND_ARGS[0]}"
   fi
+fi
+
+if kubernetes_status; then
+  add_container_environment
 fi
 
 pop_arg_command

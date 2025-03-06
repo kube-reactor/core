@@ -24,13 +24,6 @@ load_hook initialize
 load_utilities
 
 #
-# Initializing Docker environment
-#
-if kubernetes_status; then
-  add_container_environment
-fi
-
-#
 # Loading commands
 #
 load_commands
