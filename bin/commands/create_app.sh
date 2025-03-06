@@ -26,11 +26,6 @@ function create_app_command_environment () {
       "$DEFAULT_APP_URL"
   fi
 
-  parse_option --remote \
-    APP_REMOTE \
-    "Application project Git remote name to fetch" \
-    "${DEFAULT_APP_REMOTE:-origin}"
-
   parse_option --reference \
     APP_REFERENCE \
     "Application template Git reference" \
