@@ -402,6 +402,26 @@ function env_json () {
 
 #
 #=========================================================================================
+# Project manifest generation functions
+#
+
+function add_docker_project () {
+  local project_name="$1"
+  local remote_url="$2"
+  local reference="${3:-main}"
+  local docker_dir="${4:-docker}"
+  local docker_tag="${5:-dev}"
+
+  "${__bin_dir}/utilities/add_docker.py" \
+    "$project_name" \
+    "$remote_url" \
+    "$reference" \
+    "$docker_dir" \
+    "$docker_tag"
+}
+
+#
+#=========================================================================================
 # Installation and Execution functions
 #
 
