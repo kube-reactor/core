@@ -86,7 +86,8 @@ function run_docker () {
 
 function mark_setup_complete () {
   if check_project; then
-    touch "${HOME}/.reactor/.initialized_${__project_name}"
+    local project="$(basename "$(dirname "${__project_manifest}")")"
+    touch "${HOME}/.reactor/.initialized_${project}"
   else
     touch "${HOME}/.reactor/.initialized"
   fi
@@ -94,7 +95,8 @@ function mark_setup_complete () {
 
 function is_setup_complete () {
   if check_project; then
-    if [ -f "${HOME}/.reactor/.initialized_${__project_name}" ]; then
+    local project="$(basename "$(dirname "${__project_manifest}")")"
+    if [ -f "${HOME}/.reactor/.initialized_${project}" ]; then
       return 0
     fi
   else
