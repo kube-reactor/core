@@ -22,12 +22,12 @@ if [ $SOURCED -eq 1 ]; then
   return
 fi
 
-source "${__bin_dir}/utilities/cli.sh"
-source "${__bin_dir}/utilities/hooks.sh"
+for file in "${__bin_dir}/utilities"/*.sh; do
+  source "$file"
+done
 source "${__bin_dir}/core/lib/bootstrap.sh"
 source "${__bin_dir}/core/lib/runtime.sh"
 
-load_utilities
 reactor_args "$@"
 
 export __init_args=("${__app_args[@]}")
