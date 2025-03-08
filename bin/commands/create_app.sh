@@ -119,6 +119,7 @@ function create_app_command () {
     git init
     git add .
     git commit -m "Initial commit."
+    git tag 0.1.0
   else
     cd "$DOCKER_DIRECTORY"
   fi
@@ -135,6 +136,7 @@ function create_app_command () {
 
     git remote rm origin
     git remote add origin "$GITHUB_REMOTE_URL"
+    git push --tags origin
 
     add_docker_project \
       "$PROJECT_NAME" \
