@@ -12,6 +12,7 @@ function build_command_environment () {
 }
 
 function build_command () {
+  save_libraries
   helm_environment
 
   info "Initializing docker image repositories ..."
