@@ -62,8 +62,7 @@ RUN ((getent group ${REACTOR_DOCKER_GID} && newgrp docker) || groupmod --gid ${R
   --groups root,sudo,docker,$(getent group ${REACTOR_DOCKER_GID} | cut -d: -f1) \
   ${REACTOR_USER_NAME} \
   && echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers \
-  && echo 'export PATH="/reactor/bin:$PATH"' >> /etc/bash.bashrc \
-  && echo 'alias reactor="/reactor/bin/core/exec.sh"' >> /etc/bash.bashrc
+  && echo 'export PATH="/reactor/bin:$PATH"' >> /etc/bash.bashrc
 #
 #====================================================================
 # Application configuration

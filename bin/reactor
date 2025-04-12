@@ -19,6 +19,9 @@ source "${__bin_dir}/core/env.sh" $SOURCED
 
 if [ $SOURCED -eq 1 ]; then
   # script is being sourced
+  if kubernetes_status; then
+    add_container_environment
+  fi
   return
 fi
 
