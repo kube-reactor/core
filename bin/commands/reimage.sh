@@ -13,6 +13,8 @@ function reimage_requires_project () {
 }
 
 function reimage_command () {
+  save_libraries
+
   delete_container_environment
   "${__core_dir}/image.sh" "$@"
   exit $?

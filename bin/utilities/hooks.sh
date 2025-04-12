@@ -102,15 +102,26 @@ function save_libraries () {
       fi
     done
   fi
+  load_libraries
 }
 
 function load_libraries () {
+  local missing=0
+
   if [ -f "${__library_file}" ]; then
     while IFS= read -r file; do
       if [ "$file" ]; then
-        source "$file"
+        if [ -f "$file" ]; then
+          source "$file"
+        else
+          missing=1
+          break
+        fi
       fi
     done <"${__library_file}"
+  fi
+  if [ $missing -eq 1 ]; then
+    save_libraries
   fi
 }
 

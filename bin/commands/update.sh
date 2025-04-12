@@ -38,6 +38,8 @@ function update_command_environment () {
 }
 
 function update_command () {
+  save_libraries
+
   if [ "$UPDATE_ALL" -o "$UPDATE_APPS" ]; then
     provision_kubernetes_applications
   fi

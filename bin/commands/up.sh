@@ -29,6 +29,7 @@ function up_command_environment () {
 }
 
 function up_command () {
+  save_libraries
   cert_environment
   kubernetes_environment
   helm_environment

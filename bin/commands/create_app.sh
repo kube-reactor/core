@@ -156,5 +156,6 @@ function create_app_command () {
     cp -Rf "$CLUSTER_PROJECT_DIRECTORY" "$PROJECT_DIRECTORY"
   fi
 
+  save_libraries
   run_hook create_app
 }
