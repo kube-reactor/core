@@ -14,8 +14,6 @@
 # * __project_dir
 # * __project_test_dir
 #
-load_utilities verifiers
-
 
 function test_phase () {
   export TEST_PHASE="$1"

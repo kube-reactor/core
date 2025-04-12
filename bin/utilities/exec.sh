@@ -2,8 +2,6 @@
 #=========================================================================================
 # Command Execution Utilities
 #
-load_utilities env args
-
 
 function export_functions () {
   # Export all functions so they are available in child scripts.
