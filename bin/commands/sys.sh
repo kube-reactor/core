@@ -4,16 +4,9 @@
 #
 
 function sys_description () {
-  render "Execute a kubectl operation within the reactor environment context"
-  export PASSTHROUGH="1"
+  render "DEPRECATED: Refer to kube command"
 }
 
 function sys_command () {
-  kubernetes_environment
-
-  if ! kubernetes_status; then
-    emergency "Kubernetes is not running"
-  fi
-  "${__bin_dir}/kubectl" "$@"
-  add_space
+  run_subcommand kube "$@"
 }
