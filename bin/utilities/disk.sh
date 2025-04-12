@@ -122,6 +122,9 @@ function update_projects () {
           "$(config extensions.$extension.reference)"
     done
   fi
+  save_libraries
+  load_libraries
+
   run_hook update_projects
   debug "Project updates complete"
 }
