@@ -34,6 +34,7 @@ function init_core () {
   export __test_lib_dir="${__test_dir}/lib"
   export __templates_dir="${__reactor_dir}/templates"
   export __projects_dir="${__reactor_dir}/projects"
+  export __library_file="${__reactor_dir}/.libraries"
 
   export __reactor_version="$(cat -s "${__reactor_dir}/VERSION")"
 
@@ -152,6 +153,7 @@ if [ "${__template_manifest}" ]; then
   if [ -d "${__template_dir}/${__project_name}" ]; then
     export __project_manifest="$(project_manifest "${__template_dir}/${__project_name}")"
     export __project_dir="$(dirname "${__project_manifest}")"
+    export __library_file="${__project_dir}/.libraries"
   fi
 fi
 
