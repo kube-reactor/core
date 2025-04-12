@@ -16,17 +16,7 @@ export SOURCED="$1"
 # Loading environment
 #
 source "${__bin_dir}/core/loader.sh"
-
-#
-# Loading utilities
-#
 load_hook initialize
-load_utilities
-
-#
-# Loading commands
-#
-load_commands
 
 #
 # Finalizing environment initialization
