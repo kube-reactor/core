@@ -132,20 +132,20 @@ function run_docker () {
 function mark_setup_complete () {
   if check_project; then
     local project="$(basename "$(dirname "${__project_manifest}")")"
-    touch "${HOME}/.reactor/.initialized_${project}"
+    touch "${HOME}/.reactor/initialized_${project}"
   else
-    touch "${HOME}/.reactor/.initialized"
+    touch "${HOME}/.reactor/initialized"
   fi
 }
 
 function is_setup_complete () {
   if check_project; then
     local project="$(basename "$(dirname "${__project_manifest}")")"
-    if [ -f "${HOME}/.reactor/.initialized_${project}" ]; then
+    if [ -f "${HOME}/.reactor/initialized_${project}" ]; then
       return 0
     fi
   else
-    if [ -f "${HOME}/.reactor/.initialized" ]; then
+    if [ -f "${HOME}/.reactor/initialized" ]; then
       return 0
     fi
   fi
@@ -361,7 +361,6 @@ function check_project () {
 
 function init_project() {
   export __env_dir="${__project_dir}/env/${__environment}"
-  export __library_file="${__project_dir}/.libraries"
   export __init_file="${__env_dir}/.initialized"
 
   export __project_reactor_dir="${__project_dir}/reactor"
@@ -381,6 +380,7 @@ function init_project() {
   export __argocd_apps_dir="${__terraform_dir}/argocd-apps"
 
   export __project_name="$(config short_name)"
+  export __library_file="${HOME}/.reactor/libraries_${__project_name}"
 
   export APP_NAME="${__project_name//_/-}"
   export APP_LABEL="$(config name)"
