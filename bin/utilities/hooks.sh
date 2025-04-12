@@ -37,56 +37,80 @@ function load_hooks () {
   fi
 }
 
-function load_library () {
-  local library_type="$1"
-  local library_core_dir="${__bin_dir}/${library_type}"
+function save_libraries () {
+  local library_types=("utilities" "commands")
 
-  if [ -d "$library_core_dir" ]; then
-    for file in "${library_core_dir}"/*.sh; do
-      source "$file"
-    done
-  fi
+  echo "" >"${__library_file}"
+
+  for type in "${library_types[@]}"; do
+    if [ -d "${__bin_dir}/${type}" ]; then
+      for file in "${__bin_dir}/${type}"/*.sh; do
+        echo "$file" >>"${__library_file}"
+      done
+    fi
+  done
   if check_project; then
     if [ "${__environment}" == "local" ]; then
       for project in $(config docker); do
         project_dir="${__docker_dir}/$(config docker.$project.project $project)"
-        library_dir="${project_dir}/reactor/${library_type}"
 
-        if [[ -d "$library_dir" ]] \
-          && compgen -G "${library_dir}"/*.sh >/dev/null; then
-          for file in "${library_dir}"/*.sh; do
-            source "$file"
-          done
-        fi
+        for type in "${library_types[@]}"; do
+          library_dir="${project_dir}/reactor/${type}"
+
+          if [[ -d "$library_dir" ]] \
+            && compgen -G "${library_dir}"/*.sh >/dev/null; then
+            for file in "${library_dir}"/*.sh; do
+              echo "$file" >>"${__library_file}"
+            done
+          fi
+        done
       done
       for chart in $(config charts); do
         chart_dir="${__charts_dir}/$(config charts.$chart.project $chart)"
-        library_dir="${chart_dir}/reactor/${library_type}"
 
-        if [[ -d "$library_dir" ]] \
-          && compgen -G "${library_dir}"/*.sh >/dev/null; then
-          for file in "${library_dir}"/*.sh; do
-            source "$file"
-          done
-        fi
+        for type in "${library_types[@]}"; do
+          library_dir="${chart_dir}/reactor/${type}"
+
+          if [[ -d "$library_dir" ]] \
+            && compgen -G "${library_dir}"/*.sh >/dev/null; then
+            for file in "${library_dir}"/*.sh; do
+              echo "$file" >>"${__library_file}"
+            done
+          fi
+        done
       done
     fi
     for extension in $(config extensions); do
       extension_dir="${__extension_dir}/${extension}"
-      library_dir="${extension_dir}/reactor/${library_type}"
 
-      if [[ -d "$library_dir" ]] \
-        && compgen -G "${library_dir}"/*.sh >/dev/null; then
-        for file in "${library_dir}"/*.sh; do
-          source "$file"
+      for type in "${library_types[@]}"; do
+        library_dir="${extension_dir}/reactor/${type}"
+
+        if [[ -d "$library_dir" ]] \
+          && compgen -G "${library_dir}"/*.sh >/dev/null; then
+          for file in "${library_dir}"/*.sh; do
+            echo "$file" >>"${__library_file}"
+          done
+        fi
+      done
+    done
+    for type in "${library_types[@]}"; do
+      if compgen -G "${__project_reactor_dir}/${type}"/*.sh >/dev/null; then
+        for file in "${__project_reactor_dir}/${type}"/*.sh; do
+          echo "$file" >>"${__library_file}"
         done
       fi
     done
-    if compgen -G "${__project_reactor_dir}/${library_type}"/*.sh >/dev/null; then
-      for file in "${__project_reactor_dir}/${library_type}"/*.sh; do
+  fi
+}
+
+function load_libraries () {
+  if [ -f "${__library_file}" ]; then
+    while IFS= read -r file; do
+      if [ "$file" ]; then
         source "$file"
-      done
-    fi
+      fi
+    done <"${__library_file}"
   fi
 }
 

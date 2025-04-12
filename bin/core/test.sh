@@ -58,7 +58,6 @@ export __bin_dir="$(dirname "${__core_dir}")"
 export REACTOR_SHELL_OUTPUT="true"
 
 source "${__core_dir}/loader.sh"
-load_utilities test
 
 #=========================================================================================
 # Parameter processing

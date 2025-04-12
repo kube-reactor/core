@@ -15,6 +15,7 @@
 
 # State files
 /.initialized
+/.libraries
 
 # Temporary folders
 /logs/

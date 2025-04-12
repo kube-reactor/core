@@ -4,7 +4,52 @@
 #
 
 function run_local () {
-  "${__bin_dir}/core/exec.sh" "${__app_args[@]}"
+  echo "" >"$(logfile)"
+  debug "====================================================================="
+  debug "Command: ${__app_args[@]}"
+  debug "====================================================================="
+  debug ""
+
+  debug "Environment Variables"
+  debug "======================================"
+  debug "$(render_environment)"
+  debug ""
+  #
+  #=========================================================================================
+  # Execution
+  #
+  if [[ "$arg_h" ]] || [[ ${#__app_args[@]} -eq 0 ]]; then
+    if [[ ${#__app_args[@]} -gt 0 ]] && [[ "${__app_args[0]}" =~ ^[^-] ]]; then
+      if function_exists "${__app_args[0]}_description"; then
+        "${__app_args[0]}_description" >/dev/null 2>&1
+        if [ -z "${PASSTHROUGH:-}" ]; then
+          generate_command_help "${__app_args[0]}"
+        fi
+      fi
+    else
+      gateway_usage
+    fi
+  fi
+
+  COMMAND="${__app_args[0]}"
+  COMMAND_ARGS=("${__app_args[@]:1}")
+
+  warn_no_project "${COMMAND}"
+
+  if [ "$COMMAND" == "help" ]; then
+    if [[ ${#COMMAND_ARGS[@]} -eq 0 ]]; then
+      gateway_usage
+    else
+      generate_command_help "${COMMAND_ARGS[0]}"
+    fi
+  fi
+
+  if kubernetes_status; then
+    add_container_environment
+  fi
+
+  pop_arg_command
+  run_command "$COMMAND" command "${COMMAND_ARGS[@]}"
   run_hook finalize
 }
 
@@ -316,6 +361,7 @@ function check_project () {
 
 function init_project() {
   export __env_dir="${__project_dir}/env/${__environment}"
+  export __library_file="${__project_dir}/.libraries"
   export __init_file="${__env_dir}/.initialized"
 
   export __project_reactor_dir="${__project_dir}/reactor"
