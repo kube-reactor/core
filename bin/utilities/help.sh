@@ -26,7 +26,6 @@ function generate_command_help () {
 function gateway_usage () {
   render_overview
   cat <<EOF >&2
-
   Reactor manages development Kubernetes environments
 
 
