@@ -59,17 +59,17 @@ Installation Steps
       # You can find the latest reactor release here: https://github.com/kube-reactor/core/releases
       (
         REACTOR_VERSION=0.1.2 &&
-        set -x && mkdir -p "${HOME}/.reactor" && cd "${HOME}/.reactor" &&
+        set -x && mkdir -p "${HOME}/reactor" && cd "${HOME}/reactor" &&
         curl -fsSLO https://github.com/kube-reactor/core/releases/download/${REACTOR_VERSION}/reactor.tar.gz &&
         tar -zxvf reactor.tar.gz
       )
 
-2. Add the installation directory to your system `PATH` (if not already done):
+2. Add the installation bin directory to your system `PATH` (if not already done):
 
    .. code-block:: bash
 
       # Add the following line to your ~/.bashrc or ~/.profile
-      export PATH="${HOME}/.reactor:${PATH}"
+      export PATH="${HOME}/reactor/bin:${PATH}"
 
 3. Verify the installation by checking the Reactor CLI version:
 
