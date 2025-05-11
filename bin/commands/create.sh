@@ -12,7 +12,7 @@
 #
 #    *> git clone https://github.com/kube-reactor/core.git {core_directory}
 #    *> cd {core_directory}
-#    *> reactor create --name {project_name} --url {template_url} # ./projects/{project_name} ./templates/{project_name}
+#    *> reactor create {project_name} --url {template_url} # ./projects/{project_name} ./templates/{project_name}
 #
 #  * Template Development
 #
@@ -20,7 +20,7 @@
 #
 #    *> git clone {template_git_url} {template_directory}
 #    *> cd {template_directory}
-#    *> reactor create --name {project_name} # ./{project_name}
+#    *> reactor create {project_name} # ./{project_name}
 #
 #  * Project Development
 #
