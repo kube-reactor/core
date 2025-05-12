@@ -1,0 +1,71 @@
+version: 2
+
+ubuntu_amd64: &ubuntu_amd64
+    resource_class: medium
+    machine:
+        image: ubuntu-2404:current
+
+ubuntu_arm64: &ubuntu_arm64
+    resource_class: arm.medium
+    machine:
+        image: ubuntu-2404:current
+
+install_reactor: &install_reactor
+    name: Install reactor framework
+    command: |
+        git clone https://github.com/kube-reactor/core.git /tmp/reactor
+        echo 'export PATH=/tmp/reactor/scripts:${PATH}' >> $BASH_ENV
+
+bootstrap: &bootstrap
+    name: Bootstrap test OS
+    command: /tmp/reactor/tests/bootstrap.sh
+
+session: &session
+    name: Test Docker image
+    command: /tmp/reactor/tests/run_session.sh
+
+session_env: &session_env
+    REACTOR_PARENT_IMAGE: ubuntu:22.04
+    MINIKUBE_CPUS: 2
+    MINIKUBE_MEMORY: 4096
+    PROJECT_TEMPLATE_DIRECTORY: ./
+
+dump_log: &dump_log
+    name: Dump reactor command log
+    when: always
+    command: test ! -f ./logs/reactor.log || cat ./logs/reactor.log
+
+test_bash: &test_bash
+    steps:
+        - checkout
+        - run: *install_reactor
+        - run:
+            <<: *bootstrap
+            shell: /usr/bin/bash
+            environment: *session_env
+        - run:
+            <<: *session
+            shell: /usr/bin/bash
+            environment: *session_env
+        - run: *dump_log
+
+jobs:
+    test-amd64-ubuntu-bash:
+        <<: [*ubuntu_amd64, *test_bash]
+
+    test-arm64-ubuntu-bash:
+        <<: [*ubuntu_arm64, *test_bash]
+
+workflows:
+    version: 2
+    deploy:
+        jobs:
+            - test-amd64-ubuntu-bash:
+                filters:
+                    tags:
+                        only: /.*/
+
+            - test-arm64-ubuntu-bash:
+                filters:
+                    tags:
+                        only: /.*/

@@ -34,6 +34,7 @@ cp "${__reactor_dir}/bin/kubectl-reactor" "${__package_files_dir}"
 cp -R "${__reactor_dir}/bin/core"/* "${__core_dir}"
 cp "${__reactor_dir}/bin/utilities"/*.sh "${__utility_dir}"
 cp "${__reactor_dir}/bin/utilities"/*.py "${__utility_dir}"
+cp -R "${__reactor_dir}/bin/utilities/template" "${__utility_dir}"
 cp "${__reactor_dir}/bin/commands"/*.sh "${__command_dir}"
 cp -R "${__reactor_dir}/tests"/* "${__test_dir}"
 
