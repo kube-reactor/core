@@ -28,8 +28,9 @@ function build_docker_image () {
   DOCKER_FILE="${DOCKER_DIR}/$(config docker.$PROJECT_NAME.docker_file Dockerfile)"
 
   if [ -f "$DOCKER_FILE" ]; then
-    BUILD_SCRIPT="${PROJECT_DIR}/reactor/build_image.sh"
-    PROJECT_BUILD_SCRIPT="${__project_reactor_dir}/docker/${PROJECT_NAME}_build_image.sh"
+    BUILD_SCRIPT_NAME="$(config docker.$PROJECT_NAME.docker_args build_image)"
+    BUILD_SCRIPT="${PROJECT_DIR}/reactor/${BUILD_SCRIPT_NAME}.sh"
+    PROJECT_BUILD_SCRIPT="${__project_reactor_dir}/docker/${BUILD_SCRIPT_NAME}.${PROJECT_NAME}.sh"
     DOCKER_BUILD_VARS=()
 
     debug "Function: build_image"
