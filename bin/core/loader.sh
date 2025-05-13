@@ -35,6 +35,7 @@ function init_core () {
   export __templates_dir="${__reactor_dir}/templates"
   export __projects_dir="${__reactor_dir}/projects"
   export __library_file="${HOME}/.reactor/libraries"
+  export __library_types=("utilities" "commands")
 
   export __reactor_version="$(cat -s "${__reactor_dir}/VERSION")"
 
@@ -128,9 +129,13 @@ export DEFAULT_PROJECT_REFERENCE="${DEFAULT_REACTOR_REFERENCE:-main}"
 
 init_core "${__bin_dir}"
 
-export __core_manifest="$(core_manifest "$(pwd)")"
-export __template_manifest="$(template_manifest "$(pwd)")"
-export __project_manifest="$(project_manifest "$(pwd)")"
+export __exec_dir="$(pwd)"
+export __exec_reactor_dir="${__exec_dir}/reactor"
+
+export __core_manifest="$(core_manifest "${__exec_dir}")"
+export __template_manifest="$(template_manifest "${__exec_dir}")"
+
+export __project_manifest="$(project_manifest "${__exec_dir}")"
 export __project_dir="$(dirname "${__project_manifest}")"
 export __project_name="${REACTOR_PROJECT_NAME:-$(date +%Y%m%d_%H%M%S)}"
 
