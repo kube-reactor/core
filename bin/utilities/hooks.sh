@@ -34,15 +34,18 @@ function load_hooks () {
     if [ -f "$hook_script" ]; then
       source "$hook_script"
     fi
+  elif [ -d "${__exec_reactor_dir}" ]; then
+    hook_script="${__exec_reactor_dir}/${hooks_script_name}.sh"
+    if [ -f "$hook_script" ]; then
+      source "$hook_script"
+    fi
   fi
 }
 
 function save_libraries () {
-  local library_types=("utilities" "commands")
-
   echo "" >"${__library_file}"
 
-  for type in "${library_types[@]}"; do
+  for type in "${__library_types[@]}"; do
     if [ -d "${__bin_dir}/${type}" ]; then
       for file in "${__bin_dir}/${type}"/*.sh; do
         echo "$file" >>"${__library_file}"
@@ -54,7 +57,7 @@ function save_libraries () {
       for project in $(config docker); do
         project_dir="${__docker_dir}/$(config docker.$project.project $project)"
 
-        for type in "${library_types[@]}"; do
+        for type in "${__library_types[@]}"; do
           library_dir="${project_dir}/reactor/${type}"
 
           if [[ -d "$library_dir" ]] \
@@ -68,7 +71,7 @@ function save_libraries () {
       for chart in $(config charts); do
         chart_dir="${__charts_dir}/$(config charts.$chart.project $chart)"
 
-        for type in "${library_types[@]}"; do
+        for type in "${__library_types[@]}"; do
           library_dir="${chart_dir}/reactor/${type}"
 
           if [[ -d "$library_dir" ]] \
@@ -83,7 +86,7 @@ function save_libraries () {
     for extension in $(config extensions); do
       extension_dir="${__extension_dir}/${extension}"
 
-      for type in "${library_types[@]}"; do
+      for type in "${__library_types[@]}"; do
         library_dir="${extension_dir}/reactor/${type}"
 
         if [[ -d "$library_dir" ]] \
@@ -94,7 +97,7 @@ function save_libraries () {
         fi
       done
     done
-    for type in "${library_types[@]}"; do
+    for type in "${__library_types[@]}"; do
       if compgen -G "${__project_reactor_dir}/${type}"/*.sh >/dev/null; then
         for file in "${__project_reactor_dir}/${type}"/*.sh; do
           echo "$file" >>"${__library_file}"
@@ -120,8 +123,18 @@ function load_libraries () {
       fi
     done <"${__library_file}"
   fi
+
   if [ $missing -eq 1 ]; then
     save_libraries
+
+  elif ! check_project && [[ -d "${__exec_reactor_dir}" ]]; then
+    for type in "${__library_types[@]}"; do
+      if [ -d "${__exec_reactor_dir}/${type}" ]; then
+        for file in "${__exec_reactor_dir}/${type}"/*.sh; do
+          source "$file"
+        done
+      fi
+    done
   fi
 }
 
@@ -165,6 +178,10 @@ function source_hook () {
     if [ -f "${__project_reactor_dir}/${hook_name}.sh" ]; then
       source "${__project_reactor_dir}/${hook_name}.sh"
     fi
+  elif [ -d "${__exec_reactor_dir}" ]; then
+    if [ -f "${__exec_reactor_dir}/${hook_name}.sh" ]; then
+      source "${__exec_reactor_dir}/${hook_name}.sh"
+    fi
   fi
 }
 
@@ -203,6 +220,10 @@ function source_utility () {
     # Include project utility if it exists
     if [ -f "${__project_reactor_dir}/utilities/${utility_name}.sh" ]; then
       source "${__project_reactor_dir}/utilities/${utility_name}.sh"
+    fi
+  elif [ -d "${__exec_reactor_dir}" ]; then
+    if [ -f "${__exec_reactor_dir}/utilities/${utility_name}.sh" ]; then
+      source "${__exec_reactor_dir}/utilities/${utility_name}.sh"
     fi
   fi
 }
@@ -266,5 +287,8 @@ function run_hook () {
       run_hook_function "$extension_dir" "$hook_name" "$@"
     done
     run_hook_function "${__project_dir}" "$hook_name" "$@"
+
+  elif [ -d "${__exec_reactor_dir}" ]; then
+    run_hook_function "${__exec_dir}" "$hook_name" "$@"
   fi
 }
