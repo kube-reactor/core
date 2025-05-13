@@ -61,20 +61,37 @@ function kubernetes_status_minikube () {
 
 function start_kubernetes_minikube () {
   minikube_environment
-  "${__bin_dir}/minikube" start \
-    --profile="${APP_NAME}" \
-    --driver="${MINIKUBE_DRIVER}" \
-    --nodes="${MINIKUBE_NODES}" \
-    --cpus="${MINIKUBE_CPUS}" \
-    --memory="${MINIKUBE_MEMORY}" \
-    --kubernetes-version="${KUBERNETES_VERSION}" \
-    --container-runtime="${MINIKUBE_CONTAINER_RUNTIME}" \
-    --addons="default-storageclass,storage-provisioner,metrics-server,dashboard" \
-    --mount \
-    --mount-string="${__project_dir}:${__project_dir}" \
-    --embed-certs \
-    --dns-domain="${PRIMARY_DOMAIN}" 1>>"$(logfile)" 2>&1
 
+  if [[ "$MINIKUBE_CONTAINER_RUNTIME" == "docker" ]] && which nvidia-ctk >/dev/null; then
+    "${__bin_dir}/minikube" start \
+      --profile="${APP_NAME}" \
+      --driver="${MINIKUBE_DRIVER}" \
+      --nodes="${MINIKUBE_NODES}" \
+      --cpus="${MINIKUBE_CPUS}" \
+      --memory="${MINIKUBE_MEMORY}" \
+      --kubernetes-version="${KUBERNETES_VERSION}" \
+      --container-runtime="${MINIKUBE_CONTAINER_RUNTIME}" \
+      --gpus=all \
+      --addons="default-storageclass,storage-provisioner,metrics-server,dashboard" \
+      --mount \
+      --mount-string="${__project_dir}:${__project_dir}" \
+      --embed-certs \
+      --dns-domain="${PRIMARY_DOMAIN}" 1>>"$(logfile)" 2>&1
+  else
+    "${__bin_dir}/minikube" start \
+      --profile="${APP_NAME}" \
+      --driver="${MINIKUBE_DRIVER}" \
+      --nodes="${MINIKUBE_NODES}" \
+      --cpus="${MINIKUBE_CPUS}" \
+      --memory="${MINIKUBE_MEMORY}" \
+      --kubernetes-version="${KUBERNETES_VERSION}" \
+      --container-runtime="${MINIKUBE_CONTAINER_RUNTIME}" \
+      --addons="default-storageclass,storage-provisioner,metrics-server,dashboard" \
+      --mount \
+      --mount-string="${__project_dir}:${__project_dir}" \
+      --embed-certs \
+      --dns-domain="${PRIMARY_DOMAIN}" 1>>"$(logfile)" 2>&1
+  fi
   "${__bin_dir}/minikube" --profile="${APP_NAME}" ssh "sudo apt-get update;sudo apt-get install -y open-iscsi" 1>>"$(logfile)" 2>&1
   "${__bin_dir}/minikube" --profile="${APP_NAME}" update-context 1>>"$(logfile)" 2>&1
 }
