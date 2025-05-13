@@ -4,13 +4,17 @@
 #
 #  source "${__bin_dir}/core/env.sh" $SOURCED
 #
-#  > Requires: ${__bin_dir}
+#  > Optional: ${__bin_dir}
 #  > Optional: $SOURCED => [ 1, 0 ]
 #
 #=========================================================================================
 # Initialization
 #
 export SOURCED="$1"
+
+if [ ! "${__bin_dir:-}" ]; then
+    export __bin_dir="$(dirname "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)")"
+fi
 
 #
 # Loading environment
