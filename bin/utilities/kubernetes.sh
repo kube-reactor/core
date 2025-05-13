@@ -3,8 +3,8 @@
 # Kubernetes Utilities
 #
 export DEFAULT_KUBERNETES_PROVIDER="minikube"
-export DEFAULT_KUBERNETES_VERSION="1.31.0"
-export DEFAULT_KUBECTL_VERSION="1.31.0"
+export DEFAULT_KUBERNETES_VERSION="1.32.0"
+export DEFAULT_KUBECTL_VERSION="1.32.0"
 
 
 function kubernetes_environment () {
