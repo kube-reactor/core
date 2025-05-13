@@ -184,10 +184,10 @@ function install_os_requirements () {
       source "${__project_dir}/reactor/install.sh"
 
       if function_exists "install_${__os_type}"; then
-        "install_project_${__os_type}"
+        "install_${__os_type}"
       fi
       if [[ "${__os_type}" != "${__os_dist}" ]] && function_exists "install_${__os_dist}"; then
-        "install_project_${__os_dist}"
+        "install_${__os_dist}"
       fi
     fi
 
@@ -246,6 +246,20 @@ function install_os_requirements () {
         fi
       fi
     done
+  elif [ -d "${__exec_reactor_dir}" ]; then
+    if [ -f "${__exec_reactor_dir}/install.sh" ]; then
+      unset "install_${__os_type}"
+      unset "install_${__os_dist}"
+
+      source "${__exec_reactor_dir}/install.sh"
+
+      if function_exists "install_${__os_type}"; then
+        "install_${__os_type}"
+      fi
+      if [[ "${__os_type}" != "${__os_dist}" ]] && function_exists "install_${__os_dist}"; then
+        "install_${__os_dist}"
+      fi
+    fi
   fi
 }
 
@@ -277,6 +291,10 @@ function install_python_requirements () {
         pip3 install --no-cache-dir -r "${extension_dir}/reactor/requirements.txt"
       fi
     done
+  elif [ -d "${__exec_reactor_dir}" ]; then
+    if [ -f "${__exec_reactor_dir}/requirements.txt" ]; then
+      pip3 install --no-cache-dir -r "${__exec_reactor_dir}/requirements.txt"
+    fi
   fi
 }
 
