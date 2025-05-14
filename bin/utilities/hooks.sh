@@ -180,7 +180,7 @@ function source_hook () {
     fi
   elif [ -d "${__exec_reactor_dir}" ]; then
     if [ -f "${__exec_reactor_dir}/${hook_name}.sh" ]; then
-      source "${__exec_reactor_dir}/${hook_name}.sh"
+      source "${__exec_reactor_dir}/${hook_name}.sh" "directory" "${__exec_dir}"
     fi
   fi
 }
