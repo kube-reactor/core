@@ -223,7 +223,7 @@ function source_utility () {
     fi
   elif [ -d "${__exec_reactor_dir}" ]; then
     if [ -f "${__exec_reactor_dir}/utilities/${utility_name}.sh" ]; then
-      source "${__exec_reactor_dir}/utilities/${utility_name}.sh"
+      source "${__exec_reactor_dir}/utilities/${utility_name}.sh" "directory" "${__exec_dir}"
     fi
   fi
 }
