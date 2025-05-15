@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+#
+# Usage:
+#
+#  $> source start
+#
+#=========================================================================================
+# Environment
+#
+export __script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+if [[ "$PATH" != *"${__script_dir}/bin:"* ]]; then
+  export PATH="${__script_dir}/bin:${PATH}"
+fi
+
+if [ ! "${1:-}" ]; then
+  echo """
+ Usage: source start <project name> <environment:local>
+"""
+  return
+fi
+
+export REACTOR_PROJECT_NAME="${1:-}"
+export REACTOR_ENVIRONMENT="${2:-local}"
+#
+#=========================================================================================
+# Execution
+#
+reactor up
