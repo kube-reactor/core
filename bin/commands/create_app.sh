@@ -48,7 +48,7 @@ function create_app_command_environment () {
     "Configuration values for the project template"
 
   parse_arg PROJECT_NAME \
-    "Cookiecutter project_slug value override (must contain only alpha-numeric characters and underscores)"
+    "Cookiecutter project key (must contain only alpha-numeric characters and underscores)"
 
   if [ ! "${DEFAULT_APP_URL:-}" ]; then
     parse_arg APP_URL \
@@ -105,7 +105,7 @@ function create_app_command () {
   TEMPLATE_VARS=(
     "${TEMPLATE_VARS[@]}"
     "$app_temp_dir"
-    "project_slug=${PROJECT_NAME}"
+    "__project_key=${PROJECT_NAME}"
   )
   info "Creating application docker project ..."
   cookiecutter "${TEMPLATE_VARS[@]}"

@@ -64,12 +64,19 @@ function create_command_environment () {
     PROJECT_REBUILD \
     "Clean and rebuild project (VERY destructive)"
 
-  if ! check_template && ! check_core; then
-    parse_option --directory \
-      PROJECT_PARENT_DIRECTORY \
-      "Parent project directory" \
-      "$(pwd)"
+  if check_core; then
+    export PROJECT_PARENT_DIRECTORY="${__projects_dir}"
+  elif check_template; then
+    export PROJECT_PARENT_DIRECTORY="${__template_dir}"
+  else
+    export PROJECT_PARENT_DIRECTORY="$(pwd)"
   fi
+
+  parse_option --directory \
+    PROJECT_PARENT_DIRECTORY \
+    "Parent project directory" \
+    "$PROJECT_PARENT_DIRECTORY"
+
   if ! check_template; then
     parse_option --url \
       PROJECT_URL \
@@ -100,7 +107,7 @@ function create_command_environment () {
     "Configuration values for the project template"
 
   parse_arg PROJECT_NAME \
-    "Cookiecutter project_slug value override (must contain only alpha-numeric characters and underscores)"
+    "Cookiecutter project key (must contain only alpha-numeric characters and underscores)"
 
   export PROJECT_NAME="${PROJECT_NAME//[-.]/_}"
 
@@ -111,14 +118,10 @@ function create_command_environment () {
     export TEMPLATE_DIRECTORY="${TEMPLATES_DIRECTORY}/${PROJECT_NAME}"
 
     if check_core; then
-      # Core exists
-      export PROJECT_PARENT_DIRECTORY="${__projects_dir}"
       mkdir -p "$PROJECT_PARENT_DIRECTORY"
     fi
   else
-    # Template exists
     export TEMPLATE_DIRECTORY="${__template_dir}"
-    export PROJECT_PARENT_DIRECTORY="${TEMPLATE_DIRECTORY}"
   fi
 
   export PROJECT_DIRECTORY="${PROJECT_PARENT_DIRECTORY}/${PROJECT_NAME}"
@@ -134,6 +137,7 @@ function create_command () {
     render "The --rebuild option will completely destroy all project files before creating again"
     confirm
   fi
+
   if [ ! "$PROJECT_REBUILD" ]; then
     if [ -d "$PROJECT_DIRECTORY" ]; then
       if [ "$IGNORE_EXISTS" ]; then
@@ -189,7 +193,7 @@ function create_command () {
     TEMPLATE_VARS=(
       "${TEMPLATE_VARS[@]}"
       "$TEMPLATE_DIRECTORY"
-      "project_slug=${PROJECT_NAME}"
+      "__project_key=${PROJECT_NAME}"
     )
     info "Creating cluster project ..."
     cookiecutter "${TEMPLATE_VARS[@]}"

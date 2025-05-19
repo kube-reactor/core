@@ -29,7 +29,7 @@ template_name = sys.argv[1]
 project_dir = sys.argv[2]
 template_dir = sys.argv[3]
 
-cookiecutter_dir = os.path.join(template_dir, "{{cookiecutter.project_slug}}")
+cookiecutter_dir = os.path.join(template_dir, "{{cookiecutter.__project_key}}")
 cookiecutter_file = os.path.join(template_dir, "cookiecutter.json")
 reactor_file = "reactor.yml"
 access_file = "access.yml"
@@ -420,11 +420,11 @@ def update_cookiecutter():
         reactor_info = load_yaml_file(project_file)
         template_variables = {}
 
-        template_variables["project_slug"] = {
+        template_variables["__project_key"] = {
             "default": template_name,
             "help_message": "Project short name (lowercase alphanumeric and underscores only)",
         }
-        reactor_info["short_name"] = cookiecutter_token("project_slug")
+        reactor_info["short_name"] = cookiecutter_token("__project_key")
 
         template_variables["project_name"] = {
             "default": reactor_info["name"],
