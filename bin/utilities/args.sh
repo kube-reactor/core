@@ -142,7 +142,7 @@ function parse_flag () {
 
   __reactor_flags=(
     "${__reactor_flags[@]}"
-    "    $(printf %-35s "$(key_color "${FLAGS//|/ }")") [ ${NAME} ] ${HELP_TEXT}"
+    "    $(printf %-35s "$(key_color "${FLAGS//|/ }")") ${HELP_TEXT}"
   )
   __normalized_params=$ALT_PARAMS
 
@@ -174,7 +174,7 @@ function parse_option () {
 
   __reactor_options=(
     "${__reactor_options[@]}"
-    "    $(printf %-35s "$(key_color "${OPTIONS//|/ }") <value>") [ ${NAME} ] ${HELP_TEXT} ($(value_color "${VALUE_DEFAULT}"))"
+    "    $(printf %-35s "$(key_color "${OPTIONS//|/ }") <value>") ${HELP_TEXT} ($(value_color "${VALUE_DEFAULT}"))"
   )
   read -ra OPTION_ARRAY <<< "$OPTIONS"
 
@@ -251,7 +251,7 @@ function parse_arg () {
   )
   __reactor_arg_help=(
     "${__reactor_arg_help[@]}"
-    "    $(printf %-35s "${NAME}") [ ${VARIABLE_NAME} ] ${HELP_TEXT} $(alert_color "(REQUIRED)")"
+    "    $(printf %-35s "${NAME}") ${HELP_TEXT} $(alert_color "(REQUIRED)")"
   )
 
   IFS=$'\n'
@@ -303,7 +303,7 @@ function parse_optional_args () {
   )
   __reactor_arg_help=(
     "${__reactor_arg_help[@]}"
-    "    $(printf %-35s "${NAME} ...") [ ${VARIABLE_NAME} ] ${HELP_TEXT} (OPTIONAL)"
+    "    $(printf %-35s "${NAME} ...") ${HELP_TEXT} (OPTIONAL)"
   )
 
   IFS=$'\n'
@@ -334,7 +334,7 @@ function parse_required_args () {
   )
   __reactor_arg_help=(
     "${__reactor_arg_help[@]}"
-    "    $(printf %-35s "${NAME} ...") [ ${VARIABLE_NAME} ] ${HELP_TEXT} $(alert_color "(REQUIRED)")"
+    "    $(printf %-35s "${NAME} ...") ${HELP_TEXT} $(alert_color "(REQUIRED)")"
   )
 
   IFS=$'\n'
