@@ -378,7 +378,8 @@ function check_project () {
 }
 
 function init_project() {
-  export __env_dir="${__project_dir}/env/${__environment}"
+  export __env_lib_dir="${__project_dir}/env"
+  export __env_dir="${__env_lib_dir}/${__environment}"
   export __init_file="${__env_dir}/.initialized"
 
   export __project_reactor_dir="${__project_dir}/reactor"
