@@ -18,6 +18,7 @@ export __bin_dir="$(cd "$(dirname "${SCRIPT_PATH}")" && pwd)"
 
 if [[ $SOURCED -eq 1 ]] && [[ "${__command_name}" == "env" ]]; then
   export REACTOR_ENVIRONMENT="${2:-local}"
+  env | grep REACTOR
   return
 fi
 
