@@ -8,17 +8,21 @@ function update_description () {
 }
 
 function update_command_environment () {
+  parse_flag --state \
+    UPDATE_STATE \
+    "Update the provisioner state project if it exists (NOT run by default)"
+
   parse_flag --apps \
     UPDATE_APPS \
-    "Provision any ArgoCD application updates"
+    "Provision any ArgoCD application updates (run by default)"
 
   parse_flag --dns \
     UPDATE_DNS \
-    "Update local DNS with service endpoints"
+    "Update local DNS with service endpoints (run by default)"
 
   parse_flag --charts \
     UPDATE_CHARTS \
-    "Sync local charts to ArgoCD application"
+    "Sync local charts to ArgoCD application (run by default)"
 
   parse_flag --hooks \
     HOOKS \
@@ -29,7 +33,7 @@ function update_command_environment () {
     "Disable the execution of update hooks for this update"
 
   UPDATE_ALL="1"
-  if [ "$UPDATE_APPS" -o "$UPDATE_DNS" -o "$UPDATE_CHARTS" -o "$HOOKS" ]; then
+  if [ "$UPDATE_STATE" -o "$UPDATE_APPS" -o "$UPDATE_DNS" -o "$UPDATE_CHARTS" -o "$HOOKS" ]; then
     UPDATE_ALL=""
   fi
   export UPDATE_ALL
@@ -39,6 +43,13 @@ function update_command_environment () {
 
 function update_command () {
   save_libraries
+
+  if [ "$UPDATE_STATE" ]; then
+    export REACTOR_FORCE_STATE_UPDATE="true"
+    ensure_remote_state
+    unset REACTOR_FORCE_STATE_UPDATE
+    info "Remote state has been successfully updated."
+  fi
 
   if [ "$UPDATE_ALL" -o "$UPDATE_APPS" ]; then
     provision_kubernetes_applications
