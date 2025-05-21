@@ -70,7 +70,7 @@ function run_provisioner_terraform () {
     terraform apply -auto-approve -input=false 1>>"$(logfile)" 2>&1
 
     info "Capturing Terraform Output ..."
-    terraform output -json 1>"${__env_dir}/${project_type}.json"
+    terraform output -json 1>"${__env_dir}/${project_type}.output.json"
   fi
 }
 
@@ -105,8 +105,8 @@ function run_provisioner_destroy_terraform () {
   info "Destroying Terraform project ..."
   terraform destroy -auto-approve -input=false 1>>"$(logfile)" 2>&1
 
-  if [ -f "${__env_dir}/${project_type}.json" ]; then
-    rm -f "${__env_dir}/${project_type}.json"
+  if [ -f "${__env_dir}/${project_type}.output.json" ]; then
+    rm -f "${__env_dir}/${project_type}.output.json"
   fi
 }
 
@@ -140,8 +140,8 @@ function run_provisioner_delete_terraform () {
   info "Deleting Terraform project ..."
   terraform state rm $(terraform state list) 1>>"$(logfile)" 2>&1
 
-  if [ -f "${__env_dir}/${project_type}.json" ]; then
-    rm -f "${__env_dir}/${project_type}.json"
+  if [ -f "${__env_dir}/${project_type}.output.json" ]; then
+    rm -f "${__env_dir}/${project_type}.output.json"
   fi
 }
 
