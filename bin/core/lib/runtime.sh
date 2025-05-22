@@ -4,7 +4,7 @@ function init_loader () {
   export COMMAND_INDEX=()
   export UTILITY_INDEX=()
 
-  if [[ ! -f "${__library_file}" ]] || [[ "$arg_r" ]]; then
+  if [[ ! -f "${__library_file}" ]] || [[ "${__app_args[0]}" == "build" ]] || [[ "$arg_r" ]]; then
     update_projects
   else
     load_libraries
