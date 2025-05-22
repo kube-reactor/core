@@ -13,6 +13,7 @@
 import os
 import sys
 import pathlib
+import glob
 import shutil
 import shlex
 import errno
@@ -534,6 +535,9 @@ def update_cookiecutter():
                         )
 
                     save_file(template_secret_env, secret_env_script)
+
+                for file_path in glob.glob(os.path.join(sub_env_file, "policy.*.json")):
+                    shutil.copy(file_path, template_env_dir)
             else:
                 template_env_file = os.path.join(template_env_dir, environment)
                 env_library_script = load_file(sub_env_file)
