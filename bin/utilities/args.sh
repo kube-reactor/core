@@ -26,6 +26,7 @@ function reactor_args () {
   parse_flag '-h|--help' arg_h "Display help message"
   parse_flag '-v|--verbose' arg_v "Enable verbose mode, print script as it is executed"
   parse_flag '-d|--debug' arg_d "Enables debug mode"
+  parse_flag '-r|--reload' arg_r "Reload project dependencies"
 
   # Log check
   [[ "${LOG_LEVEL:-6}" ]] || emergency "Cannot continue without LOG_LEVEL"
@@ -56,6 +57,7 @@ function reactor_args () {
   debug "> Debug: ${arg_d}"
   debug "> Verbosity: ${arg_v}"
   debug "> Help: ${arg_h}"
+  debug "> Reload: ${arg_r}"
   debug ""
 }
 
