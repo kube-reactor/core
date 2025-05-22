@@ -53,36 +53,36 @@ function save_libraries () {
     fi
   done
   if check_project; then
-    if [ "${__environment}" == "local" ]; then
-      for project in $(config docker); do
-        project_dir="${__docker_dir}/$(config docker.$project.project $project)"
+    for project in $(config docker); do
+      project_dir="${__docker_dir}/$(config docker.$project.project $project)"
 
-        for type in "${__library_types[@]}"; do
-          library_dir="${project_dir}/reactor/${type}"
+      for type in "${__library_types[@]}"; do
+        library_dir="${project_dir}/reactor/${type}"
 
-          if [[ -d "$library_dir" ]] \
-            && compgen -G "${library_dir}"/*.sh >/dev/null; then
-            for file in "${library_dir}"/*.sh; do
-              echo "$file" >>"${__library_file}"
-            done
-          fi
-        done
+        if [[ -d "$library_dir" ]] \
+          && compgen -G "${library_dir}"/*.sh >/dev/null; then
+          for file in "${library_dir}"/*.sh; do
+            echo "$file" >>"${__library_file}"
+          done
+        fi
       done
-      for chart in $(config charts); do
-        chart_dir="${__charts_dir}/$(config charts.$chart.project $chart)"
+    done
 
-        for type in "${__library_types[@]}"; do
-          library_dir="${chart_dir}/reactor/${type}"
+    for chart in $(config charts); do
+      chart_dir="${__charts_dir}/$(config charts.$chart.project $chart)"
 
-          if [[ -d "$library_dir" ]] \
-            && compgen -G "${library_dir}"/*.sh >/dev/null; then
-            for file in "${library_dir}"/*.sh; do
-              echo "$file" >>"${__library_file}"
-            done
-          fi
-        done
+      for type in "${__library_types[@]}"; do
+        library_dir="${chart_dir}/reactor/${type}"
+
+        if [[ -d "$library_dir" ]] \
+          && compgen -G "${library_dir}"/*.sh >/dev/null; then
+          for file in "${library_dir}"/*.sh; do
+            echo "$file" >>"${__library_file}"
+          done
+        fi
       done
-    fi
+    done
+
     for extension in $(config extensions); do
       extension_dir="${__extension_dir}/${extension}"
 
@@ -97,6 +97,7 @@ function save_libraries () {
         fi
       done
     done
+
     for type in "${__library_types[@]}"; do
       if compgen -G "${__project_reactor_dir}/${type}"/*.sh >/dev/null; then
         for file in "${__project_reactor_dir}/${type}"/*.sh; do
