@@ -26,6 +26,7 @@ function reactor_args () {
   parse_flag '-h|--help' arg_h "Display help message"
   parse_flag '-v|--verbose' arg_v "Enable verbose mode, print script as it is executed"
   parse_flag '-d|--debug' arg_d "Enables debug mode"
+  parse_flag '-r|--reload' arg_r "Reload project dependencies"
 
   # Log check
   [[ "${LOG_LEVEL:-6}" ]] || emergency "Cannot continue without LOG_LEVEL"
@@ -56,6 +57,7 @@ function reactor_args () {
   debug "> Debug: ${arg_d}"
   debug "> Verbosity: ${arg_v}"
   debug "> Help: ${arg_h}"
+  debug "> Reload: ${arg_r}"
   debug ""
 }
 
@@ -142,7 +144,7 @@ function parse_flag () {
 
   __reactor_flags=(
     "${__reactor_flags[@]}"
-    "    $(printf %-35s "$(key_color "${FLAGS//|/ }")") [ ${NAME} ] ${HELP_TEXT}"
+    "    $(printf %-35s "$(key_color "${FLAGS//|/ }")") ${HELP_TEXT}"
   )
   __normalized_params=$ALT_PARAMS
 
@@ -174,7 +176,7 @@ function parse_option () {
 
   __reactor_options=(
     "${__reactor_options[@]}"
-    "    $(printf %-35s "$(key_color "${OPTIONS//|/ }") <value>") [ ${NAME} ] ${HELP_TEXT} ($(value_color "${VALUE_DEFAULT}"))"
+    "    $(printf %-35s "$(key_color "${OPTIONS//|/ }") <value>") ${HELP_TEXT} ($(value_color "${VALUE_DEFAULT}"))"
   )
   read -ra OPTION_ARRAY <<< "$OPTIONS"
 
@@ -251,7 +253,7 @@ function parse_arg () {
   )
   __reactor_arg_help=(
     "${__reactor_arg_help[@]}"
-    "    $(printf %-35s "${NAME}") [ ${VARIABLE_NAME} ] ${HELP_TEXT} $(alert_color "(REQUIRED)")"
+    "    $(printf %-35s "${NAME}") ${HELP_TEXT} $(alert_color "(REQUIRED)")"
   )
 
   IFS=$'\n'
@@ -303,7 +305,7 @@ function parse_optional_args () {
   )
   __reactor_arg_help=(
     "${__reactor_arg_help[@]}"
-    "    $(printf %-35s "${NAME} ...") [ ${VARIABLE_NAME} ] ${HELP_TEXT} (OPTIONAL)"
+    "    $(printf %-35s "${NAME} ...") ${HELP_TEXT} (OPTIONAL)"
   )
 
   IFS=$'\n'
@@ -334,7 +336,7 @@ function parse_required_args () {
   )
   __reactor_arg_help=(
     "${__reactor_arg_help[@]}"
-    "    $(printf %-35s "${NAME} ...") [ ${VARIABLE_NAME} ] ${HELP_TEXT} $(alert_color "(REQUIRED)")"
+    "    $(printf %-35s "${NAME} ...") ${HELP_TEXT} $(alert_color "(REQUIRED)")"
   )
 
   IFS=$'\n'

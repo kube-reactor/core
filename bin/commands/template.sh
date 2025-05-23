@@ -37,12 +37,10 @@ function template_command_environment () {
 
   export TEMPLATE_NAME="${TEMPLATE_NAME//[-.]/_}"
 
-  if ! check_template && ! check_core; then
-    parse_option --directory \
-      TEMPLATE_PARENT_DIRECTORY \
-      "Template project parent directory" \
-      "$(pwd)"
-  fi
+  parse_option --directory \
+    TEMPLATE_PARENT_DIRECTORY \
+    "Template project parent directory" \
+    "${__templates_dir}"
 
   parse_flag --error \
     ERROR_EXISTS \
@@ -50,11 +48,7 @@ function template_command_environment () {
 }
 
 function template_command () {
-  if ! check_template && ! check_core; then
-      local __template_dir="${TEMPLATE_PARENT_DIRECTORY}/${TEMPLATE_NAME}"
-  else
-      local __template_dir="${__templates_dir}/${TEMPLATE_NAME}"
-  fi
+  local __template_dir="${TEMPLATE_PARENT_DIRECTORY}/${TEMPLATE_NAME}"
 
   if [[ "$ERROR_EXISTS" ]] && [[ -d "${__template_dir}" ]]; then
       error "Template ${TEMPLATE_NAME} already exists at path: ${__template_dir}"

@@ -8,6 +8,7 @@
 .Trash-*
 
 ### VisualStudioCode template
+*.code-workspace
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json

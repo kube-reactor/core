@@ -8,17 +8,27 @@ function update_description () {
 }
 
 function update_command_environment () {
+  if [[ "${REACTOR_TEST_PROVISIONER_STATE:-}" ]] && [[ "${STATE_PROVIDER:-}" ]]; then
+    parse_flag --state \
+      UPDATE_STATE \
+      "Update the provisioner state project if it exists (NOT run by default)"
+
+    parse_flag --state-rm \
+      REMOVE_STATE \
+      "Remove the provisioner state project if it exists (NOT run by default)"
+  fi
+
   parse_flag --apps \
     UPDATE_APPS \
-    "Provision any ArgoCD application updates"
+    "Provision any ArgoCD application updates (run by default)"
 
   parse_flag --dns \
     UPDATE_DNS \
-    "Update local DNS with service endpoints"
+    "Update local DNS with service endpoints (run by default)"
 
   parse_flag --charts \
     UPDATE_CHARTS \
-    "Sync local charts to ArgoCD application"
+    "Sync local charts to ArgoCD application (run by default)"
 
   parse_flag --hooks \
     HOOKS \
@@ -39,6 +49,23 @@ function update_command_environment () {
 
 function update_command () {
   save_libraries
+
+  if [[ "${REACTOR_TEST_PROVISIONER_STATE:-}" ]] && [[ "${STATE_PROVIDER:-}" ]]; then
+    if [ "$UPDATE_STATE" ]; then
+      export REACTOR_FORCE_STATE_UPDATE="true"
+      ensure_remote_state
+      unset REACTOR_FORCE_STATE_UPDATE
+      info "Remote state has been successfully updated."
+      exit 0
+
+    elif [ "$REMOVE_STATE" ]; then
+      export REACTOR_FORCE_STATE_UPDATE="true"
+      destroy_remote_state
+      unset REACTOR_FORCE_STATE_UPDATE
+      info "Remote state has been successfully removed."
+      exit 0
+    fi
+  fi
 
   if [ "$UPDATE_ALL" -o "$UPDATE_APPS" ]; then
     provision_kubernetes_applications

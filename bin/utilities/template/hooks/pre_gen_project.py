@@ -22,12 +22,12 @@ SUCCESS = "\x1b[1;32m [SUCCESS]: "
 {% endfor %}
 """
 
-project_slug = "{{ cookiecutter.project_slug }}"
-if hasattr(project_slug, "isidentifier"):
+__project_key = "{{ cookiecutter.__project_key }}"
+if hasattr(__project_key, "isidentifier"):
     assert (
-        project_slug.isidentifier()
-    ), "'{}' project slug is not a valid Python identifier.".format(project_slug)
+        __project_key.isidentifier()
+    ), "'{}' project slug is not a valid Python identifier.".format(__project_key)
 
 assert (
-    project_slug == project_slug.lower()
-), "'{}' project slug should be all lowercase".format(project_slug)
+    __project_key == __project_key.lower()
+), "'{}' project slug should be all lowercase".format(__project_key)

@@ -13,6 +13,7 @@
 import os
 import sys
 import pathlib
+import glob
 import shutil
 import shlex
 import errno
@@ -29,7 +30,7 @@ template_name = sys.argv[1]
 project_dir = sys.argv[2]
 template_dir = sys.argv[3]
 
-cookiecutter_dir = os.path.join(template_dir, "{{cookiecutter.project_slug}}")
+cookiecutter_dir = os.path.join(template_dir, "{{cookiecutter.__project_key}}")
 cookiecutter_file = os.path.join(template_dir, "cookiecutter.json")
 reactor_file = "reactor.yml"
 access_file = "access.yml"
@@ -420,11 +421,11 @@ def update_cookiecutter():
         reactor_info = load_yaml_file(project_file)
         template_variables = {}
 
-        template_variables["project_slug"] = {
+        template_variables["__project_key"] = {
             "default": template_name,
             "help_message": "Project short name (lowercase alphanumeric and underscores only)",
         }
-        reactor_info["short_name"] = cookiecutter_token("project_slug")
+        reactor_info["short_name"] = cookiecutter_token("__project_key")
 
         template_variables["project_name"] = {
             "default": reactor_info["name"],
@@ -476,61 +477,90 @@ def update_cookiecutter():
             environments = environments + ["local"]
 
         for environment in environments:
-            public_env_file = "public.sh"
-            project_public_env = os.path.join(
-                project_env_dir, environment, public_env_file
-            )
-            if os.path.isfile(project_public_env):
-                template_public_env = os.path.join(
-                    template_env_dir, environment, public_env_file
-                )
-                public_env_script = load_file(project_public_env)
+            sub_env_file = os.path.join(project_env_dir, environment)
+
+            if os.path.isdir(sub_env_file):
+                public_env_file = "public.sh"
+                project_public_env = os.path.join(sub_env_file, public_env_file)
+                if os.path.isfile(project_public_env):
+                    template_public_env = os.path.join(
+                        template_env_dir, environment, public_env_file
+                    )
+                    public_env_script = load_file(project_public_env)
+
+                    for env_var, variable_info in parse_exported_variables(
+                        public_env_script
+                    ).items():
+                        if variable_info["environment"]:
+                            variable_name = f"{environment}_{env_var}".lower()
+                        else:
+                            variable_name = env_var.lower()
+
+                        variable_info["file"] = project_public_env
+                        template_variables[variable_name] = variable_info
+
+                        public_env_script = public_env_script.replace(
+                            variable_info["full_match"],
+                            f'export {env_var}="'
+                            + cookiecutter_token(variable_name)
+                            + '"',
+                        )
+
+                    save_file(template_public_env, public_env_script)
+
+                secret_env_file = "secret.example.sh"
+                project_secret_env = os.path.join(sub_env_file, secret_env_file)
+                if os.path.isfile(project_secret_env):
+                    template_secret_env = os.path.join(
+                        template_env_dir, environment, secret_env_file
+                    )
+                    secret_env_script = load_file(project_secret_env)
+
+                    for env_var, variable_info in parse_exported_variables(
+                        secret_env_script
+                    ).items():
+                        if variable_info["environment"]:
+                            variable_name = f"{environment}_{env_var}".lower()
+                        else:
+                            variable_name = env_var.lower()
+
+                        variable_info["file"] = project_secret_env
+                        template_variables[variable_name] = variable_info
+
+                        secret_env_script = secret_env_script.replace(
+                            variable_info["full_match"],
+                            f'export {env_var}="'
+                            + cookiecutter_token(variable_name)
+                            + '"',
+                        )
+
+                    save_file(template_secret_env, secret_env_script)
+
+                for file_path in glob.glob(os.path.join(sub_env_file, "policy.*.json")):
+                    shutil.copy(file_path, template_env_dir)
+            else:
+                template_env_file = os.path.join(template_env_dir, environment)
+                env_library_script = load_file(sub_env_file)
 
                 for env_var, variable_info in parse_exported_variables(
-                    public_env_script
+                    env_library_script
                 ).items():
                     if variable_info["environment"]:
-                        variable_name = f"{environment}_{env_var}".lower()
+                        variable_name = (
+                            f"{os.path.splitext(environment)[0]}_{env_var}".lower()
+                        )
                     else:
                         variable_name = env_var.lower()
 
-                    variable_info["file"] = project_public_env
+                    variable_info["file"] = sub_env_file
                     template_variables[variable_name] = variable_info
 
-                    public_env_script = public_env_script.replace(
+                    env_library_script = env_library_script.replace(
                         variable_info["full_match"],
                         f'export {env_var}="' + cookiecutter_token(variable_name) + '"',
                     )
 
-                save_file(template_public_env, public_env_script)
-
-            secret_env_file = "secret.example.sh"
-            project_secret_env = os.path.join(
-                project_env_dir, environment, secret_env_file
-            )
-            if os.path.isfile(project_secret_env):
-                template_secret_env = os.path.join(
-                    template_env_dir, environment, secret_env_file
-                )
-                secret_env_script = load_file(project_secret_env)
-
-                for env_var, variable_info in parse_exported_variables(
-                    secret_env_script
-                ).items():
-                    if variable_info["environment"]:
-                        variable_name = f"{environment}_{env_var}".lower()
-                    else:
-                        variable_name = env_var.lower()
-
-                    variable_info["file"] = project_secret_env
-                    template_variables[variable_name] = variable_info
-
-                    secret_env_script = secret_env_script.replace(
-                        variable_info["full_match"],
-                        f'export {env_var}="' + cookiecutter_token(variable_name) + '"',
-                    )
-
-                save_file(template_secret_env, secret_env_script)
+                save_file(template_env_file, env_library_script)
 
         return template_variables
 

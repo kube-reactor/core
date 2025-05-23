@@ -54,6 +54,7 @@ SCRIPT_PATH="${BASH_SOURCE[0]}"
 export __script_name="reactor test"
 export __core_dir="$(cd "$(dirname "${SCRIPT_PATH}")" && pwd)"
 export __bin_dir="$(dirname "${__core_dir}")"
+export __app_args=("$@")
 
 export REACTOR_SHELL_OUTPUT="true"
 
