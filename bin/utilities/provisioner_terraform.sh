@@ -56,7 +56,7 @@ function run_provisioner_terraform () {
   fi
 
   if [ "$local_state" ]; then
-    terraform init 1>>"$(logfile)" 2>&1
+    terraform init -migrate-state 1>>"$(logfile)" 2>&1
   else
     ensure_remote_state
 
@@ -64,7 +64,7 @@ function run_provisioner_terraform () {
       cp "${__terraform_state_file:-}" "${project_dir}/reactor_state.tf"
     fi
     local state_options=($(get_remote_state "$project_type"))
-    terraform init "${state_options[@]}" 1>>"$(logfile)" 2>&1
+    terraform init -migrate-state "${state_options[@]}" 1>>"$(logfile)" 2>&1
   fi
   terraform validate 1>>"$(logfile)" 2>&1
 
@@ -96,7 +96,7 @@ function run_provisioner_destroy_terraform () {
   fi
 
   if [ "$local_state" ]; then
-    terraform init 1>>"$(logfile)" 2>&1
+    terraform init -migrate-state 1>>"$(logfile)" 2>&1
   else
     ensure_remote_state
 
@@ -104,7 +104,7 @@ function run_provisioner_destroy_terraform () {
       cp "${__terraform_state_file:-}" "${project_dir}/reactor_state.tf"
     fi
     local state_options=($(get_remote_state "$project_type"))
-    terraform init "${state_options[@]}" 1>>"$(logfile)" 2>&1
+    terraform init -migrate-state "${state_options[@]}" 1>>"$(logfile)" 2>&1
   fi
   terraform validate 1>>"$(logfile)" 2>&1
 
@@ -131,7 +131,7 @@ function run_provisioner_delete_terraform () {
   fi
 
   if [ "$local_state" ]; then
-    terraform init 1>>"$(logfile)" 2>&1
+    terraform init -migrate-state 1>>"$(logfile)" 2>&1
   else
     ensure_remote_state
 
@@ -139,7 +139,7 @@ function run_provisioner_delete_terraform () {
       cp "${__terraform_state_file:-}" "${project_dir}/reactor_state.tf"
     fi
     local state_options=($(get_remote_state "$project_type"))
-    terraform init "${state_options[@]}" 1>>"$(logfile)" 2>&1
+    terraform init -migrate-state "${state_options[@]}" 1>>"$(logfile)" 2>&1
   fi
   terraform validate 1>>"$(logfile)" 2>&1
 
