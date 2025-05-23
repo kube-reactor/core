@@ -49,6 +49,12 @@ function run_provisioner_terraform () {
     rm -f "${project_dir}/reactor_state.tf"
   fi
 
+  if [ "$arg_d" -a "$arg_v" ]; then
+    export TF_LOG="trace"
+  elif [ "$arg_d" ]; then
+    export TF_LOG="debug"
+  fi
+
   if [ "$local_state" ]; then
     terraform init 1>>"$(logfile)" 2>&1
   else
