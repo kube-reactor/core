@@ -145,6 +145,5 @@ function run_provisioner_delete () {
 function clean_provisioner () {
   provisioner_environment
   run_provisioner_function clean_provisioner
-  destroy_remote_state
   run_hook clean_provisioner
 }
