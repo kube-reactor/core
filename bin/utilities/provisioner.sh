@@ -20,49 +20,50 @@ function provisioner_environment () {
 
 
 function provisioner_create () {
-  local name="$1"
-  local project_dir="$2"
+  local provisioner_name="$1"
+  local provisioner_dir="$2"
   local local_state="${3:-}"
 
-  if [ ! -d "$project_dir" ]; then
-    emergency "In order to provision ${name} you must specify a valid project directory.  Given: ${project_dir}"
+  if [ ! -d "$provisioner_dir" ]; then
+    emergency "In order to provision ${provisioner_name} you must specify a valid project directory.  Given: ${provisioner_dir}"
   fi
 
-  info "Creating ${name} ..."
-  load_hook "${name}_variables"
-  run_provisioner "$project_dir" "$name" "$local_state"
-  run_hook "create_${name}"
+  info "Creating ${provisioner_name} ..."
+  load_hook "${provisioner_name}_variables"
+
+  run_provisioner "$provisioner_dir" "$provisioner_name" "$local_state"
+  run_hook "create_${provisioner_name}"
 }
 
 
 function provisioner_destroy () {
-  local name="$1"
-  local project_dir="$2"
+  local provisioner_name="$1"
+  local provisioner_dir="$2"
   local local_state="${3:-}"
 
-  if [ ! -d "$project_dir" ]; then
-    emergency "In order to destroy ${name} you must specify a valid project directory.  Given: ${project_dir}"
+  if [ ! -d "$provisioner_dir" ]; then
+    emergency "In order to destroy ${provisioner_name} you must specify a valid project directory.  Given: ${provisioner_dir}"
   fi
 
-  info "Destroying ${name} ..."
-  load_hook "${name}_variables"
-  run_provisioner_destroy "$project_dir" "$name" "$local_state"
-  run_hook "destroy_${name}"
+  info "Destroying ${provisioner_name} ..."
+  load_hook "${provisioner_name}_variables"
+  run_provisioner_destroy "$provisioner_dir" "$provisioner_name" "$local_state"
+  run_hook "destroy_${provisioner_name}"
 }
 
 function provisioner_delete () {
-  local name="$1"
-  local project_dir="$2"
+  local provisioner_name="$1"
+  local provisioner_dir="$2"
   local local_state="${3:-}"
 
-  if [ ! -d "$project_dir" ]; then
-    emergency "In order to delete ${name} you must specify a valid project directory.  Given: ${project_dir}"
+  if [ ! -d "$provisioner_dir" ]; then
+    emergency "In order to delete ${provisioner_name} you must specify a valid project directory.  Given: ${provisioner_dir}"
   fi
 
-  info "Deleting ${name} ..."
-  load_hook "${name}_variables"
-  run_provisioner_delete "$project_dir" "$name" "$local_state"
-  run_hook "delete_${name}"
+  info "Deleting ${provisioner_name} ..."
+  load_hook "${provisioner_name}_variables"
+  run_provisioner_delete "$provisioner_dir" "$provisioner_name" "$local_state"
+  run_hook "delete_${provisioner_name}"
 }
 
 
