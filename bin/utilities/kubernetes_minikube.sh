@@ -92,7 +92,7 @@ function start_kubernetes_minikube () {
       --embed-certs \
       --dns-domain="${PRIMARY_DOMAIN}" 1>>"$(logfile)" 2>&1
   fi
-  "${__bin_dir}/minikube" --profile="${APP_NAME}" ssh "sudo apt-get update;sudo apt-get install -y open-iscsi" 1>>"$(logfile)" 2>&1
+  "${__bin_dir}/minikube" --profile="${APP_NAME}" ssh "sudo apt-get update;sudo apt-get install -y open-iscsi cryptsetup-bin dmsetup" 1>>"$(logfile)" 2>&1
   "${__bin_dir}/minikube" --profile="${APP_NAME}" update-context 1>>"$(logfile)" 2>&1
 }
 
