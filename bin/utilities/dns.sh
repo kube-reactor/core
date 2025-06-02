@@ -68,3 +68,27 @@ function remove_dns_records () {
   dns_environment
   run_dns_function remove_dns_records
 }
+
+
+function check_private_ip () {
+  local ip_address="$1"
+
+  # Check for 10.0.0.0/8
+  if [[ "$ip_address" =~ ^10\.([0-9]{1,3}\.){2}[0-9]{1,3}$ ]]; then
+    return 0
+  # Check for 172.16.0.0/12
+  elif [[ "$ip_address" =~ ^172\.(1[6-9]|2[0-9]|3[01])\.([0-9]{1,3}\.){1}[0-9]{1,3}$ ]]; then
+    return 0
+  # Check for 192.168.0.0/16
+  elif [[ "$ip_address" =~ ^192\.168\.([0-9]{1,3}\.){1}[0-9]{1,3}$ ]]; then
+    return 0
+  fi
+  return 1
+}
+
+function get_public_ip () {
+  if [ ! "${PUBLIC_IP:-}" ]; then
+    export PUBLIC_IP="$(curl -s https://api.ipify.org/)"
+  fi
+  echo "$PUBLIC_IP"
+}
