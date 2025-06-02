@@ -52,7 +52,6 @@ function up_command () {
   fi
   touch "${__init_file}"
 
-  launch_kubernetes_tunnel
   run_subcommand update
   run_hook up
 }
