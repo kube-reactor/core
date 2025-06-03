@@ -2,15 +2,13 @@
 #
 # Usage:
 #
-#  $> curl -sfL https://github.com/kube-reactor/core/blob/main/install | sudo sh -
+#  $> curl -sfL https://raw.githubusercontent.com/kube-reactor/core/refs/heads/main/install | sudo sh -
 #
 
 #=========================================================================================
 # Shell options
 #
 set -e
-set -o errtrace
-set -o nounset
 
 #=========================================================================================
 # Environment
