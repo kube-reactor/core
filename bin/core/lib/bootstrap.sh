@@ -375,6 +375,11 @@ function check_project () {
 }
 
 function init_project() {
+  if [[ ! "${REACTOR_ENVIRONMENT:-}" ]] && [[ -f "${__project_dir}/.env" ]]; then
+    export REACTOR_ENVIRONMENT="$(cat "${__project_dir}/.env" | tr -d '[:space:]')"
+    export __environment="$REACTOR_ENVIRONMENT"
+  fi
+
   export __env_lib_dir="${__project_dir}/env"
   export __env_dir="${__env_lib_dir}/${__environment}"
   export __init_file="${__env_dir}/.initialized"
