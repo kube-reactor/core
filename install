@@ -36,10 +36,10 @@ case "$OSTYPE" in
       fedora) __os_type="redhat" ;;
       rhel) __os_type="redhat" ;;
       amzn) __os_type="redhat" ;;
-      *) render "Unsupported OS: $OSTYPE $ID"; exit 1 ;;
+      *) echo "Unsupported OS: $OSTYPE $ID"; exit 1 ;;
     esac
     ;;
-  *) render "Unsupported OS: $OSTYPE"; exit 1 ;;
+  *) echo "Unsupported OS: $OSTYPE"; exit 1 ;;
 esac
 export __os
 export __os_type
@@ -48,7 +48,7 @@ export __os_dist
 case $(uname -m) in
     x86_64 | amd64) __architecture="amd64" ;;
     aarch64 | arm64) __architecture="arm64" ;;
-    *) render "Unsupported CPU architecture: $(uname -m)"; exit 1 ;;
+    *) echo "Unsupported CPU architecture: $(uname -m)"; exit 1 ;;
 esac
 export __architecture
 
