@@ -1,0 +1,90 @@
+#!/usr/bin/env bash
+#
+# Usage:
+#
+#  $> curl -sfL https://github.com/kube-reactor/core/blob/main/install | sudo sh -
+#
+
+#=========================================================================================
+# Shell options
+#
+set -e
+set -o errtrace
+set -o nounset
+
+#=========================================================================================
+# Environment
+#
+
+# Set OS and system architecture variables.
+case "$OSTYPE" in
+  darwin*)
+    __os="darwin"
+    __os_type="mac"
+    __os_dist="mac"
+    ;;
+  linux*)
+    __os="linux"
+
+    source /etc/os-release
+    __os_dist="$ID"
+
+    case $ID in
+      debian) __os_type="debian" ;;
+      ubuntu) __os_type="debian" ;;
+      linuxmint) __os_type="debian" ;;
+      arch) __os_type="arch" ;;
+      centos) __os_type="redhat" ;;
+      fedora) __os_type="redhat" ;;
+      rhel) __os_type="redhat" ;;
+      amzn) __os_type="redhat" ;;
+      *) render "Unsupported OS: $OSTYPE $ID"; exit 1 ;;
+    esac
+    ;;
+  *) render "Unsupported OS: $OSTYPE"; exit 1 ;;
+esac
+export __os
+export __os_type
+export __os_dist
+
+case $(uname -m) in
+    x86_64 | amd64) __architecture="amd64" ;;
+    aarch64 | arm64) __architecture="arm64" ;;
+    *) render "Unsupported CPU architecture: $(uname -m)"; exit 1 ;;
+esac
+export __architecture
+
+export __bash_version="$(echo "$BASH_VERSION" | sed -E 's/^([0-9]+).*/\1/')"
+
+#=========================================================================================
+# Installation
+#
+
+if [ "${__os_type}" == "debian" ]; then
+  # Must be run as root user!
+  if [ -d "/usr/local/share/reactor" ]; then
+    cd /usr/local/share/reactor
+    git pull origin main
+  else
+    git clone https://github.com/kube-reactor/core.git /usr/local/share/reactor
+  fi
+  mkdir -p /usr/local/share/reactor/projects
+  mkdir -p /usr/local/share/reactor/templates
+
+  if ! getent group reactor >/dev/null; then
+    addgroup --system reactor
+  fi
+
+  chown -R root:reactor /usr/local/share/reactor
+  chmod 775 /usr/local/share/reactor/bin
+  chmod 775 /usr/local/share/reactor/projects
+  chmod 775 /usr/local/share/reactor/templates
+
+  if ! grep -q 'export PATH="/usr/local/share/reactor/bin:${PATH}"' /etc/bash.bashrc; then
+    echo 'export PATH="/usr/local/share/reactor/bin:${PATH}"' >>/etc/bash.bashrc
+  fi
+
+else
+  echo "Automated installation on ${__os_type} not currently supported.  You can still clone the repository."
+  exit 1
+fi
