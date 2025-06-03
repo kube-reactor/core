@@ -2,7 +2,7 @@
 #
 # Usage:
 #
-#  $> curl -sfL https://raw.githubusercontent.com/kube-reactor/core/refs/heads/main/install | sudo sh -
+#  $> curl -sfL https://raw.githubusercontent.com/kube-reactor/core/refs/heads/main/install | sudo bash -
 #
 
 #=========================================================================================
