@@ -62,7 +62,7 @@ function download_git_repo () {
   exec_git "$DIRECTORY" checkout "$REFERENCE" -- 1>>"$(logfile)" 2>&1
 
   if exec_git "$DIRECTORY" show-ref --verify "refs/heads/${REFERENCE}" >/dev/null 2>&1; then
-    exec_git "$DIRECTORY" merge "$REFERENCE" 1>>"$(logfile)" 2>&1
+    exec_git "$DIRECTORY" pull origin "$REFERENCE" 1>>"$(logfile)" 2>&1
   fi
 }
 
