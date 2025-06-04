@@ -74,9 +74,6 @@ function update_command () {
   launch_kubernetes_tunnel
 
   if [ "$UPDATE_ALL" -o "$UPDATE_DNS" ]; then
-    if [ "$UPDATE_ALL" ]; then
-      sleep 60
-    fi
     save_dns_records
   fi
   if [ "$UPDATE_ALL" -o "$UPDATE_CHARTS" ]; then
