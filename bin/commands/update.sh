@@ -44,6 +44,15 @@ function update_command_environment () {
   fi
   export UPDATE_ALL
 
+  if [ "$UPDATE_ALL" ]; then
+    parse_option --wait \
+      WAIT_BEFORE_DNS \
+      "Number of seconds to wait after updating applications before updating DNS (only valid if update all)" \
+      60 \
+      validate_positive_integer \
+      "Wait time must be a positive number of seconds or 0 if no wait desired"
+  fi
+
   debug "> UPDATE_ALL: ${UPDATE_ALL}"
 }
 
@@ -74,6 +83,9 @@ function update_command () {
   launch_kubernetes_tunnel
 
   if [ "$UPDATE_ALL" -o "$UPDATE_DNS" ]; then
+    if [ "$UPDATE_ALL" ]; then
+      sleep $WAIT_BEFORE_DNS
+    fi
     save_dns_records
   fi
   if [ "$UPDATE_ALL" -o "$UPDATE_CHARTS" ]; then
