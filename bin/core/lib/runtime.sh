@@ -5,6 +5,7 @@ function init_loader () {
   export UTILITY_INDEX=()
 
   if [[ ! -f "${__library_file}" ]] || [[ "${__app_args[0]}" == "build" ]] || [[ "$arg_r" ]]; then
+    mark_setup_incomplete
     if check_project; then
       local project_branch="$(exec_git "${__project_dir}" branch --show-current)"
       if [ "$project_branch" ]; then
