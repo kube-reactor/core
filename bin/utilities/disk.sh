@@ -41,8 +41,24 @@ function clean_cache () {
 function exec_git () {
   DIRECTORY="$1";
   shift;
-  echo "Running git ${@} on ${DIRECTORY}" >>"$(logfile)"
   git --git-dir="${DIRECTORY}/.git" --work-tree="${DIRECTORY}" "$@" 1>>"$(logfile)" 2>&1
+}
+
+function update_git_repo () {
+  DIRECTORY="$1"
+  REFERENCE="${2:-main}"
+
+  if [ -d "${DIRECTORY}/.git" ]; then
+    debug "Updating Git repository: ${DIRECTORY}"
+    debug " * with reference: ${REFERENCE}"
+
+    exec_git "$DIRECTORY" fetch origin --tags 1>>"$(logfile)" 2>&1
+    exec_git "$DIRECTORY" checkout "$REFERENCE" -- 1>>"$(logfile)" 2>&1
+
+    if exec_git "$DIRECTORY" show-ref --verify "refs/heads/${REFERENCE}" >/dev/null 2>&1; then
+      exec_git "$DIRECTORY" pull origin "$REFERENCE" 1>>"$(logfile)" 2>&1
+    fi
+  fi
 }
 
 function download_git_repo () {
@@ -50,20 +66,11 @@ function download_git_repo () {
   DIRECTORY="$2"
   REFERENCE="${3:-main}"
 
-  debug "Updating Git repository: ${URL}"
-  debug " * into: ${DIRECTORY}"
-  debug " * with reference: ${REFERENCE}"
-
   if [ ! -d "$DIRECTORY" ]; then
     info "Fetching repository \"$URL\" into folder \"$DIRECTORY\" ..."
     git clone --quiet "$URL" "$DIRECTORY" 1>>"$(logfile)" 2>&1
   fi
-  exec_git "$DIRECTORY" fetch origin --tags 1>>"$(logfile)" 2>&1
-  exec_git "$DIRECTORY" checkout "$REFERENCE" -- 1>>"$(logfile)" 2>&1
-
-  if exec_git "$DIRECTORY" show-ref --verify "refs/heads/${REFERENCE}" >/dev/null 2>&1; then
-    exec_git "$DIRECTORY" pull origin "$REFERENCE" 1>>"$(logfile)" 2>&1
-  fi
+  update_git_repo "$DIRECTORY" "$REFERENCE"
 }
 
 #
