@@ -152,6 +152,15 @@ function is_setup_complete () {
   return 1
 }
 
+function mark_setup_incomplete () {
+  if check_project; then
+    local project="$(basename "$(dirname "${__project_manifest}")")"
+    rm -f "${HOME}/.reactor/initialized_${project}"
+  else
+    rm -f "${HOME}/.reactor/initialized"
+  fi
+}
+
 function set_initialized () {
   export INITIALIZED="1"
 }
