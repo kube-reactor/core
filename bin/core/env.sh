@@ -48,5 +48,5 @@ load_hook initialize
 #
 # Finalizing environment initialization
 #
-set_initialized
 run_hook initialize
+set_initialized
