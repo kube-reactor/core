@@ -72,7 +72,7 @@ function start_kubernetes_minikube () {
       --kubernetes-version="${KUBERNETES_VERSION}" \
       --container-runtime="${MINIKUBE_CONTAINER_RUNTIME}" \
       --gpus=all \
-      --addons="default-storageclass,storage-provisioner,metrics-server,dashboard" \
+      --addons="metrics-server,dashboard" \
       --mount \
       --mount-string="${__project_dir}:${__project_dir}" \
       --embed-certs \
@@ -86,13 +86,12 @@ function start_kubernetes_minikube () {
       --memory="${MINIKUBE_MEMORY}" \
       --kubernetes-version="${KUBERNETES_VERSION}" \
       --container-runtime="${MINIKUBE_CONTAINER_RUNTIME}" \
-      --addons="default-storageclass,storage-provisioner,metrics-server,dashboard" \
+      --addons="metrics-server,dashboard" \
       --mount \
       --mount-string="${__project_dir}:${__project_dir}" \
       --embed-certs \
       --dns-domain="${PRIMARY_DOMAIN}" 1>>"$(logfile)" 2>&1
   fi
-  "${__bin_dir}/minikube" --profile="${APP_NAME}" ssh "sudo apt-get update;sudo apt-get install -y open-iscsi cryptsetup-bin dmsetup" 1>>"$(logfile)" 2>&1
   "${__bin_dir}/minikube" --profile="${APP_NAME}" update-context 1>>"$(logfile)" 2>&1
 }
 
