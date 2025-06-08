@@ -9,8 +9,10 @@ export DEFAULT_HELM_VERSION="3.15.4"
 function helm_environment () {
   debug "Setting Helm environment ..."
   export HELM_VERSION="${HELM_VERSION:-$DEFAULT_HELM_VERSION}"
+  export HELM_REPOSITORY_CACHE="${__cache_dir}/helm"
 
   debug "HELM_VERSION: ${HELM_VERSION}"
+  debug "HELM_REPOSITORY_CACHE: ${HELM_REPOSITORY_CACHE}"
 }
 
 
