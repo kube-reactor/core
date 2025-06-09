@@ -24,7 +24,7 @@ function validate_directory () {
 }
 
 function validate_integer () {
-  if [[ "$variable" =~ ^\-?[0-9]+$ ]]; then
+  if [[ "$1" =~ ^\-?[0-9]+$ ]]; then
     return 0
   else
     return 1
@@ -32,7 +32,7 @@ function validate_integer () {
 }
 
 function validate_positive_integer () {
-  if [[ "$variable" =~ ^[0-9]+$ ]]; then
+  if [[ "$1" =~ ^[0-9]+$ ]]; then
     return 0
   else
     return 1
