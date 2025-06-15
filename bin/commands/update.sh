@@ -16,6 +16,9 @@ function update_command_environment () {
     parse_flag --state-rm \
       REMOVE_STATE \
       "Remove the provisioner state project if it exists (NOT run by default)"
+
+    debug "> UPDATE_STATE: ${UPDATE_STATE}"
+    debug "> REMOVE_STATE: ${REMOVE_STATE}"
   fi
 
   parse_flag --apps \
@@ -30,16 +33,12 @@ function update_command_environment () {
     UPDATE_CHARTS \
     "Sync local charts to ArgoCD application (run by default)"
 
-  parse_flag --hooks \
-    HOOKS \
-    "Run all hooks defined"
-
   parse_flag --no-hooks \
     NO_HOOKS \
     "Disable the execution of update hooks for this update"
 
   UPDATE_ALL="1"
-  if [ "$UPDATE_APPS" -o "$UPDATE_DNS" -o "$UPDATE_CHARTS" -o "$HOOKS" ]; then
+  if [ "$UPDATE_APPS" -o "$UPDATE_DNS" -o "$UPDATE_CHARTS" ]; then
     UPDATE_ALL=""
   fi
   export UPDATE_ALL
@@ -51,8 +50,14 @@ function update_command_environment () {
       60 \
       validate_positive_integer \
       "Wait time must be a positive number of seconds or 0 if no wait desired"
+
+    debug "> WAIT_BEFORE_DNS: ${WAIT_BEFORE_DNS}"
   fi
 
+  debug "> UPDATE_APPS: ${UPDATE_APPS}"
+  debug "> UPDATE_DNS: ${UPDATE_DNS}"
+  debug "> UPDATE_CHARTS: ${UPDATE_CHARTS}"
+  debug "> NO_HOOKS: ${NO_HOOKS}"
   debug "> UPDATE_ALL: ${UPDATE_ALL}"
 }
 
@@ -94,7 +99,7 @@ function update_command () {
     fi
   fi
 
-  if [ "$HOOKS" -o ! "$NO_HOOKS" ]; then
+  if [ ! "$NO_HOOKS" ]; then
     run_hook update
   fi
   info "Kubernetes environment has been updated"
