@@ -24,11 +24,15 @@ fi
 #
 # See: utilities/args.sh -> reactor_args
 
+export arg_h=""
 export arg_n=""
 export arg_v=""
 export arg_d=""
 export arg_r=""
 
+if [[ " ${__app_args[*]} " =~ " -h " ]] || [[ " ${__app_args[*]} " =~ " --help " ]]; then
+    export arg_h="1"
+fi
 if [[ " ${__app_args[*]} " =~ " -n " ]] || [[ " ${__app_args[*]} " =~ " --no-color " ]]; then
     export arg_n="1"
 fi
