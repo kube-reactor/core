@@ -132,20 +132,20 @@ function run_docker () {
 function mark_setup_complete () {
   if check_project; then
     local project="$(basename "$(dirname "${__project_manifest}")")"
-    touch "${HOME}/.reactor/initialized_${project}"
+    touch "${__reactor_state_dir}/initialized_${project}"
   else
-    touch "${HOME}/.reactor/initialized"
+    touch "${__reactor_state_dir}/initialized_${__reactor_version}"
   fi
 }
 
 function is_setup_complete () {
   if check_project; then
     local project="$(basename "$(dirname "${__project_manifest}")")"
-    if [ -f "${HOME}/.reactor/initialized_${project}" ]; then
+    if [ -f "${__reactor_state_dir}/initialized_${project}" ]; then
       return 0
     fi
   else
-    if [ -f "${HOME}/.reactor/initialized" ]; then
+    if [ -f "${__reactor_state_dir}/initialized_${__reactor_version}" ]; then
       return 0
     fi
   fi
@@ -155,9 +155,9 @@ function is_setup_complete () {
 function mark_setup_incomplete () {
   if check_project; then
     local project="$(basename "$(dirname "${__project_manifest}")")"
-    rm -f "${HOME}/.reactor/initialized_${project}"
+    rm -f "${__reactor_state_dir}/initialized_${project}"
   else
-    rm -f "${HOME}/.reactor/initialized"
+    rm -f "${__reactor_state_dir}/initialized_${__reactor_version}"
   fi
 }
 
@@ -410,7 +410,7 @@ function init_project() {
   export __argocd_apps_dir="${__terraform_dir}/argocd-apps"
 
   export __project_name="$(config short_name)"
-  export __library_file="${HOME}/.reactor/libraries_${__project_name}"
+  export __library_file="${__reactor_state_dir}/libraries_${__project_name}"
 
   export APP_NAME="${__project_name//_/-}"
   export APP_LABEL="$(config name)"

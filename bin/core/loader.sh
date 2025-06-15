@@ -23,8 +23,9 @@ function init_core () {
   export __environment="${REACTOR_ENVIRONMENT:-local}"
 
   export __reactor_dir="$(dirname "$1")"
-  export __bin_dir="${__reactor_dir}/bin"
+  export __reactor_state_dir="${HOME}/.reactor"
 
+  export __bin_dir="${__reactor_dir}/bin"
   export __core_dir="${__bin_dir}/core"
   export __core_lib_dir="${__core_dir}/lib"
 
@@ -34,10 +35,11 @@ function init_core () {
   export __test_lib_dir="${__test_dir}/lib"
   export __templates_dir="${__reactor_dir}/templates"
   export __projects_dir="${__reactor_dir}/projects"
-  export __library_file="${HOME}/.reactor/libraries"
+  export __library_file="${__reactor_state_dir}/libraries"
   export __library_types=("utilities" "commands")
 
   export __reactor_version="$(cat -s "${__reactor_dir}/VERSION")"
+
 
   source "${__core_lib_dir}/bootstrap.sh"
   source "${__core_lib_dir}/aliases.sh"
@@ -158,7 +160,7 @@ if [ "${__template_manifest}" ]; then
   if [ -d "${__template_dir}/${__project_name}" ]; then
     export __project_manifest="$(project_manifest "${__template_dir}/${__project_name}")"
     export __project_dir="$(dirname "${__project_manifest}")"
-    export __library_file="${HOME}/.reactor/libraries_${__project_name}"
+    export __library_file="${__reactor_state_dir}/libraries_${__project_name}"
   fi
 fi
 
@@ -186,11 +188,11 @@ if ! is_setup_complete; then
   if [[ "${__os_type}" != "${__os_dist}" ]] && function_exists "install_${__os_dist}"; then
     "install_${__os_dist}"
   fi
-  python3 -m venv "${HOME}/.reactor/python" 1>>"$(logfile)" 2>&1
+  python3 -m venv "${__reactor_state_dir}/python" 1>>"$(logfile)" 2>&1
 fi
 
-export PATH="${__bin_dir}:${HOME}/.reactor/python/bin:${PATH}"
-source "${HOME}/.reactor/python/bin/activate"
+export PATH="${__bin_dir}:${__reactor_state_dir}/python/bin:${PATH}"
+source "${__reactor_state_dir}/python/bin/activate"
 
 if ! is_setup_complete; then
   python3 -m pip install -U pip setuptools wheel --ignore-installed 1>>"$(logfile)" 2>&1
