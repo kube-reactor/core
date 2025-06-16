@@ -186,6 +186,8 @@ function check_dependencies () {
 
 function install_os_requirements () {
   if check_project; then
+    declare -A processed
+
     if [ -f "${__project_dir}/reactor/install.sh" ]; then
       unset "install_${__os_type}"
       unset "install_${__os_dist}"
@@ -201,9 +203,9 @@ function install_os_requirements () {
     fi
 
     for docker in $(config docker); do
-      docker_dir="${__docker_dir}/$(config docker.docker.project $docker)"
+      docker_dir="${__repo_dir}/$(config docker.$docker.project $docker)"
 
-      if [ -f "${docker_dir}/reactor/install.sh" ]; then
+      if [[ -z "${processed["$docker_dir"]}" ]] && [[ -f "${docker_dir}/reactor/install.sh" ]]; then
         unset "install_${__os_type}"
         unset "install_${__os_dist}"
 
@@ -216,12 +218,13 @@ function install_os_requirements () {
           "install_${__os_dist}"
         fi
       fi
+      processed["$docker_dir"]=1
     done
 
     for chart in $(config charts); do
-      chart_dir="${__charts_dir}/$(config charts.$chart.project $chart)"
+      chart_dir="${__repo_dir}/$(config charts.$chart.project $chart)"
 
-      if [ -f "${chart_dir}/reactor/install.sh" ]; then
+      if [[ -z "${processed["$chart_dir"]}" ]] && [[ -f "${chart_dir}/reactor/install.sh" ]]; then
         unset "install_${__os_type}"
         unset "install_${__os_dist}"
 
@@ -234,12 +237,13 @@ function install_os_requirements () {
           "install_${__os_dist}"
         fi
       fi
+      processed["$chart_dir"]=1
     done
 
     for extension in $(config extensions); do
-      extension_dir="${__extension_dir}/${extension}"
+      extension_dir="${__repo_dir}/$(config extensions.$extension.project $extension)"
 
-      if [ -f "${extension_dir}/reactor/install.sh" ]; then
+      if [[ -z "${processed["$extension_dir"]}" ]] && [[ -f "${extension_dir}/reactor/install.sh" ]]; then
         unset "install_${__os_type}"
         unset "install_${__os_dist}"
 
@@ -252,6 +256,7 @@ function install_os_requirements () {
           "install_${__os_dist}"
         fi
       fi
+      processed["$extension_dir"]=1
     done
   elif [ -d "${__exec_reactor_dir}" ]; then
     if [ -f "${__exec_reactor_dir}/install.sh" ]; then
@@ -272,29 +277,34 @@ function install_os_requirements () {
 
 function install_python_requirements () {
   if check_project; then
+    declare -A processed
+
     if [ -f "${__project_dir}/reactor/requirements.txt" ]; then
       pip3 install --no-cache-dir -r "${__project_dir}/reactor/requirements.txt"
     fi
 
     for docker in $(config docker); do
-      docker_dir="${__docker_dir}/$(config docker.docker.project $docker)"
-      if [ -f "${docker_dir}/reactor/requirements.txt" ]; then
+      docker_dir="${__repo_dir}/$(config docker.$docker.project $docker)"
+      if [[ -z "${processed["$docker_dir"]}" ]] && [[ -f "${docker_dir}/reactor/requirements.txt" ]]; then
         pip3 install --no-cache-dir -r "${docker_dir}/reactor/requirements.txt"
       fi
+      processed["$docker_dir"]=1
     done
 
     for chart in $(config charts); do
-      chart_dir="${__charts_dir}/$(config charts.$chart.project $chart)"
-      if [ -f "${chart_dir}/reactor/requirements.txt" ]; then
+      chart_dir="${__repo_dir}/$(config charts.$chart.project $chart)"
+      if [[ -z "${processed["$chart_dir"]}" ]] && [[ -f "${chart_dir}/reactor/requirements.txt" ]]; then
         pip3 install --no-cache-dir -r "${chart_dir}/reactor/requirements.txt"
       fi
+      processed["$chart_dir"]=1
     done
 
     for extension in $(config extensions); do
-      extension_dir="${__extension_dir}/${extension}"
-      if [ -f "${extension_dir}/reactor/requirements.txt" ]; then
+      extension_dir="${__repo_dir}/$(config extensions.$extension.project $extension)"
+      if [[ -z "${processed["$extension_dir"]}" ]] && [[ -f "${extension_dir}/reactor/requirements.txt" ]]; then
         pip3 install --no-cache-dir -r "${extension_dir}/reactor/requirements.txt"
       fi
+      processed["$extension_dir"]=1
     done
 
   elif [ -d "${__exec_reactor_dir}" ]; then
@@ -402,9 +412,7 @@ function init_project() {
   export __cache_dir="${__project_dir}/cache"
   export __log_dir="${__project_dir}/logs"
 
-  export __docker_dir="${__project_dir}/docker"
-  export __charts_dir="${__project_dir}/charts"
-  export __extension_dir="${__project_dir}/extensions"
+  export __repo_dir="${__project_dir}/projects"
 
   export __terraform_dir="${__project_dir}/terraform"
   export __argocd_apps_dir="${__terraform_dir}/argocd-apps"
