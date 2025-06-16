@@ -42,11 +42,11 @@ function sync_argocd_charts () {
     login_argocd
 
     for chart in $(config charts); do
-      chart_reference="$(config charts.$chart.project $chart)"
-      chart_dir="${__charts_dir}/${chart_reference}/$(config charts.$chart.chart_dir "charts/${chart}")"
+      extension="$(config charts.$chart.extension $chart)"
+      chart_dir="${__repo_dir}/$(config extensions.$extension.directory $extension)/$(config charts.$chart.directory "charts/${chart}")"
 
       if [ -d "$chart_dir" ]; then
-        app_name="$(config charts.$chart.app "$chart")"
+        app_name="$(config charts.$chart.application "$chart")"
 
         debug "app_name: ${app_name}"
 

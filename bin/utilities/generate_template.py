@@ -35,7 +35,7 @@ cookiecutter_file = os.path.join(template_dir, "cookiecutter.json")
 reactor_file = "reactor.yml"
 access_file = "access.yml"
 env_dir = "env"
-static_files = ["argocd", "projects", "reactor", ".gitignore", "LICENSE"]
+static_files = ["deploy", "reactor", ".gitignore", "LICENSE"]
 
 
 def cookiecutter_token(variable):

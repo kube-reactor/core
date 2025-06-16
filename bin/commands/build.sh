@@ -26,13 +26,13 @@ function build_command () {
   helm_environment
 
   info "Initializing docker image repositories ..."
-  for project in $(config docker); do
-    project_reference="$(config docker.$project.project $project)"
-    project_dir="${__docker_dir}/${project_reference}"
+  for docker in $(config docker); do
+    extension="$(config docker.$docker.extension $docker)"
+    docker_dir="${__repo_dir}/$(config extensions.$extension.directory $extension)"
 
-    if [[ ! "${PROJECTS[*]}" ]] || [[ " ${PROJECTS[*]} " == *" ${project} "* ]]; then
-      info "Building ${project} docker image"
-      build_docker_image "$project" "$project_dir" "$NO_CACHE"
+    if [[ ! "${PROJECTS[*]}" ]] || [[ " ${PROJECTS[*]} " == *" ${docker} "* ]]; then
+      info "Building ${docker} docker image"
+      build_docker_image "$docker" "$docker_dir" "$NO_CACHE"
     fi
   done
 

@@ -27,8 +27,8 @@ function install_helm () {
 function update_helm_dependencies () {
   info "Updating chart Helm dependencies ..."
   for chart in $(config charts); do
-    chart_reference="$(config charts.$chart.project $chart)"
-    chart_dir="${__charts_dir}/${chart_reference}/$(config charts.$chart.chart_dir "charts/${chart}")"
+    extension="$(config charts.$chart.extension $chart)"
+    chart_dir="${__repo_dir}/$(config extensions.$extension.directory $extension)/$(config charts.$chart.directory "charts/${chart}")"
 
     if [ -d "$chart_dir" ]; then
       info "Updating ${chart} Helm chart dependencies"

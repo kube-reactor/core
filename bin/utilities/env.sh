@@ -21,8 +21,7 @@ function render_overview () {
   debug "> Project manifest: ${__project_manifest:-}"
   debug "> Certificate directory: ${__certs_dir:-}"
   debug "> Executable directory: ${__bin_dir:-}"
-  debug "> Docker image project root directory: ${__docker_dir:-}"
-  debug "> Helm chart project root directory: ${__charts_dir:-}"
+  debug "> Project repository root directory: ${__repo_dir:-}"
   debug "> Terraform project root directory: ${__terraform_dir:-}"
   debug ""
 

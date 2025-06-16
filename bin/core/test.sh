@@ -269,8 +269,7 @@ if [ ! "$NO_UP" ]; then
 
     verify_dir "${__project_dir}/cache"
     verify_dir "${__project_dir}/certs"
-    verify_dir "${__project_dir}/docker"
-    verify_dir "${__project_dir}/charts"
+    verify_dir "${__project_dir}/projects"
     verify_dir "${__project_dir}/.minikube"
     verify_dir "${__env_dir}/.terraform"
     verify_file "${__env_dir}/.kubeconfig"
