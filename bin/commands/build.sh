@@ -27,8 +27,8 @@ function build_command () {
 
   info "Initializing docker image repositories ..."
   for docker in $(config docker); do
-    docker_reference="$(config docker.$docker.project $docker)"
-    docker_dir="${__repo_dir}/${docker_reference}"
+    extension="$(config docker.$docker.extension $docker)"
+    docker_dir="${__repo_dir}/$(config extensions.$extension.directory $extension)"
 
     if [[ ! "${PROJECTS[*]}" ]] || [[ " ${PROJECTS[*]} " == *" ${docker} "* ]]; then
       info "Building ${docker} docker image"

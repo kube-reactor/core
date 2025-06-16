@@ -24,11 +24,11 @@ function build_docker_image () {
   PROJECT_DIR="${2}"
   NO_CACHE="${3:-}"
 
-  DOCKER_DIR="${PROJECT_DIR}/$(config docker.$PROJECT_NAME.docker_dir docker)"
-  DOCKER_FILE="${DOCKER_DIR}/$(config docker.$PROJECT_NAME.docker_file Dockerfile)"
+  DOCKER_DIR="${PROJECT_DIR}/$(config docker.$PROJECT_NAME.directory docker)"
+  DOCKER_FILE="${DOCKER_DIR}/$(config docker.$PROJECT_NAME.file Dockerfile)"
 
   if [ -f "$DOCKER_FILE" ]; then
-    BUILD_SCRIPT_NAME="$(config docker.$PROJECT_NAME.docker_args build_image)"
+    BUILD_SCRIPT_NAME="$(config docker.$PROJECT_NAME.args build_image)"
     BUILD_SCRIPT="${PROJECT_DIR}/reactor/${BUILD_SCRIPT_NAME}.sh"
     PROJECT_BUILD_SCRIPT="${__project_reactor_dir}/docker/${BUILD_SCRIPT_NAME}.${PROJECT_NAME}.sh"
     DOCKER_BUILD_VARS=()
@@ -51,7 +51,7 @@ function build_docker_image () {
 
     DOCKER_ARGS=(
       "--file" "${DOCKER_FILE}"
-      "--tag" "${PROJECT_NAME}:$(config docker.$PROJECT_NAME.docker_tag dev)"
+      "--tag" "${PROJECT_NAME}:$(config docker.$PROJECT_NAME.tag dev)"
       "--platform" "linux/${__architecture}"
     )
     if [ "$NO_CACHE" ]; then

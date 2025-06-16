@@ -7,33 +7,13 @@ function load_hooks () {
   local hooks_script_name="hooks"
 
   if check_project; then
-    declare -A processed
-
-    for docker in $(config docker); do
-      docker_dir="${__repo_dir}/$(config docker.$docker.project $docker)"
-      hook_script="${docker_dir}/reactor/${hooks_script_name}.sh"
-      if [[ -z "${processed["$docker_dir"]}" ]] && [[ -f "$hook_script" ]]; then
-        source "$hook_script"
-      fi
-      processed["$docker_dir"]=1
-    done
-
-    for chart in $(config charts); do
-      chart_dir="${__repo_dir}/$(config charts.$chart.project $chart)"
-      hook_script="${chart_dir}/reactor/${hooks_script_name}.sh"
-      if [[ -z "${processed["$chart_dir"]}" ]] && [[ -f "$hook_script" ]]; then
-        source "$hook_script"
-      fi
-      processed["$chart_dir"]=1
-    done
-
     for extension in $(config extensions); do
-      extension_dir="${__repo_dir}/$(config extensions.$extension.project $extension)"
+      extension_dir="${__repo_dir}/$(config extensions.$extension.directory $extension)"
       hook_script="${extension_dir}/reactor/${hooks_script_name}.sh"
-      if [[ -z "${processed["$extension_dir"]}" ]] && [[ -f "$hook_script" ]]; then
+
+      if [ -f "$hook_script" ]; then
         source "$hook_script"
       fi
-      processed["$extension_dir"]=1
     done
 
     hook_script="${__project_reactor_dir}/${hooks_script_name}.sh"
@@ -60,60 +40,19 @@ function save_libraries () {
     fi
   done
   if check_project; then
-    declare -A processed
-
-    for docker in $(config docker); do
-      docker_dir="${__repo_dir}/$(config docker.$docker.project $docker)"
-
-      if [[ -z "${processed["$docker_dir"]}" ]]; then
-        for type in "${__library_types[@]}"; do
-          library_dir="${docker_dir}/reactor/${type}"
-
-          if [[ -d "$library_dir" ]] \
-            && compgen -G "${library_dir}"/*.sh >/dev/null; then
-            for file in "${library_dir}"/*.sh; do
-              echo "$file" >>"${__library_file}"
-            done
-          fi
-        done
-      fi
-      processed["$docker_dir"]=1
-    done
-
-    for chart in $(config charts); do
-      chart_dir="${__repo_dir}/$(config charts.$chart.project $chart)"
-
-      if [[ -z "${processed["$chart_dir"]}" ]]; then
-        for type in "${__library_types[@]}"; do
-          library_dir="${chart_dir}/reactor/${type}"
-
-          if [[ -d "$library_dir" ]] \
-            && compgen -G "${library_dir}"/*.sh >/dev/null; then
-            for file in "${library_dir}"/*.sh; do
-              echo "$file" >>"${__library_file}"
-            done
-          fi
-        done
-      fi
-      processed["$chart_dir"]=1
-    done
-
     for extension in $(config extensions); do
-      extension_dir="${__repo_dir}/$(config extensions.$extension.project $extension)"
+      extension_dir="${__repo_dir}/$(config extensions.$extension.directory $extension)"
 
-      if [[ -z "${processed["$extension_dir"]}" ]]; then
-        for type in "${__library_types[@]}"; do
-          library_dir="${extension_dir}/reactor/${type}"
+      for type in "${__library_types[@]}"; do
+        library_dir="${extension_dir}/reactor/${type}"
 
-          if [[ -d "$library_dir" ]] \
-            && compgen -G "${library_dir}"/*.sh >/dev/null; then
-            for file in "${library_dir}"/*.sh; do
-              echo "$file" >>"${__library_file}"
-            done
-          fi
-        done
-      fi
-      processed["$extension_dir"]=1
+        if [[ -d "$library_dir" ]] \
+          && compgen -G "${library_dir}"/*.sh >/dev/null; then
+          for file in "${library_dir}"/*.sh; do
+            echo "$file" >>"${__library_file}"
+          done
+        fi
+      done
     done
 
     for type in "${__library_types[@]}"; do
@@ -161,37 +100,13 @@ function source_hook () {
   hook_name="$1"
 
   if check_project; then
-    declare -A processed
-
-    # Include dependency hook if it exists
-    for docker in $(config docker); do
-      docker_dir="${__repo_dir}/$(config docker.$docker.project $docker)"
-      hook_script="${docker_dir}/reactor/${hook_name}.sh"
-
-      if [[ -z "${processed["$docker_dir"]}" ]] && [[ -f "$hook_script" ]]; then
-        source "$hook_script" "$docker" "$docker_dir"
-      fi
-      processed["$docker_dir"]=1
-    done
-
-    for chart in $(config charts); do
-      chart_dir="${__repo_dir}/$(config charts.$chart.project $chart)"
-      hook_script="${chart_dir}/reactor/${hook_name}.sh"
-
-      if [[ -z "${processed["$chart_dir"]}" ]] && [[ -f "$hook_script" ]]; then
-        source "$hook_script" "$chart" "$chart_dir"
-      fi
-      processed["$chart_dir"]=1
-    done
-
     for extension in $(config extensions); do
-      extension_dir="${__repo_dir}/$(config extensions.$extension.project $extension)"
+      extension_dir="${__repo_dir}/$(config extensions.$extension.directory $extension)"
       hook_script="${extension_dir}/reactor/${hook_name}.sh"
 
-      if [[ -z "${processed["$extension_dir"]}" ]] && [[ -f "$hook_script" ]]; then
+      if [ -f "$hook_script" ]; then
         source "$hook_script" "$extension" "$extension_dir"
       fi
-      processed["$extension_dir"]=1
     done
 
     # Include project hook if it exists
@@ -214,37 +129,13 @@ function source_utility () {
     source "$core_utility_script"
   fi
   if check_project; then
-    declare -A processed
-
-    # Include dependency utility if it exists
-    for docker in $(config docker); do
-      docker_dir="${__repo_dir}/$(config docker.$docker.project $docker)"
-      utility_script="${docker_dir}/reactor/utilities/${utility_name}.sh"
-
-      if [[ -z "${processed["$docker_dir"]}" ]] && [[ -f "$utility_script" ]]; then
-        source "$utility_script" "$docker" "$docker_dir"
-      fi
-      processed["$docker_dir"]=1
-    done
-
-    for chart in $(config charts); do
-      chart_dir="${__repo_dir}/$(config charts.$chart.project $chart)"
-      utility_script="${chart_dir}/reactor/utilities/${utility_name}.sh"
-
-      if [[ -z "${processed["$chart_dir"]}" ]] && [[ -f "$utility_script" ]]; then
-        source "$utility_script" "$chart" "$chart_dir"
-      fi
-      processed["$chart_dir"]=1
-    done
-
     for extension in $(config extensions); do
-      extension_dir="${__repo_dir}/$(config extensions.$extension.project $extension)"
+      extension_dir="${__repo_dir}/$(config extensions.$extension.directory $extension)"
       utility_script="${extension_dir}/reactor/utilities/${utility_name}.sh"
 
-      if [[ -z "${processed["$extension_dir"]}" ]] && [[ -f "$utility_script" ]]; then
+      if [ -f "$utility_script" ]; then
         source "$utility_script" "$extension" "$extension_dir"
       fi
-      processed["$extension_dir"]=1
     done
 
     # Include project utility if it exists
@@ -303,29 +194,9 @@ function run_hook () {
   debug "Running hook: ${hook_name} ${@}"
 
   if check_project; then
-    declare -A processed
-
-    for docker in $(config docker); do
-      docker_dir="${__repo_dir}/$(config docker.$docker.project $docker)"
-      if [[ -z "${processed["$docker_dir"]}" ]]; then
-        run_hook_function "$docker_dir" "$hook_name" "$@"
-      fi
-      processed["$docker_dir"]=1
-    done
-    for chart in $(config charts); do
-      chart_dir="${__repo_dir}/$(config charts.$chart.project $chart)"
-      if [[ -z "${processed["$chart_dir"]}" ]]; then
-        run_hook_function "$chart_dir" "$hook_name" "$@"
-      fi
-      processed["$chart_dir"]=1
-    done
-
     for extension in $(config extensions); do
-      extension_dir="${__repo_dir}/$(config extensions.$extension.project $extension)"
-      if [[ -z "${processed["$extension_dir"]}" ]]; then
-        run_hook_function "$extension_dir" "$hook_name" "$@"
-      fi
-      processed["$extension_dir"]=1
+      extension_dir="${__repo_dir}/$(config extensions.$extension.directory $extension)"
+      run_hook_function "$extension_dir" "$hook_name" "$@"
     done
 
     run_hook_function "${__project_dir}" "$hook_name" "$@"

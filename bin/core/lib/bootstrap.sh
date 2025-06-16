@@ -186,8 +186,6 @@ function check_dependencies () {
 
 function install_os_requirements () {
   if check_project; then
-    declare -A processed
-
     if [ -f "${__project_dir}/reactor/install.sh" ]; then
       unset "install_${__os_type}"
       unset "install_${__os_dist}"
@@ -202,48 +200,10 @@ function install_os_requirements () {
       fi
     fi
 
-    for docker in $(config docker); do
-      docker_dir="${__repo_dir}/$(config docker.$docker.project $docker)"
-
-      if [[ -z "${processed["$docker_dir"]}" ]] && [[ -f "${docker_dir}/reactor/install.sh" ]]; then
-        unset "install_${__os_type}"
-        unset "install_${__os_dist}"
-
-        source "${docker_dir}/reactor/install.sh"
-
-        if function_exists "install_${__os_type}"; then
-          "install_${__os_type}"
-        fi
-        if [[ "${__os_type}" != "${__os_dist}" ]] && function_exists "install_${__os_dist}"; then
-          "install_${__os_dist}"
-        fi
-      fi
-      processed["$docker_dir"]=1
-    done
-
-    for chart in $(config charts); do
-      chart_dir="${__repo_dir}/$(config charts.$chart.project $chart)"
-
-      if [[ -z "${processed["$chart_dir"]}" ]] && [[ -f "${chart_dir}/reactor/install.sh" ]]; then
-        unset "install_${__os_type}"
-        unset "install_${__os_dist}"
-
-        source "${chart_dir}/reactor/install.sh"
-        if function_exists "install_${__os_type}"; then
-          "install_${__os_type}"
-        fi
-
-        if [[ "${__os_type}" != "${__os_dist}" ]] && function_exists "install_${__os_dist}"; then
-          "install_${__os_dist}"
-        fi
-      fi
-      processed["$chart_dir"]=1
-    done
-
     for extension in $(config extensions); do
-      extension_dir="${__repo_dir}/$(config extensions.$extension.project $extension)"
+      extension_dir="${__repo_dir}/$(config extensions.$extension.directory $extension)"
 
-      if [[ -z "${processed["$extension_dir"]}" ]] && [[ -f "${extension_dir}/reactor/install.sh" ]]; then
+      if [ -f "${extension_dir}/reactor/install.sh" ]; then
         unset "install_${__os_type}"
         unset "install_${__os_dist}"
 
@@ -256,7 +216,6 @@ function install_os_requirements () {
           "install_${__os_dist}"
         fi
       fi
-      processed["$extension_dir"]=1
     done
   elif [ -d "${__exec_reactor_dir}" ]; then
     if [ -f "${__exec_reactor_dir}/install.sh" ]; then
@@ -277,34 +236,15 @@ function install_os_requirements () {
 
 function install_python_requirements () {
   if check_project; then
-    declare -A processed
-
     if [ -f "${__project_dir}/reactor/requirements.txt" ]; then
       pip3 install --no-cache-dir -r "${__project_dir}/reactor/requirements.txt"
     fi
 
-    for docker in $(config docker); do
-      docker_dir="${__repo_dir}/$(config docker.$docker.project $docker)"
-      if [[ -z "${processed["$docker_dir"]}" ]] && [[ -f "${docker_dir}/reactor/requirements.txt" ]]; then
-        pip3 install --no-cache-dir -r "${docker_dir}/reactor/requirements.txt"
-      fi
-      processed["$docker_dir"]=1
-    done
-
-    for chart in $(config charts); do
-      chart_dir="${__repo_dir}/$(config charts.$chart.project $chart)"
-      if [[ -z "${processed["$chart_dir"]}" ]] && [[ -f "${chart_dir}/reactor/requirements.txt" ]]; then
-        pip3 install --no-cache-dir -r "${chart_dir}/reactor/requirements.txt"
-      fi
-      processed["$chart_dir"]=1
-    done
-
     for extension in $(config extensions); do
-      extension_dir="${__repo_dir}/$(config extensions.$extension.project $extension)"
-      if [[ -z "${processed["$extension_dir"]}" ]] && [[ -f "${extension_dir}/reactor/requirements.txt" ]]; then
+      extension_dir="${__repo_dir}/$(config extensions.$extension.directory $extension)"
+      if [ -f "${extension_dir}/reactor/requirements.txt" ]; then
         pip3 install --no-cache-dir -r "${extension_dir}/reactor/requirements.txt"
       fi
-      processed["$extension_dir"]=1
     done
 
   elif [ -d "${__exec_reactor_dir}" ]; then
