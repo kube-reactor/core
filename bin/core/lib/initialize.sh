@@ -10,7 +10,5 @@ if check_project; then
   # Directory creation
   mkdir -p "${__cache_dir}"
   mkdir -p "${__certs_dir}"
-  mkdir -p "${__docker_dir}"
-  mkdir -p "${__charts_dir}"
-  mkdir -p "${__extension_dir}"
+  mkdir -p "${__repo_dir}"
 fi
