@@ -38,8 +38,6 @@ function sync_argocd_charts () {
   update_helm_dependencies
 
   if kubernetes_status; then
-    declare -A processed
-
     info "Syncing application charts into ArgoCD ..."
     login_argocd
 
@@ -47,7 +45,7 @@ function sync_argocd_charts () {
       chart_reference="$(config charts.$chart.project $chart)"
       chart_dir="${__repo_dir}/${chart_reference}/$(config charts.$chart.chart_dir "charts/${chart}")"
 
-      if [[ -z "${processed["$chart_dir"]}" ]] && [[ -d "$chart_dir" ]]; then
+      if [ -d "$chart_dir" ]; then
         app_name="$(config charts.$chart.app "$chart")"
 
         debug "app_name: ${app_name}"
@@ -59,7 +57,6 @@ function sync_argocd_charts () {
             --local "$chart_dir" 1>>"$(logfile)" 2>&1
         fi
       fi
-      processed["$chart_dir"]=1
     done
   fi
 }

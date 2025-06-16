@@ -25,17 +25,14 @@ function install_helm () {
 
 
 function update_helm_dependencies () {
-  declare -A processed
-
   info "Updating chart Helm dependencies ..."
   for chart in $(config charts); do
     chart_reference="$(config charts.$chart.project $chart)"
     chart_dir="${__repo_dir}/${chart_reference}/$(config charts.$chart.chart_dir "charts/${chart}")"
 
-    if [[ -z "${processed["$chart_dir"]}" ]] && [[ -d "$chart_dir" ]]; then
+    if [ -d "$chart_dir" ]; then
       info "Updating ${chart} Helm chart dependencies"
       "${__bin_dir}/helm" dependency update "$chart_dir" 1>>"$(logfile)" 2>&1
     fi
-    processed["$chart_dir"]=1
   done
 }
