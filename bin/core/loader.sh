@@ -21,6 +21,7 @@ shopt -s expand_aliases
 #
 function init_core () {
   export __environment="${REACTOR_ENVIRONMENT:-local}"
+  export __curr_dir="$(pwd)"
 
   export __reactor_dir="$(dirname "$1")"
   export __reactor_state_dir="${HOME}/.reactor"
